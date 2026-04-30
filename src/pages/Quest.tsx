@@ -21,13 +21,41 @@ const Quest = () => {
       </header>
 
       <main className="flex-1 flex flex-col justify-center gap-6 px-6">
-        <Link to="/chapter/school" className="pixel-btn relative h-32 overflow-hidden text-lg" style={{ padding: 0 }}>
-          <img src={schoolBg} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover opacity-50" />
-          <span className="relative z-10 bg-background/70 px-4 py-2 border-2 border-primary">{t("quest.school")}</span>
+        {/* Gateway: School Life — split screen preview */}
+        <Link
+          to="/chapter/school"
+          className="pixel-btn btn-corners relative h-36 overflow-hidden text-lg group"
+          style={{ padding: 0 }}
+          aria-label={t("quest.school")}
+        >
+          <div className="absolute inset-0 grid grid-cols-2">
+            <img src={schoolBg} alt="" aria-hidden className="w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" />
+            <img src={societyBg} alt="" aria-hidden className="w-full h-full object-cover opacity-30 saturate-50" />
+          </div>
+          {/* Center divider gate */}
+          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-1 bg-gradient-to-b from-primary via-accent to-primary shadow-[0_0_12px_hsl(var(--gold))]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40" />
+          <span className="relative z-10 hud-bar px-4 py-2 pixel text-[11px] text-primary text-glow">
+            🏫 {t("quest.school")}
+          </span>
         </Link>
-        <Link to="/chapter/society" className="pixel-btn relative h-32 overflow-hidden text-lg" style={{ padding: 0 }}>
-          <img src={societyBg} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover opacity-50" />
-          <span className="relative z-10 bg-background/70 px-4 py-2 border-2 border-primary">{t("quest.society")}</span>
+
+        {/* Gateway: Society Life — split screen preview */}
+        <Link
+          to="/chapter/society"
+          className="pixel-btn btn-corners relative h-36 overflow-hidden text-lg group"
+          style={{ padding: 0 }}
+          aria-label={t("quest.society")}
+        >
+          <div className="absolute inset-0 grid grid-cols-2">
+            <img src={schoolBg} alt="" aria-hidden className="w-full h-full object-cover opacity-30 saturate-50" />
+            <img src={societyBg} alt="" aria-hidden className="w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" />
+          </div>
+          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-1 bg-gradient-to-b from-primary via-accent to-primary shadow-[0_0_12px_hsl(var(--gold))]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40" />
+          <span className="relative z-10 hud-bar px-4 py-2 pixel text-[11px] text-primary text-glow">
+            🏙 {t("quest.society")}
+          </span>
         </Link>
       </main>
 

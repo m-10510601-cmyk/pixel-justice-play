@@ -78,20 +78,37 @@
     font-size: 11px;
     line-height: 1.4;
     padding: 0.85rem 1rem;
-    background: var(--gradient-gold);
+    background:
+      linear-gradient(180deg, hsl(50 100% 70%) 0%, hsl(48 95% 60%) 48%, hsl(36 80% 38%) 52%, hsl(22 55% 22%) 100%);
     color: hsl(var(--primary-foreground));
     border: 3px solid hsl(30 50% 10%);
-    box-shadow: var(--shadow-pixel), inset -3px -3px 0 0 hsl(36 80% 35%), inset 3px 3px 0 0 hsl(50 100% 75%);
+    box-shadow:
+      var(--shadow-pixel),
+      inset -3px -3px 0 0 hsl(22 55% 18%),
+      inset 3px 3px 0 0 hsl(50 100% 80%);
+    text-shadow: 1px 1px 0 hsl(22 60% 12%), 0 0 4px hsl(22 60% 8%);
+    position: relative;
     transition: transform 80ms steps(2), box-shadow 80ms steps(2);
     cursor: pointer;
+  }
+  .pixel-btn::before {
+    content: "";
+    position: absolute;
+    inset: 3px 3px 50% 3px;
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.35), hsl(0 0% 100% / 0));
+    pointer-events: none;
   }
   .pixel-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 0 hsl(30 50% 8%), inset -3px -3px 0 0 hsl(36 80% 35%), inset 3px 3px 0 0 hsl(50 100% 75%); }
   .pixel-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 0 hsl(30 50% 8%), inset -3px -3px 0 0 hsl(36 80% 35%), inset 3px 3px 0 0 hsl(50 100% 75%); }
 
   .pixel-btn-secondary {
-    background: hsl(var(--secondary));
+    background: linear-gradient(180deg, hsl(25 45% 32%), hsl(22 50% 18%));
     color: hsl(var(--foreground));
     box-shadow: var(--shadow-pixel), inset -3px -3px 0 0 hsl(25 40% 15%), inset 3px 3px 0 0 hsl(25 40% 35%);
+    text-shadow: 1px 1px 0 hsl(0 0% 0% / 0.6);
+  }
+  .pixel-btn-secondary::before {
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.18), hsl(0 0% 100% / 0));
   }
 
   .pixel-btn-circle {
@@ -101,10 +118,16 @@
     width: 80px;
     height: 80px;
     border-radius: 9999px;
-    background: var(--gradient-gold);
+    background:
+      radial-gradient(circle at 35% 30%, hsl(54 100% 85%) 0%, hsl(48 95% 60%) 35%, hsl(36 80% 38%) 70%, hsl(22 55% 18%) 100%);
     color: hsl(var(--primary-foreground));
     border: 4px solid hsl(30 50% 10%);
-    box-shadow: var(--shadow-pixel), inset 0 -4px 0 0 hsl(36 80% 35%), inset 0 4px 0 0 hsl(50 100% 75%);
+    box-shadow:
+      var(--shadow-pixel),
+      0 0 16px hsl(42 90% 55% / 0.35),
+      inset 0 -4px 0 0 hsl(22 55% 18%),
+      inset 0 4px 0 0 hsl(50 100% 80%);
+    text-shadow: 1px 1px 0 hsl(22 60% 12%);
     cursor: pointer;
     padding: 4px;
     transition: transform 80ms steps(2);
@@ -117,16 +140,22 @@
     font-size: 11px;
     width: 48px;
     height: 48px;
-    background: var(--gradient-gold);
+    background: linear-gradient(180deg, hsl(50 100% 70%), hsl(36 80% 38%));
     color: hsl(var(--primary-foreground));
     border: 3px solid hsl(30 50% 10%);
     box-shadow: var(--shadow-pixel-sm), inset -2px -2px 0 0 hsl(36 80% 35%), inset 2px 2px 0 0 hsl(50 100% 75%);
     cursor: pointer;
+    text-shadow: 1px 1px 0 hsl(22 60% 12%);
   }
   .pixel-btn-square:active { transform: translate(1px,1px); }
 
   .text-glow {
-    text-shadow: 3px 3px 0 hsl(30 50% 8%), 0 0 12px hsl(var(--gold) / 0.6);
+    background: linear-gradient(180deg, hsl(54 100% 75%) 0%, hsl(42 95% 55%) 50%, hsl(28 70% 35%) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(2px 2px 0 hsl(30 50% 8%)) drop-shadow(0 0 6px hsl(42 90% 55% / 0.5));
   }
 
   .game-frame {
@@ -136,6 +165,102 @@
     margin-inline: auto;
     position: relative;
     overflow: hidden;
+  }
+
+  /* === Atmospheric depth layers === */
+  .god-rays {
+    position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    background: conic-gradient(from 200deg at 50% -10%,
+      transparent 0deg,
+      hsl(48 100% 75% / 0.18) 8deg,
+      transparent 16deg,
+      hsl(48 100% 75% / 0.12) 26deg,
+      transparent 38deg,
+      hsl(48 100% 75% / 0.16) 50deg,
+      transparent 62deg);
+    mix-blend-mode: screen;
+    animation: rays-shift 14s ease-in-out infinite alternate;
+  }
+  @keyframes rays-shift {
+    0% { opacity: 0.55; transform: translateY(0) scale(1); }
+    100% { opacity: 0.9; transform: translateY(-2%) scale(1.05); }
+  }
+  .stained-glass {
+    position: absolute; inset: 0 0 auto 0; height: 35%; pointer-events: none; z-index: 2;
+    background:
+      radial-gradient(ellipse at 18% 0%, hsl(220 80% 55% / 0.28), transparent 55%),
+      radial-gradient(ellipse at 82% 0%, hsl(0 75% 50% / 0.24), transparent 55%),
+      radial-gradient(ellipse at 50% 0%, hsl(48 100% 60% / 0.32), transparent 50%);
+    mix-blend-mode: screen;
+  }
+  .scene-parallax {
+    position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    animation: parallax-drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes parallax-drift {
+    0% { transform: translate3d(0,0,0) scale(1.02); }
+    100% { transform: translate3d(-1.5%, -1%, 0) scale(1.06); }
+  }
+  .rim-light {
+    position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    background: radial-gradient(circle at 50% 60%, transparent 16%, hsl(48 100% 70% / 0.16) 22%, transparent 32%);
+    mix-blend-mode: screen;
+  }
+
+  /* === Ornate stone-carved frame with floral corners === */
+  .ornate-frame {
+    position: absolute; inset: 0; pointer-events: none; z-index: 30;
+    border: 12px solid transparent;
+    border-image: repeating-linear-gradient(45deg,
+      hsl(36 30% 35%) 0 6px,
+      hsl(30 25% 22%) 6px 12px,
+      hsl(40 35% 45%) 12px 14px) 12;
+    box-shadow:
+      inset 0 0 0 2px hsl(42 90% 55% / 0.55),
+      inset 0 0 18px hsl(0 0% 0% / 0.5);
+  }
+  .ornate-corner {
+    position: absolute; width: 36px; height: 36px; z-index: 31; pointer-events: none;
+    background:
+      radial-gradient(circle at 50% 50%, hsl(0 70% 55%) 0 5px, transparent 6px),
+      radial-gradient(circle at 28% 32%, hsl(0 65% 50% / 0.95) 0 5px, transparent 6px),
+      radial-gradient(circle at 72% 32%, hsl(0 65% 50% / 0.95) 0 5px, transparent 6px),
+      radial-gradient(circle at 28% 68%, hsl(0 65% 50% / 0.95) 0 5px, transparent 6px),
+      radial-gradient(circle at 72% 68%, hsl(0 65% 50% / 0.95) 0 5px, transparent 6px),
+      radial-gradient(circle at 50% 50%, hsl(48 100% 70%) 0 2px, transparent 3px);
+    filter: drop-shadow(1px 1px 0 hsl(0 0% 0% / 0.7));
+  }
+  .ornate-corner.tl { top: 6px; left: 6px; }
+  .ornate-corner.tr { top: 6px; right: 6px; }
+  .ornate-corner.bl { bottom: 6px; left: 6px; }
+  .ornate-corner.br { bottom: 6px; right: 6px; }
+
+  /* Decorative button corner ornaments */
+  .btn-corners { position: relative; }
+  .btn-corners::after {
+    content: ""; position: absolute; inset: 5px; pointer-events: none; z-index: 5;
+    background:
+      linear-gradient(135deg, hsl(48 100% 75%) 0 6px, transparent 6px) top left / 12px 12px no-repeat,
+      linear-gradient(225deg, hsl(48 100% 75%) 0 6px, transparent 6px) top right / 12px 12px no-repeat,
+      linear-gradient(45deg,  hsl(48 100% 75%) 0 6px, transparent 6px) bottom left / 12px 12px no-repeat,
+      linear-gradient(315deg, hsl(48 100% 75%) 0 6px, transparent 6px) bottom right / 12px 12px no-repeat;
+    opacity: 0.9;
+  }
+
+  /* Glassmorphism HUD bar */
+  .hud-bar {
+    background: linear-gradient(180deg, hsl(220 60% 15% / 0.6), hsl(30 40% 12% / 0.4));
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 2px solid hsl(42 90% 55% / 0.6);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.18), 0 2px 8px hsl(0 0% 0% / 0.45);
+  }
+
+  /* Pulsing glow */
+  .pulse-glow { animation: pulse-glow 1.6s ease-in-out infinite; }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(48 100% 60% / 0.7), var(--shadow-pixel); }
+    50%      { box-shadow: 0 0 22px 8px hsl(48 100% 60% / 0), var(--shadow-pixel); }
   }
 }
 
