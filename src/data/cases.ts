@@ -29,6 +29,7 @@ export type CaseData = {
   chapter: "school" | "society";
   title: string;
   brief: string;
+  image?: string;
   statements: { speaker: string; quote: string }[];
   evidence: Evidence[];
   categories: LegalCategory[];
@@ -38,11 +39,15 @@ export type CaseData = {
   standardOfProof: string;
 };
 
+import schoolLaptopImg from "@/assets/case-school-laptop.jpg";
+import societyFraudImg from "@/assets/case-society-fraud.jpg";
+
 export const CASES: CaseData[] = [
   {
     id: "school-1",
     chapter: "school",
     title: "The Missing Laptop",
+    image: schoolLaptopImg,
     brief:
       "A Year-10 student, Alex, is accused of stealing a classmate's laptop from the library during lunch break.",
     statements: [
@@ -103,6 +108,7 @@ export const CASES: CaseData[] = [
     id: "society-1",
     chapter: "society",
     title: "The Online Investment Scheme",
+    image: societyFraudImg,
     brief:
       "Sam, a small business owner, is accused of fraud after running an online 'guaranteed returns' investment group that collapsed.",
     statements: [
