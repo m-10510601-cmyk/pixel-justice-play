@@ -118,10 +118,16 @@
     width: 80px;
     height: 80px;
     border-radius: 9999px;
-    background: var(--gradient-gold);
+    background:
+      radial-gradient(circle at 35% 30%, hsl(54 100% 85%) 0%, hsl(48 95% 60%) 35%, hsl(36 80% 38%) 70%, hsl(22 55% 18%) 100%);
     color: hsl(var(--primary-foreground));
     border: 4px solid hsl(30 50% 10%);
-    box-shadow: var(--shadow-pixel), inset 0 -4px 0 0 hsl(36 80% 35%), inset 0 4px 0 0 hsl(50 100% 75%);
+    box-shadow:
+      var(--shadow-pixel),
+      0 0 16px hsl(42 90% 55% / 0.35),
+      inset 0 -4px 0 0 hsl(22 55% 18%),
+      inset 0 4px 0 0 hsl(50 100% 80%);
+    text-shadow: 1px 1px 0 hsl(22 60% 12%);
     cursor: pointer;
     padding: 4px;
     transition: transform 80ms steps(2);
@@ -134,16 +140,22 @@
     font-size: 11px;
     width: 48px;
     height: 48px;
-    background: var(--gradient-gold);
+    background: linear-gradient(180deg, hsl(50 100% 70%), hsl(36 80% 38%));
     color: hsl(var(--primary-foreground));
     border: 3px solid hsl(30 50% 10%);
     box-shadow: var(--shadow-pixel-sm), inset -2px -2px 0 0 hsl(36 80% 35%), inset 2px 2px 0 0 hsl(50 100% 75%);
     cursor: pointer;
+    text-shadow: 1px 1px 0 hsl(22 60% 12%);
   }
   .pixel-btn-square:active { transform: translate(1px,1px); }
 
   .text-glow {
-    text-shadow: 3px 3px 0 hsl(30 50% 8%), 0 0 12px hsl(var(--gold) / 0.6);
+    background: linear-gradient(180deg, hsl(54 100% 75%) 0%, hsl(42 95% 55%) 50%, hsl(28 70% 35%) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(2px 2px 0 hsl(30 50% 8%)) drop-shadow(0 0 6px hsl(42 90% 55% / 0.5));
   }
 
   .game-frame {
