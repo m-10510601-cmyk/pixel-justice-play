@@ -260,7 +260,7 @@
   .pulse-glow { animation: pulse-glow 1.6s ease-in-out infinite; }
   @keyframes pulse-glow {
     0%, 100% { box-shadow: 0 0 0 0 hsl(48 100% 60% / 0.7), var(--shadow-pixel); }
-    50%      { box-shadow: 0 0 22px 8px hsl(48 100% 60% / 0); var(--shadow-pixel); }
+    50%      { box-shadow: 0 0 22px 8px hsl(48 100% 60% / 0), var(--shadow-pixel); }
   }
 }
 
