@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SettingsProvider } from "@/game/SettingsContext";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Quest from "./pages/Quest.tsx";
@@ -20,27 +21,29 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/quest" element={<Quest />} />
-          <Route path="/chapter/:chapter" element={<Chapter />} />
-          <Route path="/case/:id/brief" element={<Brief />} />
-          <Route path="/case/:id/evidence" element={<Evidence />} />
-          <Route path="/case/:id/legal" element={<Legal />} />
-          <Route path="/case/:id/verdict" element={<VerdictPage />} />
-          <Route path="/case/:id/result" element={<Result />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/store" element={<Store />} />
-          <Route path="/triumph" element={<Triumph />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <SettingsProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <div className="brightness-overlay" aria-hidden="true" />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/quest" element={<Quest />} />
+            <Route path="/chapter/:chapter" element={<Chapter />} />
+            <Route path="/case/:id/brief" element={<Brief />} />
+            <Route path="/case/:id/evidence" element={<Evidence />} />
+            <Route path="/case/:id/legal" element={<Legal />} />
+            <Route path="/case/:id/verdict" element={<VerdictPage />} />
+            <Route path="/case/:id/result" element={<Result />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/store" element={<Store />} />
+            <Route path="/triumph" element={<Triumph />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </SettingsProvider>
   </QueryClientProvider>
 );
 

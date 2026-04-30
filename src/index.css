@@ -150,3 +150,29 @@
   70%, 100% { opacity: 0; }
 }
 .animate-blink { animation: blink 1.2s steps(2) infinite; }
+
+/* ===== Global brightness overlay (driven by html.theme-light / html.theme-dark) ===== */
+.brightness-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 200ms ease, background-color 200ms ease;
+  mix-blend-mode: normal;
+}
+html.theme-dark .brightness-overlay {
+  background-color: hsl(220 60% 6% / 0.45);
+  opacity: 1;
+  mix-blend-mode: multiply;
+}
+html.theme-light .brightness-overlay {
+  background-color: hsl(45 90% 92% / 0.18);
+  opacity: 1;
+  mix-blend-mode: screen;
+}
+
+.pixel-btn-active {
+  outline: 3px solid hsl(var(--accent));
+  outline-offset: 2px;
+}
