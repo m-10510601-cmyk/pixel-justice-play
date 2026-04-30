@@ -30,23 +30,36 @@ const Index = () => {
 
   return (
     <GameFrame bgImage={bg}>
-      {/* Top bar: coins + cloud + feedback */}
-      <div className="absolute top-2 left-2 right-2 z-20 flex items-center justify-between px-2">
-        <div className="pixel text-[10px] text-primary bg-background/80 border-2 border-primary px-2 py-1">
-          ⭐ {t("home.coins")}: {coins}
+      {/* Glassmorphism HUD bar */}
+      <div className="absolute top-3 left-3 right-3 z-20 hud-bar rounded-md px-3 py-2 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <div className="pixel text-[10px] text-primary flex items-center gap-1">
+            <span className="text-base leading-none">⭐</span>
+            <span>{coins}</span>
+          </div>
+          <div className="pixel text-[8px] px-2 py-1 rounded bg-accent/20 border border-accent/60 text-accent">
+            LV 1
+          </div>
         </div>
         <div className="flex gap-2">
           <button
+            onClick={() => setOpenDaily(true)}
+            className={`pixel-btn-square ${dailyAvailableDay > 0 ? "pulse-glow" : ""}`}
+            style={{ width: 34, height: 34, fontSize: 14 }}
+            aria-label="Daily Check-in"
+            title="Daily Check-in"
+          >🎁</button>
+          <button
             onClick={() => setOpenSave(true)}
             className="pixel-btn-square"
-            style={{ width: 36, height: 36, fontSize: 14 }}
+            style={{ width: 34, height: 34, fontSize: 14 }}
             aria-label="Cloud Save"
             title="Cloud Save"
           >☁</button>
           <button
             onClick={() => setOpenFeedback(true)}
             className="pixel-btn-square"
-            style={{ width: 36, height: 36, fontSize: 14 }}
+            style={{ width: 34, height: 34, fontSize: 14 }}
             aria-label="Feedback"
             title="Feedback"
           >✉</button>
@@ -63,20 +76,12 @@ const Index = () => {
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center gap-4 px-6">
-        <Link to="/quest" className="pixel-btn w-56 text-base animate-blink" aria-label="Start">
+        <Link to="/quest" className="pixel-btn btn-corners w-56 text-base animate-blink" aria-label="Start">
           {t("btn.start")}
         </Link>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setOpenDaily(true)}
-            className={`pixel-btn pixel-btn-secondary text-[10px] ${dailyAvailableDay > 0 ? "ring-2 ring-accent" : ""}`}
-          >
-            🎁 DAILY {dailyAvailableDay > 0 ? "●" : ""}
-          </button>
-          <button onClick={() => setOpenShare(true)} className="pixel-btn pixel-btn-secondary text-[10px]">
-            🔗 SHARE
-          </button>
-        </div>
+        <button onClick={() => setOpenShare(true)} className="pixel-btn pixel-btn-secondary text-[10px]">
+          🔗 SHARE
+        </button>
       </main>
 
       <footer className="pb-8 px-6 flex items-end justify-between">
