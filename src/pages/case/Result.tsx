@@ -1,8 +1,9 @@
 import { useParams, Navigate, Link } from "react-router-dom";
 import { useMemo, useState } from "react";
 import CaseFrame from "@/components/CaseFrame";
-import { getCase } from "@/data/cases";
+import { getCase, L } from "@/data/cases";
 import { useCaseState } from "@/store/caseStore";
+import { useSettings } from "@/game/SettingsContext";
 
 const Bar = ({ label, value }: { label: string; value: number }) => (
   <div>
@@ -11,10 +12,7 @@ const Bar = ({ label, value }: { label: string; value: number }) => (
       <span>{value}</span>
     </div>
     <div className="h-3 border-2 border-primary/70 bg-background/60 mt-1">
-      <div
-        className="h-full bg-primary"
-        style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
-      />
+      <div className="h-full bg-primary" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </div>
   </div>
 );
@@ -23,6 +21,7 @@ const Result = () => {
   const { id } = useParams();
   const c = getCase(id ?? "");
   const state = useCaseState();
+  const { t, lang } = useSettings();
   const [showReal, setShowReal] = useState(false);
   if (!c) return <Navigate to="/quest" replace />;
 
@@ -31,15 +30,11 @@ const Result = () => {
   const verdict = state.verdict[c.id];
 
   const evalScores = useMemo(() => {
-    const reliablePicked = chosenEvidence.filter(
-      (eid) => c.evidence.find((e) => e.id === eid)?.reliable
-    ).length;
+    const reliablePicked = chosenEvidence.filter((eid) => c.evidence.find((e) => e.id === eid)?.reliable).length;
     const unreliablePicked = chosenEvidence.length - reliablePicked;
     const totalReliable = c.evidence.filter((e) => e.reliable).length;
 
-    const evidenceScore = Math.round(
-      (reliablePicked / Math.max(1, totalReliable)) * 100 - unreliablePicked * 15
-    );
+    const evidenceScore = Math.round((reliablePicked / Math.max(1, totalReliable)) * 100 - unreliablePicked * 15);
     const catCorrect = c.categories.find((x) => x.id === chosenCat)?.correct === true;
     const verdictCorrect = verdict === c.correctVerdict;
 
@@ -49,47 +44,40 @@ const Result = () => {
     return { evidenceScore: Math.max(0, evidenceScore), justice, trust, fairness, verdictCorrect, catCorrect };
   }, [chosenEvidence, chosenCat, verdict, c]);
 
-  const headline = evalScores.verdictCorrect
-    ? "JUDGEMENT UPHELD"
-    : "JUDGEMENT QUESTIONED";
+  const headline = evalScores.verdictCorrect ? t("result.upheld") : t("result.questioned");
 
   return (
-    <CaseFrame title="EVALUATION" step={5} back={`/case/${c.id}/verdict`}>
+    <CaseFrame title={t("result.title")} step={5} back={`/case/${c.id}/verdict`}>
       <div className="bg-card/95 border-2 border-primary p-3 mb-3 shadow-[var(--shadow-pixel)]">
         <div className="pixel text-[10px] text-accent">{headline}</div>
         <p className="text-base mt-2 leading-snug">
-          {evalScores.verdictCorrect
-            ? "Your verdict aligns with the evidence and the standard of proof."
-            : "Your verdict diverges from what the reliable evidence supports."}
+          {evalScores.verdictCorrect ? t("result.alignsYes") : t("result.alignsNo")}
         </p>
         <p className="text-sm mt-2 opacity-90">
-          <span className="pixel text-[9px] text-primary">STANDARD: </span>
-          {c.standardOfProof}
+          <span className="pixel text-[9px] text-primary">{t("result.standard")}</span>
+          {L(lang, c.standardOfProof)}
         </p>
       </div>
 
       <div className="space-y-3 bg-background/70 border-2 border-primary/60 p-3 mb-3">
-        <div className="pixel text-[10px] text-primary">SOCIETAL IMPACT</div>
-        <Bar label="Justice" value={Math.round(evalScores.justice)} />
-        <Bar label="Public Trust" value={Math.round(evalScores.trust)} />
-        <Bar label="Fairness" value={Math.round(evalScores.fairness)} />
+        <div className="pixel text-[10px] text-primary">{t("result.impact")}</div>
+        <Bar label={t("result.justice")} value={Math.round(evalScores.justice)} />
+        <Bar label={t("result.trust")} value={Math.round(evalScores.trust)} />
+        <Bar label={t("result.fairness")} value={Math.round(evalScores.fairness)} />
       </div>
 
-      <button
-        onClick={() => setShowReal((x) => !x)}
-        className="pixel-btn pixel-btn-secondary w-full text-sm"
-      >
-        {showReal ? "HIDE REAL-WORLD NOTE" : "COMPARE TO REAL CASES"}
+      <button onClick={() => setShowReal((x) => !x)} className="pixel-btn pixel-btn-secondary w-full text-sm">
+        {showReal ? t("result.hide") : t("result.compare")}
       </button>
       {showReal && (
         <div className="bg-background/80 border-2 border-accent p-3 mt-2 text-sm">
-          {c.realWorldNote}
+          {L(lang, c.realWorldNote)}
         </div>
       )}
 
       <div className="grid grid-cols-2 gap-3 mt-5">
-        <Link to={`/case/${c.id}/brief`} className="pixel-btn pixel-btn-secondary text-sm">RETRY</Link>
-        <Link to={`/chapter/${c.chapter}`} className="pixel-btn text-sm">CONTINUE</Link>
+        <Link to={`/case/${c.id}/brief`} className="pixel-btn pixel-btn-secondary text-sm">{t("result.retry")}</Link>
+        <Link to={`/chapter/${c.chapter}`} className="pixel-btn text-sm">{t("result.continue")}</Link>
       </div>
     </CaseFrame>
   );

@@ -2,12 +2,12 @@ import { Link, useParams, Navigate } from "react-router-dom";
 import GameFrame from "@/components/GameFrame";
 import schoolBg from "@/assets/school-bg.jpg";
 import societyBg from "@/assets/society-bg.jpg";
-import { casesByChapter } from "@/data/cases";
+import { casesByChapter, L } from "@/data/cases";
 import { useSettings } from "@/game/SettingsContext";
 
 const Chapter = () => {
   const { chapter } = useParams<{ chapter: "school" | "society" }>();
-  const { t } = useSettings();
+  const { t, lang } = useSettings();
   if (chapter !== "school" && chapter !== "society") return <Navigate to="/quest" replace />;
   const bg = chapter === "school" ? schoolBg : societyBg;
   const list = casesByChapter(chapter);
@@ -26,7 +26,7 @@ const Chapter = () => {
         {list.map((c, i) => (
           <Link key={c.id} to={`/case/${c.id}/brief`} className="pixel-btn text-left text-sm" style={{ display: "block" }}>
             <div className="text-[10px] opacity-80">{t("chapter.case")} {i + 1}</div>
-            <div className="text-base mt-1">{c.title}</div>
+            <div className="text-base mt-1">{L(lang, c.title)}</div>
           </Link>
         ))}
       </main>
