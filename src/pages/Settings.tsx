@@ -1,10 +1,15 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import GameFrame from "@/components/GameFrame";
 import bg from "@/assets/justice-bg.jpg";
 import { useSettings, Lang } from "@/game/SettingsContext";
+import Modal from "@/components/Modal";
+import { FeedbackModal } from "@/components/HomeOverlays";
 
 const Settings = () => {
   const { theme, setTheme, volume, setVolume, lang, setLang, t, playCue } = useSettings();
+  const [showTerms, setShowTerms] = useState(false);
+  const [showFb, setShowFb] = useState(false);
 
   const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div className="flex items-stretch gap-2">
@@ -75,9 +80,27 @@ const Settings = () => {
       </main>
 
       <footer className="pb-6 px-5 flex justify-between gap-3">
-        <button className="pixel-btn pixel-btn-secondary text-[10px]">{t("settings.terms")}</button>
-        <button className="pixel-btn pixel-btn-secondary text-[10px]">{t("settings.feedback")}</button>
+        <button onClick={() => setShowTerms(true)} className="pixel-btn pixel-btn-secondary text-[10px]">{t("settings.terms")}</button>
+        <button onClick={() => setShowFb(true)} className="pixel-btn pixel-btn-secondary text-[10px]">{t("settings.feedback")}</button>
       </footer>
+
+      <Modal open={showTerms} onClose={() => setShowTerms(false)} title={t("terms.title")}>
+        <div className="space-y-4 text-[13px] leading-snug">
+          <section>
+            <h3 className="pixel text-[10px] text-primary mb-1">{t("terms.tos")}</h3>
+            <p>{t("terms.tos_body")}</p>
+          </section>
+          <section>
+            <h3 className="pixel text-[10px] text-primary mb-1">{t("terms.privacy")}</h3>
+            <p>{t("terms.privacy_body")}</p>
+          </section>
+          <section>
+            <h3 className="pixel text-[10px] text-primary mb-1">{t("terms.ai")}</h3>
+            <p>{t("terms.ai_body")}</p>
+          </section>
+        </div>
+      </Modal>
+      <FeedbackModal open={showFb} onClose={() => setShowFb(false)} />
     </GameFrame>
   );
 };
