@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import PixelProps from "./PixelProps";
 
 interface GameFrameProps {
   children: ReactNode;
@@ -24,6 +25,9 @@ const GameFrame = ({ children, bgImage, plain = false }: GameFrameProps) => {
             <div className="stained-glass" aria-hidden="true" />
             <div className="god-rays" aria-hidden="true" />
             <div className="rim-light" aria-hidden="true" />
+            <div className="pixel-dither" aria-hidden="true" />
+            <div className="dust-motes" aria-hidden="true" />
+            <PixelProps />
           </>
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background/80 z-[3]" />

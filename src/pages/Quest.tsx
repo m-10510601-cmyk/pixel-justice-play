@@ -35,7 +35,15 @@ const Quest = () => {
           {/* Center divider gate */}
           <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-1 bg-gradient-to-b from-primary via-accent to-primary shadow-[0_0_12px_hsl(var(--gold))]" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40" />
-          <span className="relative z-10 hud-bar px-4 py-2 pixel text-[11px] text-primary text-glow">
+          {/* Floating ! tutorial marker */}
+          {!tutorialSeen && (
+            <span
+              className="absolute -top-3 -right-2 pixel float-bob text-[14px] z-20 pixel-text"
+              style={{ color: "hsl(48 100% 65%)" }}
+              aria-hidden="true"
+            >!</span>
+          )}
+          <span className="relative z-10 text-plate px-4 py-2 pixel text-[11px] pixel-text">
             🏫 {t("quest.school")}
           </span>
         </Link>
@@ -53,7 +61,7 @@ const Quest = () => {
           </div>
           <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-1 bg-gradient-to-b from-primary via-accent to-primary shadow-[0_0_12px_hsl(var(--gold))]" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40" />
-          <span className="relative z-10 hud-bar px-4 py-2 pixel text-[11px] text-primary text-glow">
+          <span className="relative z-10 text-plate px-4 py-2 pixel text-[11px] pixel-text">
             🏙 {t("quest.society")}
           </span>
         </Link>

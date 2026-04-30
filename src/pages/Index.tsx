@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import GameFrame from "@/components/GameFrame";
 import bg from "@/assets/justice-bg.jpg";
 import { useSettings } from "@/game/SettingsContext";
+import AvatarBadge from "@/components/AvatarBadge";
 import {
   DailyRewardsModal,
   ShareModal,
@@ -34,13 +35,14 @@ const Index = () => {
       <div className="absolute inset-0 z-10 flex flex-col px-6 pt-6 pb-6">
         {/* === TOP HUD: split into two corner clusters with safe padding === */}
         <div className="flex items-start justify-between gap-3 mb-5">
-          {/* Top-left: coins + level */}
-          <div className="hud-bar rounded-md px-3 py-2 flex items-center gap-2 shrink-0">
-            <div className="pixel text-[10px] text-primary flex items-center gap-1">
-              <span className="text-base leading-none">⭐</span>
+          {/* Top-left: avatar + coins + level */}
+          <div className="hud-bar rounded-md px-2 py-1.5 flex items-center gap-2 shrink-0">
+            <AvatarBadge />
+            <div className="pixel text-[10px] text-primary pixel-text flex items-center gap-1">
+              <span className="coin-spin text-base leading-none">⭐</span>
               <span>{coins}</span>
             </div>
-            <div className="pixel text-[8px] px-2 py-1 rounded bg-accent/20 border border-accent/60 text-accent">
+            <div className="pixel text-[8px] px-2 py-1 rounded bg-accent/20 border border-accent/60 text-accent pixel-text">
               LV 1
             </div>
           </div>
@@ -76,34 +78,43 @@ const Index = () => {
           <h1 className="pixel text-glow text-2xl sm:text-3xl leading-tight px-2">
             {t("app.title")}
           </h1>
-          <p className="text-foreground text-sm sm:text-base max-w-[92%] mx-auto leading-snug bg-background/85 px-3 py-2 border-2 border-primary/60 rounded-sm">
+          <p className="text-plate text-sm sm:text-base max-w-[92%] mx-auto leading-snug pixel-text">
             {t("home.tagline")}
           </p>
         </header>
 
         {/* === CENTER STACK: START in middle, SHARE between START & footer === */}
         <div className="flex-1 flex flex-col items-center justify-evenly py-4 min-h-0">
-          <Link to="/quest" className="pixel-btn btn-corners w-56 text-base animate-blink" aria-label="Start">
+          <Link
+            to="/quest"
+            className="pixel-btn btn-corners btn-rivets dither-shadow burst-host w-56 text-base animate-blink"
+            aria-label="Start"
+          >
             {t("btn.start")}
+            <span className="rivet tl" /><span className="rivet tr" />
+            <span className="rivet bl" /><span className="rivet br" />
           </Link>
-          <button onClick={() => setOpenShare(true)} className="pixel-btn pixel-btn-secondary text-[10px] px-4">
+          <button
+            onClick={() => setOpenShare(true)}
+            className="pixel-btn pixel-btn-secondary burst-host text-[10px] px-4 pixel-text"
+          >
             🔗 SHARE
           </button>
         </div>
 
         {/* === BOTTOM CIRCLE MENU: aligned, padded, smaller text === */}
         <footer className="flex items-center justify-around gap-3 pt-2">
-          <Link to="/triumph" className="pixel-btn-circle" aria-label="Triumph" style={{ width: 70, height: 70, fontSize: 8 }}>
+          <Link to="/triumph" className="pixel-btn-circle sparkle-host dither-shadow burst-host" aria-label="Triumph" style={{ width: 70, height: 70, fontSize: 8 }}>
             <span className="text-lg leading-none">🏆</span>
-            <span className="mt-1">{t("nav.triumph")}</span>
+            <span className="mt-1 pixel-text">{t("nav.triumph")}</span>
           </Link>
-          <Link to="/settings" className="pixel-btn-circle" aria-label="Settings" style={{ width: 70, height: 70, fontSize: 8 }}>
+          <Link to="/settings" className="pixel-btn-circle dither-shadow burst-host" aria-label="Settings" style={{ width: 70, height: 70, fontSize: 8 }}>
             <span className="text-lg leading-none">⚙</span>
-            <span className="mt-1">{t("nav.settings")}</span>
+            <span className="mt-1 pixel-text">{t("nav.settings")}</span>
           </Link>
-          <Link to="/store" className="pixel-btn-circle" aria-label="Store" style={{ width: 70, height: 70, fontSize: 8 }}>
+          <Link to="/store" className="pixel-btn-circle sparkle-host dither-shadow burst-host" aria-label="Store" style={{ width: 70, height: 70, fontSize: 8 }}>
             <span className="text-lg leading-none">🛒</span>
-            <span className="mt-1">{t("nav.store")}</span>
+            <span className="mt-1 pixel-text">{t("nav.store")}</span>
           </Link>
         </footer>
       </div>
