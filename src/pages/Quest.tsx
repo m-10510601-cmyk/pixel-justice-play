@@ -16,7 +16,7 @@ const Quest = () => {
 
       <main className="flex-1 flex flex-col justify-center gap-6 px-6">
         <Link
-          to="/quest/school"
+          to="/chapter/school"
           className="pixel-btn relative h-32 overflow-hidden text-lg"
           style={{ padding: 0 }}
         >
@@ -25,7 +25,7 @@ const Quest = () => {
         </Link>
 
         <Link
-          to="/quest/society"
+          to="/chapter/society"
           className="pixel-btn relative h-32 overflow-hidden text-lg"
           style={{ padding: 0 }}
         >

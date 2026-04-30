@@ -2,14 +2,14 @@ import { useParams, Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import CaseFrame from "@/components/CaseFrame";
 import { getCase } from "@/data/cases";
-import { useCaseStore } from "@/store/caseStore";
+import { useCaseState, caseActions } from "@/store/caseStore";
 
 const Evidence = () => {
   const { id } = useParams();
   const c = getCase(id ?? "");
   const nav = useNavigate();
-  const setSelected = useCaseStore((s) => s.setSelectedEvidence);
-  const stored = useCaseStore((s) => s.selectedEvidence[id ?? ""] ?? []);
+  const all = useCaseState();
+  const stored = all.selectedEvidence[id ?? ""] ?? [];
   const [selected, setLocal] = useState<string[]>(stored);
   const [openId, setOpenId] = useState<string | null>(null);
   const pressTimer = useRef<number | null>(null);
@@ -30,7 +30,7 @@ const Evidence = () => {
   };
 
   const submit = () => {
-    setSelected(c.id, selected);
+    caseActions.setSelectedEvidence(c.id, selected);
     nav(`/case/${c.id}/legal`);
   };
 

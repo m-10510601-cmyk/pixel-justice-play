@@ -1,26 +1,44 @@
-import { create } from "zustand";
+import { useSyncExternalStore } from "react";
 
+type Verdict = "guilty" | "not_guilty";
 type State = {
   selectedEvidence: Record<string, string[]>;
   selectedCategory: Record<string, string>;
-  verdict: Record<string, "guilty" | "not_guilty">;
+  verdict: Record<string, Verdict>;
   punishment: Record<string, string>;
-  setSelectedEvidence: (caseId: string, ids: string[]) => void;
-  setCategory: (caseId: string, id: string) => void;
-  setVerdict: (caseId: string, v: "guilty" | "not_guilty") => void;
-  setPunishment: (caseId: string, id: string) => void;
 };
 
-export const useCaseStore = create<State>((set) => ({
+let state: State = {
   selectedEvidence: {},
   selectedCategory: {},
   verdict: {},
   punishment: {},
-  setSelectedEvidence: (caseId, ids) =>
-    set((s) => ({ selectedEvidence: { ...s.selectedEvidence, [caseId]: ids } })),
-  setCategory: (caseId, id) =>
-    set((s) => ({ selectedCategory: { ...s.selectedCategory, [caseId]: id } })),
-  setVerdict: (caseId, v) => set((s) => ({ verdict: { ...s.verdict, [caseId]: v } })),
-  setPunishment: (caseId, id) =>
-    set((s) => ({ punishment: { ...s.punishment, [caseId]: id } })),
-}));
+};
+const listeners = new Set<() => void>();
+const emit = () => listeners.forEach((l) => l());
+const subscribe = (l: () => void) => {
+  listeners.add(l);
+  return () => listeners.delete(l);
+};
+const getSnapshot = () => state;
+
+export const useCaseState = () => useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+
+export const caseActions = {
+  setSelectedEvidence(caseId: string, ids: string[]) {
+    state = { ...state, selectedEvidence: { ...state.selectedEvidence, [caseId]: ids } };
+    emit();
+  },
+  setCategory(caseId: string, id: string) {
+    state = { ...state, selectedCategory: { ...state.selectedCategory, [caseId]: id } };
+    emit();
+  },
+  setVerdict(caseId: string, v: Verdict) {
+    state = { ...state, verdict: { ...state.verdict, [caseId]: v } };
+    emit();
+  },
+  setPunishment(caseId: string, id: string) {
+    state = { ...state, punishment: { ...state.punishment, [caseId]: id } };
+    emit();
+  },
+};
