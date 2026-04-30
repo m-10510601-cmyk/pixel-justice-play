@@ -166,6 +166,102 @@
     position: relative;
     overflow: hidden;
   }
+
+  /* === Atmospheric depth layers === */
+  .god-rays {
+    position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    background: conic-gradient(from 200deg at 50% -10%,
+      transparent 0deg,
+      hsl(48 100% 75% / 0.18) 8deg,
+      transparent 16deg,
+      hsl(48 100% 75% / 0.12) 26deg,
+      transparent 38deg,
+      hsl(48 100% 75% / 0.16) 50deg,
+      transparent 62deg);
+    mix-blend-mode: screen;
+    animation: rays-shift 14s ease-in-out infinite alternate;
+  }
+  @keyframes rays-shift {
+    0% { opacity: 0.55; transform: translateY(0) scale(1); }
+    100% { opacity: 0.9; transform: translateY(-2%) scale(1.05); }
+  }
+  .stained-glass {
+    position: absolute; inset: 0 0 auto 0; height: 35%; pointer-events: none; z-index: 2;
+    background:
+      radial-gradient(ellipse at 18% 0%, hsl(220 80% 55% / 0.28), transparent 55%),
+      radial-gradient(ellipse at 82% 0%, hsl(0 75% 50% / 0.24), transparent 55%),
+      radial-gradient(ellipse at 50% 0%, hsl(48 100% 60% / 0.32), transparent 50%);
+    mix-blend-mode: screen;
+  }
+  .scene-parallax {
+    position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    animation: parallax-drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes parallax-drift {
+    0% { transform: translate3d(0,0,0) scale(1.02); }
+    100% { transform: translate3d(-1.5%, -1%, 0) scale(1.06); }
+  }
+  .rim-light {
+    position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    background: radial-gradient(circle at 50% 60%, transparent 16%, hsl(48 100% 70% / 0.16) 22%, transparent 32%);
+    mix-blend-mode: screen;
+  }
+
+  /* === Ornate stone-carved frame with floral corners === */
+  .ornate-frame {
+    position: absolute; inset: 0; pointer-events: none; z-index: 30;
+    border: 12px solid transparent;
+    border-image: repeating-linear-gradient(45deg,
+      hsl(36 30% 35%) 0 6px,
+      hsl(30 25% 22%) 6px 12px,
+      hsl(40 35% 45%) 12px 14px) 12;
+    box-shadow:
+      inset 0 0 0 2px hsl(42 90% 55% / 0.55),
+      inset 0 0 18px hsl(0 0% 0% / 0.5);
+  }
+  .ornate-corner {
+    position: absolute; width: 36px; height: 36px; z-index: 31; pointer-events: none;
+    background:
+      radial-gradient(circle at 50% 50%, hsl(0 70% 55%) 0 5px, transparent 6px),
+      radial-gradient(circle at 28% 32%, hsl(0 65% 50% / 0.95) 0 5px, transparent 6px),
+      radial-gradient(circle at 72% 32%, hsl(0 65% 50% / 0.95) 0 5px, transparent 6px),
+      radial-gradient(circle at 28% 68%, hsl(0 65% 50% / 0.95) 0 5px, transparent 6px),
+      radial-gradient(circle at 72% 68%, hsl(0 65% 50% / 0.95) 0 5px, transparent 6px),
+      radial-gradient(circle at 50% 50%, hsl(48 100% 70%) 0 2px, transparent 3px);
+    filter: drop-shadow(1px 1px 0 hsl(0 0% 0% / 0.7));
+  }
+  .ornate-corner.tl { top: 6px; left: 6px; }
+  .ornate-corner.tr { top: 6px; right: 6px; }
+  .ornate-corner.bl { bottom: 6px; left: 6px; }
+  .ornate-corner.br { bottom: 6px; right: 6px; }
+
+  /* Decorative button corner ornaments */
+  .btn-corners { position: relative; }
+  .btn-corners::after {
+    content: ""; position: absolute; inset: 5px; pointer-events: none; z-index: 5;
+    background:
+      linear-gradient(135deg, hsl(48 100% 75%) 0 6px, transparent 6px) top left / 12px 12px no-repeat,
+      linear-gradient(225deg, hsl(48 100% 75%) 0 6px, transparent 6px) top right / 12px 12px no-repeat,
+      linear-gradient(45deg,  hsl(48 100% 75%) 0 6px, transparent 6px) bottom left / 12px 12px no-repeat,
+      linear-gradient(315deg, hsl(48 100% 75%) 0 6px, transparent 6px) bottom right / 12px 12px no-repeat;
+    opacity: 0.9;
+  }
+
+  /* Glassmorphism HUD bar */
+  .hud-bar {
+    background: linear-gradient(180deg, hsl(220 60% 15% / 0.6), hsl(30 40% 12% / 0.4));
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 2px solid hsl(42 90% 55% / 0.6);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.18), 0 2px 8px hsl(0 0% 0% / 0.45);
+  }
+
+  /* Pulsing glow */
+  .pulse-glow { animation: pulse-glow 1.6s ease-in-out infinite; }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(48 100% 60% / 0.7), var(--shadow-pixel); }
+    50%      { box-shadow: 0 0 22px 8px hsl(48 100% 60% / 0); var(--shadow-pixel); }
+  }
 }
 
 @keyframes float-pixel {
