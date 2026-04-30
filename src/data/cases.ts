@@ -29,6 +29,7 @@ export type CaseData = {
   chapter: "school" | "society";
   title: string;
   brief: string;
+  image?: string;
   statements: { speaker: string; quote: string }[];
   evidence: Evidence[];
   categories: LegalCategory[];
