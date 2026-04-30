@@ -11,6 +11,18 @@ const Brief = () => {
   return (
     <CaseFrame title={c.title.toUpperCase()} step={1} back={`/chapter/${c.chapter}`}>
       <div className="space-y-4">
+        {c.image && (
+          <div className="border-2 border-primary shadow-[var(--shadow-pixel)] overflow-hidden">
+            <img
+              src={c.image}
+              alt={c.title}
+              width={1024}
+              height={704}
+              className="w-full aspect-[3/2] object-cover"
+              style={{ imageRendering: "pixelated" }}
+            />
+          </div>
+        )}
         <div className="bg-card/90 border-2 border-primary p-3 shadow-[var(--shadow-pixel)]">
           <div className="pixel text-[10px] text-primary mb-2">CASE BRIEF</div>
           <p className="text-base leading-snug">{c.brief}</p>
