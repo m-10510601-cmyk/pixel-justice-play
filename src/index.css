@@ -78,20 +78,37 @@
     font-size: 11px;
     line-height: 1.4;
     padding: 0.85rem 1rem;
-    background: var(--gradient-gold);
+    background:
+      linear-gradient(180deg, hsl(50 100% 70%) 0%, hsl(48 95% 60%) 48%, hsl(36 80% 38%) 52%, hsl(22 55% 22%) 100%);
     color: hsl(var(--primary-foreground));
     border: 3px solid hsl(30 50% 10%);
-    box-shadow: var(--shadow-pixel), inset -3px -3px 0 0 hsl(36 80% 35%), inset 3px 3px 0 0 hsl(50 100% 75%);
+    box-shadow:
+      var(--shadow-pixel),
+      inset -3px -3px 0 0 hsl(22 55% 18%),
+      inset 3px 3px 0 0 hsl(50 100% 80%);
+    text-shadow: 1px 1px 0 hsl(22 60% 12%), 0 0 4px hsl(22 60% 8%);
+    position: relative;
     transition: transform 80ms steps(2), box-shadow 80ms steps(2);
     cursor: pointer;
+  }
+  .pixel-btn::before {
+    content: "";
+    position: absolute;
+    inset: 3px 3px 50% 3px;
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.35), hsl(0 0% 100% / 0));
+    pointer-events: none;
   }
   .pixel-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 0 hsl(30 50% 8%), inset -3px -3px 0 0 hsl(36 80% 35%), inset 3px 3px 0 0 hsl(50 100% 75%); }
   .pixel-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 0 hsl(30 50% 8%), inset -3px -3px 0 0 hsl(36 80% 35%), inset 3px 3px 0 0 hsl(50 100% 75%); }
 
   .pixel-btn-secondary {
-    background: hsl(var(--secondary));
+    background: linear-gradient(180deg, hsl(25 45% 32%), hsl(22 50% 18%));
     color: hsl(var(--foreground));
     box-shadow: var(--shadow-pixel), inset -3px -3px 0 0 hsl(25 40% 15%), inset 3px 3px 0 0 hsl(25 40% 35%);
+    text-shadow: 1px 1px 0 hsl(0 0% 0% / 0.6);
+  }
+  .pixel-btn-secondary::before {
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.18), hsl(0 0% 100% / 0));
   }
 
   .pixel-btn-circle {
