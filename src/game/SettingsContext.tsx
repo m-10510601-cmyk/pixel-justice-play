@@ -68,6 +68,42 @@ const DICT: Record<Lang, Dict> = {
     "step.law": "LAW",
     "step.verdict": "VERDICT",
     "step.result": "RESULT",
+    "home.coins": "COINS",
+    "home.tagline": "A legal education journey matched to Malaysian Law.",
+    "tutorial.title": "NEW PLAYER TUTORIAL",
+    "tutorial.body": "Pick a chapter and solve cases: read the brief, weigh evidence, choose a law category, then deliver a verdict. Correct judgements earn ⭐ coins. Spend coins in the STORE.",
+    "tutorial.ok": "GOT IT",
+    "daily.title": "DAILY REWARDS",
+    "daily.day": "DAY",
+    "daily.claim": "CLAIM",
+    "daily.claimed": "CLAIMED",
+    "daily.come_back": "COME BACK TOMORROW",
+    "daily.special": "SPECIAL TOOL",
+    "share.title": "INVITE FRIENDS",
+    "share.copy": "COPY INVITE LINK",
+    "share.copied": "LINK COPIED! +100 COINS",
+    "share.already": "REWARD ALREADY CLAIMED",
+    "save.title": "CLOUD SAVE",
+    "save.now": "SAVE NOW",
+    "save.load": "LOAD",
+    "save.saved": "PROGRESS SAVED",
+    "save.loaded": "PROGRESS LOADED",
+    "feedback.title": "FEEDBACK",
+    "feedback.placeholder": "Tell us your suggestion…",
+    "feedback.send": "SEND",
+    "feedback.thanks": "THANK YOU!",
+    "store.time_ext": "TIME EXTENSION",
+    "store.owned": "OWNED",
+    "store.buy": "BUY",
+    "store.not_enough": "NOT ENOUGH COINS",
+    "terms.title": "TERMS & POLICY",
+    "terms.tos": "TERMS OF SERVICE",
+    "terms.tos_body": "Educational purpose only. Fictional characters and scenarios. Not professional legal advice. Content is matched to Malaysian Law for learning.",
+    "terms.privacy": "PRIVACY POLICY",
+    "terms.privacy_body": "We do not collect personal data. Only non-personal gameplay data is stored locally. No data is shared with third parties.",
+    "terms.ai": "AI ETHICS",
+    "terms.ai_body": "AI enhances interactivity to support critical thinking. We acknowledge AI limitations and commit to safe, ethical educational content.",
+    "terms.agree": "I AGREE",
   },
   zh: {
     "evidence.title": "证据分析",
@@ -132,6 +168,42 @@ const DICT: Record<Lang, Dict> = {
     "step.law": "法律",
     "step.verdict": "判决",
     "step.result": "结果",
+    "home.coins": "金币",
+    "home.tagline": "贴合马来西亚法律的法律教育之旅。",
+    "tutorial.title": "新手教程",
+    "tutorial.body": "选择章节并解决案件：阅读简介、权衡证据、选择法律类别，然后宣判。正确判决获得 ⭐ 金币，可在商店消费。",
+    "tutorial.ok": "明白了",
+    "daily.title": "每日奖励",
+    "daily.day": "第",
+    "daily.claim": "领取",
+    "daily.claimed": "已领取",
+    "daily.come_back": "明天再来",
+    "daily.special": "特别道具",
+    "share.title": "邀请好友",
+    "share.copy": "复制邀请链接",
+    "share.copied": "已复制！+100 金币",
+    "share.already": "奖励已领取",
+    "save.title": "云端存档",
+    "save.now": "立即保存",
+    "save.load": "读取",
+    "save.saved": "已保存进度",
+    "save.loaded": "已读取进度",
+    "feedback.title": "反馈",
+    "feedback.placeholder": "请告诉我们您的建议…",
+    "feedback.send": "发送",
+    "feedback.thanks": "谢谢您！",
+    "store.time_ext": "时间延长",
+    "store.owned": "已拥有",
+    "store.buy": "购买",
+    "store.not_enough": "金币不足",
+    "terms.title": "条款与政策",
+    "terms.tos": "服务条款",
+    "terms.tos_body": "仅作教育用途。虚构人物与情境。非专业法律建议。内容贴合马来西亚法律以供学习。",
+    "terms.privacy": "隐私政策",
+    "terms.privacy_body": "我们不收集个人数据。仅在本地存储非个人游玩数据，不与第三方共享。",
+    "terms.ai": "AI 伦理",
+    "terms.ai_body": "AI 提升互动以支持批判性思考。我们承认 AI 的局限，并承诺提供安全、合乎伦理的教育内容。",
+    "terms.agree": "我同意",
   },
   ms: {
     "evidence.title": "ANALISIS BUKTI",
@@ -196,6 +268,42 @@ const DICT: Record<Lang, Dict> = {
     "step.law": "UNDANG",
     "step.verdict": "KEPUTUSAN",
     "step.result": "HASIL",
+    "home.coins": "SYILING",
+    "home.tagline": "Perjalanan pendidikan undang-undang yang sepadan dengan Undang-undang Malaysia.",
+    "tutorial.title": "TUTORIAL PEMAIN BARU",
+    "tutorial.body": "Pilih bab dan selesaikan kes: baca ringkasan, timbang bukti, pilih kategori undang-undang, kemudian sampaikan keputusan. Penghakiman betul memperoleh ⭐ syiling untuk dibelanjakan di KEDAI.",
+    "tutorial.ok": "FAHAM",
+    "daily.title": "GANJARAN HARIAN",
+    "daily.day": "HARI",
+    "daily.claim": "TUNTUT",
+    "daily.claimed": "DITUNTUT",
+    "daily.come_back": "KEMBALI ESOK",
+    "daily.special": "ALAT KHAS",
+    "share.title": "JEMPUT RAKAN",
+    "share.copy": "SALIN PAUTAN JEMPUTAN",
+    "share.copied": "DISALIN! +100 SYILING",
+    "share.already": "GANJARAN TELAH DITUNTUT",
+    "save.title": "SIMPAN AWAN",
+    "save.now": "SIMPAN SEKARANG",
+    "save.load": "MUAT",
+    "save.saved": "KEMAJUAN DISIMPAN",
+    "save.loaded": "KEMAJUAN DIMUAT",
+    "feedback.title": "MAKLUM BALAS",
+    "feedback.placeholder": "Beritahu cadangan anda…",
+    "feedback.send": "HANTAR",
+    "feedback.thanks": "TERIMA KASIH!",
+    "store.time_ext": "LANJUTAN MASA",
+    "store.owned": "DIMILIKI",
+    "store.buy": "BELI",
+    "store.not_enough": "SYILING TIDAK CUKUP",
+    "terms.title": "TERMA & POLISI",
+    "terms.tos": "TERMA PERKHIDMATAN",
+    "terms.tos_body": "Tujuan pendidikan sahaja. Watak dan senario rekaan. Bukan nasihat undang-undang profesional. Kandungan disepadankan dengan Undang-undang Malaysia.",
+    "terms.privacy": "DASAR PRIVASI",
+    "terms.privacy_body": "Kami tidak mengumpul data peribadi. Hanya data permainan bukan peribadi disimpan secara setempat. Tiada perkongsian dengan pihak ketiga.",
+    "terms.ai": "ETIKA AI",
+    "terms.ai_body": "AI menambah interaktiviti untuk menyokong pemikiran kritis. Kami mengakui had AI dan komited kepada kandungan pendidikan yang selamat dan beretika.",
+    "terms.agree": "SAYA BERSETUJU",
   },
 };
 
@@ -208,11 +316,59 @@ interface Ctx {
   setLang: (l: Lang) => void;
   t: (key: string) => string;
   playCue: () => void;
+  coins: number;
+  addCoins: (n: number) => void;
+  spendCoins: (n: number) => boolean;
+  agreedTerms: boolean;
+  acceptTerms: () => void;
+  tutorialSeen: boolean;
+  markTutorialSeen: () => void;
+  shareClaimed: boolean;
+  claimShare: () => void;
+  dailyClaims: boolean[]; // length 7
+  dailyAvailableDay: number; // 1..7, 0 if all claimed today
+  claimDailyDay: (day: number) => boolean;
+  timeExtensions: number;
+  buyTimeExtension: () => boolean;
 }
 
 const SettingsCtx = createContext<Ctx | null>(null);
 
 const LS = "lawguardian.settings.v1";
+const META_LS = "lawguardian.meta.v1";
+
+type Meta = {
+  coins: number;
+  agreedTerms: boolean;
+  tutorialSeen: boolean;
+  shareClaimed: boolean;
+  dailyClaims: boolean[];
+  dailyDate: string; // YYYY-MM-DD of last reset
+  timeExtensions: number;
+};
+const DEFAULT_META: Meta = {
+  coins: 0,
+  agreedTerms: false,
+  tutorialSeen: false,
+  shareClaimed: false,
+  dailyClaims: [false, false, false, false, false, false, false],
+  dailyDate: "",
+  timeExtensions: 0,
+};
+const todayStr = () => new Date().toISOString().slice(0, 10);
+const loadMeta = (): Meta => {
+  try {
+    const raw = localStorage.getItem(META_LS);
+    if (!raw) return { ...DEFAULT_META };
+    const m = { ...DEFAULT_META, ...(JSON.parse(raw) as Partial<Meta>) };
+    if (!Array.isArray(m.dailyClaims) || m.dailyClaims.length !== 7) {
+      m.dailyClaims = [...DEFAULT_META.dailyClaims];
+    }
+    return m;
+  } catch {
+    return { ...DEFAULT_META };
+  }
+};
 
 const load = () => {
   try {
@@ -231,6 +387,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     typeof initial?.volume === "number" ? Math.min(100, Math.max(0, initial.volume)) : 70
   );
   const [lang, setLangState] = useState<Lang>(initial?.lang ?? "en");
+  const [meta, setMeta] = useState<Meta>(() => (typeof window !== "undefined" ? loadMeta() : { ...DEFAULT_META }));
 
   // Persist
   useEffect(() => {
@@ -238,6 +395,10 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem(LS, JSON.stringify({ theme, volume, lang }));
     } catch {}
   }, [theme, volume, lang]);
+
+  useEffect(() => {
+    try { localStorage.setItem(META_LS, JSON.stringify(meta)); } catch {}
+  }, [meta]);
 
   // Apply theme class to <html>
   useEffect(() => {
@@ -274,9 +435,84 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
   const t = useCallback((key: string) => DICT[lang][key] ?? DICT.en[key] ?? key, [lang]);
 
+  const addCoins = useCallback((n: number) => {
+    setMeta((m) => ({ ...m, coins: Math.max(0, m.coins + n) }));
+  }, []);
+  const spendCoins = useCallback((n: number) => {
+    let ok = false;
+    setMeta((m) => {
+      if (m.coins < n) return m;
+      ok = true;
+      return { ...m, coins: m.coins - n };
+    });
+    return ok;
+  }, []);
+  const acceptTerms = useCallback(() => setMeta((m) => ({ ...m, agreedTerms: true })), []);
+  const markTutorialSeen = useCallback(() => setMeta((m) => ({ ...m, tutorialSeen: true })), []);
+  const claimShare = useCallback(() => {
+    setMeta((m) => (m.shareClaimed ? m : { ...m, shareClaimed: true, coins: m.coins + 100 }));
+  }, []);
+
+  // Daily reset: if dailyDate differs from today, reset claims for next day eligibility.
+  // Logic: dailyClaims[i] true == claimed. The "available day" is the lowest unclaimed index+1.
+  // We only allow claiming once per real day (track via dailyDate).
+  const claimDailyDay = useCallback((day: number) => {
+    let ok = false;
+    setMeta((m) => {
+      const idx = day - 1;
+      if (idx < 0 || idx > 6) return m;
+      if (m.dailyClaims[idx]) return m;
+      // must be the next available day
+      const nextIdx = m.dailyClaims.findIndex((c) => !c);
+      if (nextIdx !== idx) return m;
+      // one claim per day
+      const today = todayStr();
+      if (m.dailyDate === today) return m;
+      const newClaims = [...m.dailyClaims];
+      newClaims[idx] = true;
+      const reward = day === 7 ? 0 : 50 * day; // day 7 = special tool
+      const extras = day === 7 ? 1 : 0;
+      ok = true;
+      // If all 7 claimed, cycle resets next day
+      const allDone = newClaims.every((c) => c);
+      return {
+        ...m,
+        dailyClaims: allDone ? [...DEFAULT_META.dailyClaims] : newClaims,
+        dailyDate: today,
+        coins: m.coins + reward,
+        timeExtensions: m.timeExtensions + extras,
+      };
+    });
+    return ok;
+  }, []);
+
+  const buyTimeExtension = useCallback(() => {
+    let ok = false;
+    setMeta((m) => {
+      if (m.coins < 150) return m;
+      ok = true;
+      return { ...m, coins: m.coins - 150, timeExtensions: m.timeExtensions + 1 };
+    });
+    return ok;
+  }, []);
+
+  const dailyAvailableDay = (() => {
+    if (meta.dailyDate === todayStr()) return 0;
+    const idx = meta.dailyClaims.findIndex((c) => !c);
+    return idx < 0 ? 0 : idx + 1;
+  })();
+
   const value = useMemo<Ctx>(
-    () => ({ theme, setTheme, volume, setVolume, lang, setLang, t, playCue }),
-    [theme, setTheme, volume, setVolume, lang, setLang, t, playCue]
+    () => ({
+      theme, setTheme, volume, setVolume, lang, setLang, t, playCue,
+      coins: meta.coins, addCoins, spendCoins,
+      agreedTerms: meta.agreedTerms, acceptTerms,
+      tutorialSeen: meta.tutorialSeen, markTutorialSeen,
+      shareClaimed: meta.shareClaimed, claimShare,
+      dailyClaims: meta.dailyClaims, dailyAvailableDay, claimDailyDay,
+      timeExtensions: meta.timeExtensions, buyTimeExtension,
+    }),
+    [theme, setTheme, volume, setVolume, lang, setLang, t, playCue, meta, addCoins, spendCoins, acceptTerms, markTutorialSeen, claimShare, dailyAvailableDay, claimDailyDay, buyTimeExtension]
   );
 
   return <SettingsCtx.Provider value={value}>{children}</SettingsCtx.Provider>;

@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SettingsProvider } from "@/game/SettingsContext";
+import TermsGate from "@/components/TermsGate";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Quest from "./pages/Quest.tsx";
@@ -26,6 +27,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <div className="brightness-overlay" aria-hidden="true" />
+        <TermsGate />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />

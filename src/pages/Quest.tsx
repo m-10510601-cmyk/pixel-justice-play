@@ -1,12 +1,16 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import GameFrame from "@/components/GameFrame";
 import schoolBg from "@/assets/school-bg.jpg";
 import societyBg from "@/assets/society-bg.jpg";
 import justiceBg from "@/assets/justice-bg.jpg";
 import { useSettings } from "@/game/SettingsContext";
+import { TutorialModal } from "@/components/HomeOverlays";
 
 const Quest = () => {
-  const { t } = useSettings();
+  const { t, tutorialSeen, markTutorialSeen } = useSettings();
+  const [showTut, setShowTut] = useState(false);
+  useEffect(() => { if (!tutorialSeen) setShowTut(true); }, [tutorialSeen]);
   return (
     <GameFrame bgImage={justiceBg}>
       <header className="pt-6 px-6 flex items-center gap-3">
@@ -28,6 +32,7 @@ const Quest = () => {
       </main>
 
       <div className="pb-6" />
+      <TutorialModal open={showTut} onClose={() => { markTutorialSeen(); setShowTut(false); }} />
     </GameFrame>
   );
 };
