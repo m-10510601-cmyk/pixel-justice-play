@@ -20,6 +20,7 @@ import Result from "./pages/case/Result.tsx";
 import SilentFall from "./pages/story/SilentFall.tsx";
 import GreenTrade from "./pages/story/GreenTrade.tsx";
 import TheRunner from "./pages/story/TheRunner.tsx";
+import SilentRoom from "./pages/story/SilentRoom.tsx";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/story/silent-fall" element={<SilentFall />} />
             <Route path="/story/green-trade" element={<GreenTrade />} />
             <Route path="/story/the-runner" element={<TheRunner />} />
+            <Route path="/story/silent-room" element={<SilentRoom />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/store" element={<Store />} />
             <Route path="/triumph" element={<Triumph />} />

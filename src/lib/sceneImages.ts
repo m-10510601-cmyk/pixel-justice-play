@@ -20,6 +20,14 @@
 //   green-trade / interrogation-a → gt-interrogation-a.png
 //   green-trade / interrogation-b → gt-interrogation-b.png
 //   green-trade / reflection      → gt-reflection.png
+//
+//   silent-room / er             → sr-er.png
+//   silent-room / medical        → sr-medical.png
+//   silent-room / neighborhood   → sr-neighborhood.png
+//   silent-room / records        → sr-records.png
+//   silent-room / interrogation  → sr-interrogation.png
+//   silent-room / verdict        → sr-verdict.png
+//   silent-room / reflection     → sr-reflection.png
 // =============================================================================
 
 import runnerBrief from "@/assets/scenes/runner/runner-brief.png";
@@ -37,7 +45,15 @@ import gtInterrogationA from "@/assets/scenes/greentrade/gt-interrogation-a.png"
 import gtInterrogationB from "@/assets/scenes/greentrade/gt-interrogation-b.png";
 import gtReflection from "@/assets/scenes/greentrade/gt-reflection.png";
 
-export type ChapterId = "the-runner" | "green-trade";
+import srEr from "@/assets/scenes/silentroom/sr-er.png";
+import srMedical from "@/assets/scenes/silentroom/sr-medical.png";
+import srNeighborhood from "@/assets/scenes/silentroom/sr-neighborhood.png";
+import srRecords from "@/assets/scenes/silentroom/sr-records.png";
+import srInterrogation from "@/assets/scenes/silentroom/sr-interrogation.png";
+import srVerdict from "@/assets/scenes/silentroom/sr-verdict.png";
+import srReflection from "@/assets/scenes/silentroom/sr-reflection.png";
+
+export type ChapterId = "the-runner" | "green-trade" | "silent-room";
 
 const REGISTRY: Record<ChapterId, Record<string, string>> = {
   "the-runner": {
@@ -56,6 +72,15 @@ const REGISTRY: Record<ChapterId, Record<string, string>> = {
     "interrogation-a": gtInterrogationA,
     "interrogation-b": gtInterrogationB,
     reflection: gtReflection,
+  },
+  "silent-room": {
+    er: srEr,
+    medical: srMedical,
+    neighborhood: srNeighborhood,
+    records: srRecords,
+    interrogation: srInterrogation,
+    verdict: srVerdict,
+    reflection: srReflection,
   },
 };
 
@@ -77,6 +102,15 @@ const TITLE_FALLBACK: Record<ChapterId, Array<[RegExp, string]>> = {
     [/suspect a/i, "interrogation-a"],
     [/suspect b/i, "interrogation-b"],
     [/reflection|final/i, "reflection"],
+  ],
+  "silent-room": [
+    [/er\b|emergency|brief|hospital/i, "er"],
+    [/medical|x-?ray|fracture|anomal/i, "medical"],
+    [/neighbour|neighbor|hood|testimon/i, "neighborhood"],
+    [/records|clinic|history|hidden|pattern/i, "records"],
+    [/interrogation|guardian/i, "interrogation"],
+    [/verdict|legal|judgment|judgement|court/i, "verdict"],
+    [/reflection|ending|silent room/i, "reflection"],
   ],
 };
 
