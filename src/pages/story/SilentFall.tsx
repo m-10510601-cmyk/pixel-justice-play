@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import GameFrame from "@/components/GameFrame";
 import bg from "@/assets/story-silent-fall.jpg";
+import DialogueLine from "@/components/story/DialogueLine";
 
 type ChoiceKey = "q1" | "q2" | "q3" | "rRoom" | "rSchool" | "rOnline";
 type Answers = Partial<Record<ChoiceKey, string>>;
@@ -277,16 +278,15 @@ const SilentFall = () => {
 
       <main className="flex-1 px-5 py-4 overflow-y-auto space-y-4">
         {step?.kind === "scene" && (
-          <div className="bg-card/90 border-2 border-primary p-3 shadow-[var(--shadow-pixel)] space-y-2">
-            <div className="pixel text-[10px] text-primary">{step.title}</div>
-            {step.lines.map((l, k) => (
-              <div key={k} className={l.inner ? "italic opacity-90" : ""}>
-                {l.who && (
-                  <div className="pixel text-[9px] text-accent mt-1">{l.who.toUpperCase()}</div>
-                )}
-                <p className="text-base leading-snug">{l.text}</p>
-              </div>
-            ))}
+          <div className="space-y-3">
+            <div className="bg-card/90 border-2 border-primary px-3 py-2 shadow-[var(--shadow-pixel)] inline-block">
+              <div className="pixel text-[10px] text-primary">{step.title}</div>
+            </div>
+            <div className="space-y-3">
+              {step.lines.map((l, k) => (
+                <DialogueLine key={k} who={l.who} text={l.text} inner={l.inner} />
+              ))}
+            </div>
           </div>
         )}
 
