@@ -1,45 +1,56 @@
-## Goal
-Add a unique pixel-art scene image to each of the 6 cases, displayed as an immersive header in the Case Brief phase.
+# Plan: Show Characters in Dialogue Scenes (Silent Fall)
 
-## Cases needing art
+Goal: When a dialogue line is spoken, display a pixel-art character portrait beside the text — like a classic visual novel — so scenes feel alive instead of just text on a card.
 
-**School chapter:**
-1. `school-1` Missing Laptop — pixel computer lab with empty desk
-2. `school-2` Exam Cheating — pixel exam hall, rows of desks
-3. `school-3` Bullying — pixel school hallway confrontation
+## What the user will see
 
-**Society chapter:**
-4. `society-1` Investment / Online Fraud — pixel desk with computer + scam screen
-5. `society-2` Neighbor Dispute — pixel apartment doorway argument
-6. `society-3` Workplace Negligence — pixel construction/factory site
+For each `scene` step with dialogue:
+- A character portrait appears on the left (or right, alternating by speaker) of each line.
+- The currently-speaking character is highlighted (full color + slight bounce); others would be dimmed if shown.
+- "Inner thoughts" (the player's own reflection) show the player avatar with a thought-bubble style frame instead of a speech tone.
+- Narration lines (no `who`) show no portrait, just italic narration text — keeps pacing clean.
+- A small nameplate above each speech bubble shows the speaker's name in pixel font.
 
-## Changes
+Speakers that need portraits in the current story:
+- Principal (middle-aged man, formal shirt, glasses)
+- Aira's Parent (worried adult, simple blouse)
+- You / Player (the guardian — reuse the existing `AvatarBadge` style, scaled up)
+- Aira (referenced in flashback evidence — optional small portrait in evidence cards too)
 
-### 1. Generate 6 pixel-art images
-Use the image generator to create six 2:3 (or square, cropped) pixel-art scenes matching the case themes. Save to `src/assets/`:
-- `case-school-laptop.jpg`
-- `case-school-exam.jpg`
-- `case-school-bullying.jpg`
-- `case-society-fraud.jpg`
-- `case-society-neighbor.jpg`
-- `case-society-workplace.jpg`
+## How it will be built
 
-### 2. `src/data/cases.ts`
-Add an optional `image: string` field to the `CaseData` type and import + assign the matching asset to each of the 6 cases.
+1. New component `src/components/story/CharacterPortrait.tsx`
+   - Pure CSS/divs pixel-art portraits (no image assets needed) in the same style as `AvatarBadge.tsx`.
+   - Props: `character: "principal" | "parent" | "you" | "aira"`, `size?: number`, `speaking?: boolean`.
+   - Each character defined as a small set of colored pixel blocks (hair, face, eyes, mouth, clothing collar). ~30–40 lines per character.
+   - When `speaking`, add `animate-bob` (gentle 2px up/down) and full opacity; otherwise dim to 60%.
 
-### 3. `src/pages/case/Brief.tsx`
-Render the case's `image` as a header banner above the brief text:
-- Full-width inside the panel
-- Fixed pixel-art aspect (e.g. `aspect-[3/2]`), `object-cover`
-- Pixel-perfect rendering (`image-rendering: pixelated`)
-- Subtle inset border to match the pixel-frame style
-- Falls back gracefully if `image` is missing
+2. New component `src/components/story/DialogueLine.tsx`
+   - Renders one line: `[portrait] [nameplate + bubble]`.
+   - Alternates portrait side based on speaker (Principal left, Parent right, You center-left as inner monologue with dashed border).
+   - Uses existing pixel UI tokens: `bg-card/90`, `border-2 border-primary`, `pixel` font, `text-plate` for high contrast.
+   - Inner thoughts: italic + dashed border + "💭" prefix in nameplate.
 
-### 4. (Optional) Carry the image into Evidence/Result headers
-Out of scope unless you want it — Brief only for now.
+3. Update `src/pages/story/SilentFall.tsx`
+   - Extend the `scene` line type with optional `character` field (auto-mapped from `who` string for backwards compatibility — e.g. `"Principal"` → `principal`).
+   - Replace the current scene render block to map each line to `<DialogueLine>` instead of inline text.
+   - Keep narration (lines with no `who`) rendered as plain text above/between bubbles.
+   - Add a subtle scene-title banner at the top of each scene (unchanged styling).
 
-## Verification
-Open each of the 6 cases → Brief phase shows its unique scene image at the top of the card.
+4. Minor CSS in `src/index.css`
+   - `@keyframes speak-bob` (2px translateY, 0.9s ease-in-out infinite) and `.speak-bob` utility.
+   - `.dialogue-bubble` with a small pixel "tail" pointing toward the portrait (made with a rotated bordered square).
 
-## Out of scope
-No changes to case logic, evidence, scoring, translations, or items.
+## Technical notes
+
+- No new image assets — portraits are CSS pixel art so they stay crisp at any zoom and match the retro aesthetic.
+- Backwards compatible: existing `STORY` data only needs `who` strings; the component infers the character key. New optional `character` field lets us override (e.g. for Aira flashbacks).
+- Choice / evidence / insight steps are unchanged.
+- Mobile: portraits sized 56×56 px so two-column layout (portrait + bubble) still fits the 2:3 vertical viewport.
+
+## Files
+
+- create `src/components/story/CharacterPortrait.tsx`
+- create `src/components/story/DialogueLine.tsx`
+- edit `src/pages/story/SilentFall.tsx` (scene render only)
+- edit `src/index.css` (add speak-bob keyframes + bubble tail)
