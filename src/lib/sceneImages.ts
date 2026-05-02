@@ -1,0 +1,106 @@
+// =============================================================================
+// Scene → Image registry
+// -----------------------------------------------------------------------------
+// Each chapter declares scene-keys that map to a dedicated pixel-art background.
+// Story files can either set `sceneKey: "..."` on a scene step, or rely on the
+// title-keyword fallback below. An explicit `image:` on a step always wins.
+//
+// Registry index (chapter / key → asset):
+//   the-runner / brief          → runner-brief.png
+//   the-runner / call           → runner-call.png
+//   the-runner / door           → runner-door.png
+//   the-runner / station        → runner-station.png
+//   the-runner / arrest         → runner-arrest.png
+//   the-runner / interrogation  → runner-interrogation.png
+//   the-runner / reflection     → runner-reflection.png
+//
+//   green-trade / tipoff          → gt-tipoff.png
+//   green-trade / surveillance    → gt-surveillance.png
+//   green-trade / twofaces        → gt-twofaces.png
+//   green-trade / interrogation-a → gt-interrogation-a.png
+//   green-trade / interrogation-b → gt-interrogation-b.png
+//   green-trade / reflection      → gt-reflection.png
+// =============================================================================
+
+import runnerBrief from "@/assets/scenes/runner/runner-brief.png";
+import runnerCall from "@/assets/scenes/runner/runner-call.png";
+import runnerDoor from "@/assets/scenes/runner/runner-door.png";
+import runnerStation from "@/assets/scenes/runner/runner-station.png";
+import runnerArrest from "@/assets/scenes/runner/runner-arrest.png";
+import runnerInterrogation from "@/assets/scenes/runner/runner-interrogation.png";
+import runnerReflection from "@/assets/scenes/runner/runner-reflection.png";
+
+import gtTipoff from "@/assets/scenes/greentrade/gt-tipoff.png";
+import gtSurveillance from "@/assets/scenes/greentrade/gt-surveillance.png";
+import gtTwoFaces from "@/assets/scenes/greentrade/gt-twofaces.png";
+import gtInterrogationA from "@/assets/scenes/greentrade/gt-interrogation-a.png";
+import gtInterrogationB from "@/assets/scenes/greentrade/gt-interrogation-b.png";
+import gtReflection from "@/assets/scenes/greentrade/gt-reflection.png";
+
+export type ChapterId = "the-runner" | "green-trade";
+
+const REGISTRY: Record<ChapterId, Record<string, string>> = {
+  "the-runner": {
+    brief: runnerBrief,
+    call: runnerCall,
+    door: runnerDoor,
+    station: runnerStation,
+    arrest: runnerArrest,
+    interrogation: runnerInterrogation,
+    reflection: runnerReflection,
+  },
+  "green-trade": {
+    tipoff: gtTipoff,
+    surveillance: gtSurveillance,
+    twofaces: gtTwoFaces,
+    "interrogation-a": gtInterrogationA,
+    "interrogation-b": gtInterrogationB,
+    reflection: gtReflection,
+  },
+};
+
+// Title-keyword fallback per chapter — first match wins.
+const TITLE_FALLBACK: Record<ChapterId, Array<[RegExp, string]>> = {
+  "the-runner": [
+    [/brief|case file/i, "brief"],
+    [/\bcall\b|fear|manipulation/i, "call"],
+    [/collection|\bdoor\b/i, "door"],
+    [/suspicion|station/i, "station"],
+    [/arrest|checkpoint/i, "arrest"],
+    [/interrogation|breaking/i, "interrogation"],
+    [/reflection|ending|verdict/i, "reflection"],
+  ],
+  "green-trade": [
+    [/tip-?off|act\s+i\b/i, "tipoff"],
+    [/surveillance|intercept/i, "surveillance"],
+    [/two faces|profile/i, "twofaces"],
+    [/suspect a/i, "interrogation-a"],
+    [/suspect b/i, "interrogation-b"],
+    [/reflection|final/i, "reflection"],
+  ],
+};
+
+/**
+ * Resolve the background image for a scene step.
+ * @param chapter    Chapter id, e.g. "the-runner".
+ * @param keyOrTitle Explicit sceneKey ("call") or the scene title.
+ */
+export function sceneImageFor(
+  chapter: ChapterId,
+  keyOrTitle?: string,
+): string | undefined {
+  if (!keyOrTitle) return undefined;
+  const chapterMap = REGISTRY[chapter];
+  if (!chapterMap) return undefined;
+
+  const direct = chapterMap[keyOrTitle];
+  if (direct) return direct;
+
+  for (const [pattern, key] of TITLE_FALLBACK[chapter]) {
+    if (pattern.test(keyOrTitle)) {
+      const hit = chapterMap[key];
+      if (hit) return hit;
+    }
+  }
+  return undefined;
+}
