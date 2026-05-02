@@ -45,7 +45,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 1 · The Call", image: sceneOffice,
+    title: "🎬 Scene 1 · The Call", image: sceneCall,
     lines: [
       { text: "(Phone ringing)" },
       { who: "Mr. Tan", text: "“Hello?”" },
@@ -61,7 +61,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 2 · Fear & Manipulation", image: sceneOffice,
+    title: "🎬 Scene 2 · Fear & Manipulation", image: sceneCall,
     lines: [
       { who: "Fake MAS Officer", text: "“You must not tell anyone. This is a confidential investigation.”" },
       { who: "Mr. Tan", text: "“What should I do?”" },
@@ -82,7 +82,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 3 · The Collection", image: sceneDorm,
+    title: "🎬 Scene 3 · The Collection", image: sceneDoor,
     lines: [
       { text: "(A knock at Mr. Tan's door.)" },
       { who: "Suspect", text: "“I'm from the Monetary Authority.”" },
@@ -94,7 +94,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 4 · Suspicion", image: sceneOffice,
+    title: "🎬 Scene 4 · Suspicion", image: sceneCall,
     lines: [
       { who: "Mr. Tan", text: "“They said they would return everything… but no one has contacted me.”" },
       { text: "Days later. Police station. Mr. Tan walks in, hands shaking." },
@@ -174,7 +174,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 5 · The Arrest", image: sceneTurning,
+    title: "🎬 Scene 5 · The Arrest", image: sceneInterrogation,
     lines: [
       { who: "Officer Lim", text: "“We tracked the suspect through CCTV and movement records.”" },
       { text: "(The suspect is detained at a budget hotel near the border.)" },
@@ -183,7 +183,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 6 · Interrogation", image: sceneTurning,
+    title: "🎬 Scene 6 · Interrogation", image: sceneInterrogation,
     lines: [
       { who: "Suspect", text: "“I didn't scam anyone. I was just told to collect items.”" },
       { who: "You", inner: true, text: "‘Just told to.’ Said by every link in every chain." },
@@ -224,7 +224,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 7 · Breaking Point", image: sceneTurning,
+    title: "🎬 Scene 7 · Breaking Point", image: sceneInterrogation,
     lines: [
       { text: "You slide the printed badge and a CCTV still across the table." },
       { who: "You", text: "“You used a fake identity and collected valuables.”" },
@@ -288,7 +288,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Ending · Reflection", image: sceneFinal,
+    title: "🎬 Ending · Reflection", image: sceneReflection,
     lines: [
       { who: "Narrator", text: "“He did not make the call… but he made the crime possible.”" },
       { who: "You", text: "“Crime is not just about who plans it…”" },
