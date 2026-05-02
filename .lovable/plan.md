@@ -1,86 +1,74 @@
-# Plan: Optional Voice Narration for Dialogue
+## The Green Trade — Campus Drug Trafficking Chapter
 
-Add ElevenLabs text-to-speech to the Silent Fall dialogue scenes. When enabled, each line is read aloud and the typewriter effect synchronizes its reveal speed to the audio's duration so the text finishes typing exactly when the voice finishes speaking.
+A new interactive story chapter following the exact structure of `Silent Fall` (scene → evidence → choice → insight → multi-ending), themed around a campus drug trafficking investigation that hooks into the main syndicate storyline.
 
-## What the user will see
+### Files to create
 
-In each scene:
-- A new toolbar button next to AUTO/SKIP: **🔊 VOICE** (toggle on/off, persisted).
-- When **VOICE is ON**:
-  - As each new dialogue line appears, audio starts playing.
-  - Typewriter pace adapts to the audio length: the last character is revealed right as the line finishes speaking.
-  - Different voices per character (Principal, Aira's Parent, You / inner monologue, narrator).
-  - Inner monologue uses a softer, more intimate voice with lower volume.
-  - A subtle "🔊" pulse appears on the active speaker's portrait.
-  - "PAUSE" stops both audio and typing; "SKIP ▶▶" stops audio and reveals all lines.
-- When **VOICE is OFF**: behaves exactly like today (constant `charDelay` typewriter, no audio).
+**1. `src/pages/story/GreenTrade.tsx`** (new — mirrors `SilentFall.tsx`)
 
-A global setting in **Settings → Sound** also exposes a master "Voice Narration" toggle so it persists across sessions.
+Reuses existing components: `GameFrame`, `SceneDialogue`, `EvidenceBoard`, `ChoicePanel`, `DialogueLine`. Same state model: `STORY` array of typed steps, `Answers` map, `gradeEnding()` scoring, three endings.
 
-## Required setup
+`ChoiceKey` set: `q1` (starting point), `q2` (chat assessment), `q3` (suspect profiling), `q4` (case nature), `iA` (interrogate A), `iB` (interrogate B), `q5A` (charge A), `q5B` (charge B).
 
-1. **Lovable Cloud** must be enabled — needed to host the secure edge function that holds the ElevenLabs API key.
-2. **ElevenLabs API key** must be added as a secret (`ELEVENLABS_API_KEY`) in Lovable Cloud. After enabling Cloud, the user will be prompted to paste the key.
+Scoring → endings:
+- 🟢 Perfect: q1∈{B,C} + q2=B + q3=C + q4=C + iA=B + iB=B + q5A=C + q5B=B → upstream syndicate hook unlocked
+- 🟡 Mid: partial — students caught, network hidden
+- 🔴 Failure: q4=A or q5A=A → "personal use" closure, cold trail
 
-## How it will be built
+**2. `src/App.tsx`** — add route `/story/green-trade` → `<GreenTrade />`
 
-### 1. Edge function `supabase/functions/tts/index.ts`
-- Accepts `{ text, voiceId, modelId? }` POST body.
-- Calls ElevenLabs `/v1/text-to-speech/{voiceId}?output_format=mp3_44100_128`.
-- Returns raw `audio/mpeg` bytes (no base64) with permissive CORS so the browser can `fetch().blob()` it directly.
-- Uses `eleven_turbo_v2_5` by default for low first-byte latency.
-- Errors return JSON `{ error }` with 4xx/5xx status; client falls back to silent typewriter.
+**3. `src/pages/Chapter.tsx`** — add a second ★ MAIN STORY card on the `school` chapter page linking to `/story/green-trade` (label: "Chapter Y · The Green Trade").
 
-### 2. Voice mapping `src/lib/voiceMap.ts`
-Maps each `CharacterKey` to an ElevenLabs voice ID + per-character settings:
-- `principal` → George (`JBFqnCBsd6RMkjVDRZzb`) — formal, controlled.
-- `parent` → Sarah (`EXAVITQu4vr4xnSDxMaL`) — warm, worried.
-- `aira` → Lily (`pFZP5JQG7iQjIQuC4Bku`) — young, soft.
-- `you` (player, spoken) → Brian (`nPczCjzI2devNBz1zQrb`).
-- `you` (inner monologue) → River (`SAz9YHcvj6GT2YYXdXww`) — quieter, lower volume.
-- `narrator` → Daniel (`onwK4e9ZLuTAKqWW03F9`).
+### Story outline (8 acts, ~16 steps)
 
-### 3. Audio hook `src/hooks/useLineNarration.ts`
-- `play(text, voiceId, opts)` → `Promise<{ duration: number; stop: () => void }>`.
-- Internally fetches the edge function URL, creates an `Audio` from a blob URL, awaits `loadedmetadata` to get `duration`, then plays.
-- Caches blobs in an in-memory `Map<key, Blob>` (key = `voiceId + sha1(text)`) so re-typing the same line (RETRY) is instant and free.
-- Exposes `stopAll()` to halt any active sound.
-- Handles "voice off" / API errors gracefully by resolving with `duration: 0`.
+```text
+Act I  · Tip-off               scene  (Police Station briefing)
+       · Choice ①              choice (investigation starting point)
 
-### 4. Update `SceneDialogue.tsx`
-- Accept new prop `voiceEnabled: boolean`.
-- When a new line becomes current:
-  1. If voice on, request audio first; once `duration` is known, set effective `charDelay = max(15, (duration*1000 - 250) / textLength)` so typing pace matches the spoken pace (a small lead-out pad keeps the cursor from racing past speech).
-  2. Start typewriter and `audio.play()` together.
-  3. On audio `ended`, advance after the existing `pauseAfter`.
-- When user presses PAUSE: pause audio + stop typewriter timer.
-- When SKIP: stop audio, reveal all lines instantly.
-- When user taps to skip a line: stop audio for that line and advance.
+Act II · Coded chat logs       evidence (chat: "green stuff", "RM50/pack")
+       · Choice ②              choice (assess content)
 
-### 5. UI additions
-- `SceneDialogue` toolbar gains a **🔊 / 🔈** button bound to local + global voice setting.
-- `CharacterPortrait` accepts new prop `talking?: boolean`; when true, adds a small pulsing speaker dot in the corner.
-- `Settings.tsx` adds a "Voice Narration" toggle row under SOUND, stored in `SettingsContext` as `voiceNarration: boolean` (default `false`).
-- `SettingsContext` persists the new flag to `localStorage` like the existing `sound` flag.
+Act III· Suspect profiles      scene  + evidence (Suspect A low-key / B socialite)
+       · Choice ③              choice (who is suspicious — best: BOTH)
 
-### 6. Files
+Act IV · Key evidence dump     evidence (e-wallet ledger, sealed package, lab report >1kg cannabis)
+       · Choice ④              choice (nature of case — best: distribution)
+       · Insight               (Dangerous Drugs Act 1952 — presumption of trafficking)
 
-Create:
-- `supabase/functions/tts/index.ts`
-- `src/lib/voiceMap.ts`
-- `src/hooks/useLineNarration.ts`
+Act V  · Interrogation A       scene  + choice iA ("just keeping it" → press funds)
+       · Interrogation B       scene  + choice iB ("everyone sells" → press upstream)
 
-Edit:
-- `src/components/story/SceneDialogue.tsx` (audio sync + voice toggle)
-- `src/components/story/CharacterPortrait.tsx` (add `talking` indicator)
-- `src/game/SettingsContext.tsx` (add `voiceNarration` flag + persistence + i18n strings)
-- `src/pages/Settings.tsx` (add toggle row)
-- `src/pages/story/SilentFall.tsx` (pass global `voiceNarration` to `SceneDialogue`)
+Act VI · Charge decisions      choice q5A (Suspect A) + choice q5B (Suspect B)
 
-## Technical notes
+Act VII· Phone forensics       evidence (coded contacts, large account links)
+       · Insight               (one node in National Drug Syndicate — main-story hook)
 
-- All audio bytes flow through the edge function — the ElevenLabs key never reaches the client.
-- We rely on `audio.duration` (read after `loadedmetadata`) to compute the per-character delay; if the metadata doesn't arrive in 600ms we fall back to the default `charDelay` and just play the audio over the standard typing.
-- The blob cache lives in memory only (no IndexedDB); a full page reload re-fetches. This keeps things simple and avoids stale-cache bugs.
-- Voice narration default is **OFF** to avoid surprise audio on first visit.
-- No changes to choice/evidence/insight steps.
+Act VIII· Final reflection     scene  (verdict moment)
+```
+
+### Choice content (key options, all with `hint` + `rationale` like SilentFall)
+
+- **Choice ①**: A Raid dorms / B Tail transactions ✅best / C Analyse financials ✅best / D Observe campus (ok)
+- **Choice ②**: A Normal / B Suspicious ✅best / C Clearly illegal (poor — premature) / D Indeterminable
+- **Choice ③**: A Only A / B Only B / C Both ✅best / D Neither
+- **Choice ④**: A Personal use / B Small dealing / C Distribution network ✅best / D Uncertain
+- **Interrogation A**: A Believe him / B Question funds ✅best / C Threaten / D Release
+- **Interrogation B**: A Accept excuse / B Press upstream ✅best / C Charge solo / D Drop
+- **Charge A**: A Possession / B Distributor (ok) / C Trafficking ✅best (>1kg presumption) / D Insufficient
+- **Charge B**: A Possession / B Distributor ✅best / C Trafficking (overreach) / D Insufficient
+
+### Endings
+
+- 🟢 **Perfect — "The Chain Revealed"**: Both convicted appropriately; phone metadata exposes upstream node; main syndicate plot unlocks.
+- 🟡 **Mid — "Two Caught, Network Intact"**: Convictions secured but coded contacts go unanalysed; the syndicate continues.
+- 🔴 **Failure — "Closed as Personal Use"**: Severity underestimated, case downgraded, lead dies.
+
+### Visual assets
+
+Reuse existing `scene-*.png` backgrounds from `src/assets/scenes/` (no new image generation in this plan — the same fallback pattern as SilentFall, where any missing image just shows the title card). If you'd like dedicated pixel art for the police station / dorm raid / interrogation room / phone forensics scenes, say so and I'll generate them in the build step.
+
+### Out of scope
+
+- No changes to `src/data/cases.ts` (this is a story chapter, not a case-file case).
+- No new shared components — fully reuses `EvidenceBoard`, `ChoicePanel`, `SceneDialogue`.
+- No localisation file changes (story text is English, matching SilentFall).
