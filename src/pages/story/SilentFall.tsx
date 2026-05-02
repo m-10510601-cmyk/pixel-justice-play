@@ -4,6 +4,7 @@ import GameFrame from "@/components/GameFrame";
 import bg from "@/assets/story-silent-fall.jpg";
 import DialogueLine from "@/components/story/DialogueLine";
 import SceneDialogue from "@/components/story/SceneDialogue";
+import EvidenceBoard, { EvidenceItem } from "@/components/story/EvidenceBoard";
 import sceneBrief from "@/assets/scenes/scene-brief.png";
 import sceneOffice from "@/assets/scenes/scene-office.png";
 import sceneDorm from "@/assets/scenes/scene-dorm.png";
@@ -16,7 +17,7 @@ type Answers = Partial<Record<ChoiceKey, string>>;
 type Choice = { id: string; label: string; best?: boolean; ok?: boolean };
 type Step =
   | { kind: "scene"; title: string; image?: string; lines: { who?: string; text: string; inner?: boolean }[] }
-  | { kind: "evidence"; title: string; lines: string[] }
+  | { kind: "evidence"; title: string; items: EvidenceItem[] }
   | { kind: "choice"; key: ChoiceKey; title: string; prompt: string; options: Choice[]; reveal?: string }
   | { kind: "insight"; title: string; text: string };
 
@@ -73,30 +74,34 @@ const STORY: Step[] = [
   {
     kind: "evidence",
     title: "🔎 System Findings",
-    lines: [
-      "📷 CCTV: marked “not working” at the time of the incident.",
-      "📱 Phone: partial data was deleted.",
-      "💭 Too many coincidences.",
+    items: [
+      { type: "cctv", label: "CCTV outside Dorm 3B was marked “not working” at the time of the incident.", status: "offline" },
+      { type: "phone", label: "Aira's phone — partial data was deleted from the chat archive and gallery.", status: "deleted" },
+      { type: "note", text: "Too many coincidences. Coincidences are evidence too." },
     ],
   },
   {
     kind: "evidence",
     title: "📱 Hidden Bullying · Chats",
-    lines: [
-      "“Just ignore her.”",
-      "“She’s annoying.”",
-      "“Maybe she should disappear.”",
-      "💭 No direct threats… but this isn’t harmless.",
+    items: [
+      { type: "chat", from: "A", text: "Just ignore her." },
+      { type: "chat", from: "B", text: "She's annoying." },
+      { type: "chat", from: "C", text: "Maybe she should disappear." },
+      { type: "chat", from: "A", text: "lol 😂" },
+      { type: "chat", from: "B", text: "ya don't talk to her tmrw" },
+      { type: "note", text: "No direct threats… but this isn't harmless. Patterns matter." },
     ],
   },
   {
     kind: "evidence",
     title: "🎥 Hidden Bullying · Secret Videos",
-    lines: [
-      "• Mocking gestures",
-      "• Laughing as Aira walks away",
-      "• Light pushing in the hallway",
-      "💭 Each clip is small. Together, they repeat. That matters.",
+    items: [
+      { type: "video", label: "Mocking gestures behind Aira's back in the cafeteria." },
+      { type: "video", label: "Roommates laughing as Aira walks away crying." },
+      { type: "video", label: "Light pushing in the hallway — disguised as a joke." },
+      { type: "list", text: "Each clip is short — under 10 seconds." },
+      { type: "list", text: "Filenames suggest they were uploaded to an external folder." },
+      { type: "note", text: "Each clip is small. Together, they repeat. That matters." },
     ],
   },
   {
@@ -328,12 +333,7 @@ const SilentFall = () => {
         )}
 
         {step?.kind === "evidence" && (
-          <div className="bg-background/80 border-2 border-accent p-3 space-y-1">
-            <div className="pixel text-[10px] text-accent">{step.title}</div>
-            {step.lines.map((l, k) => (
-              <p key={k} className="text-sm leading-snug">{l}</p>
-            ))}
-          </div>
+          <EvidenceBoard title={step.title} items={step.items} />
         )}
 
         {step?.kind === "insight" && (
