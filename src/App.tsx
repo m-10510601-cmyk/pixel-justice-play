@@ -24,6 +24,7 @@ import SilentRoom from "./pages/story/SilentRoom.tsx";
 import MaskOfAuthority from "./pages/story/MaskOfAuthority.tsx";
 import RitualOfPower from "./pages/story/RitualOfPower";
 import SilentDormitory from "./pages/story/SilentDormitory";
+import HighPayTrap from "./pages/story/HighPayTrap";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/story/mask-of-authority" element={<MaskOfAuthority />} />
             <Route path="/story/ritual-of-power" element={<RitualOfPower />} />
             <Route path="/story/silent-dormitory" element={<SilentDormitory />} />
+            <Route path="/story/high-pay-trap" element={<HighPayTrap />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/store" element={<Store />} />
             <Route path="/triumph" element={<Triumph />} />
