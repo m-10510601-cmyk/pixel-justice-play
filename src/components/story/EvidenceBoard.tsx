@@ -1,17 +1,29 @@
 import React from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-export type EvidenceItem =
-  | { type: "cctv"; label: string; status?: "offline" | "tampered" | "ok" }
-  | { type: "phone"; label: string; status?: "deleted" | "ok" }
-  | { type: "chat"; from: "A" | "B" | "C"; text: string }
-  | { type: "video"; label: string }
-  | { type: "list"; text: string }
-  | { type: "note"; text: string };
+type EvidenceCommon = {
+  id?: string;
+  detail?: string;
+  tags?: string[];
+  title?: string;
+};
+
+export type EvidenceItem = EvidenceCommon &
+  (
+    | { type: "cctv"; label: string; status?: "offline" | "tampered" | "ok" }
+    | { type: "phone"; label: string; status?: "deleted" | "ok" }
+    | { type: "chat"; from: "A" | "B" | "C"; text: string }
+    | { type: "video"; label: string }
+    | { type: "list"; text: string }
+    | { type: "note"; text: string }
+  );
 
 interface Props {
   title: string;
   items: EvidenceItem[];
+  highlightIds?: string[];
+  highlightTags?: string[];
+  defaultOpen?: boolean;
 }
 
 const RedactedBar = () => (
@@ -51,7 +63,6 @@ const CCTVCard = ({ label, status = "offline" }: { label: React.ReactNode; statu
         ⚠ {status?.toUpperCase()}
       </span>
     </div>
-    {/* "static" screen */}
     <div
       className="mt-2 h-20 relative overflow-hidden"
       style={{
@@ -132,7 +143,6 @@ const StickyNote = ({ text }: { text: React.ReactNode }) => (
   >
     <div className="pixel text-[8px] mb-1 opacity-70">💭 INVESTIGATOR NOTE</div>
     <p className="text-sm italic leading-snug">{text}</p>
-    {/* tape */}
     <div
       aria-hidden
       className="absolute -top-2 left-1/2 -translate-x-1/2 w-10 h-3 opacity-80"
@@ -158,12 +168,24 @@ const itemSearchText = (it: EvidenceItem): string => {
     case "cctv":
     case "phone":
     case "video":
-      return `${it.type} ${it.label} ${"status" in it ? it.status ?? "" : ""}`;
+      return `${it.type} ${it.label} ${"status" in it ? it.status ?? "" : ""} ${it.detail ?? ""} ${(it.tags ?? []).join(" ")}`;
     case "chat":
-      return `chat user ${it.from} ${it.text}`;
+      return `chat user ${it.from} ${it.text} ${it.detail ?? ""} ${(it.tags ?? []).join(" ")}`;
     case "list":
     case "note":
-      return `${it.type} ${it.text}`;
+      return `${it.type} ${it.text} ${it.detail ?? ""} ${(it.tags ?? []).join(" ")}`;
+  }
+};
+
+const itemTitle = (it: EvidenceItem): string => {
+  if (it.title) return it.title;
+  switch (it.type) {
+    case "cctv": return `CCTV · ${it.label.slice(0, 40)}`;
+    case "phone": return `Phone · ${it.label.slice(0, 40)}`;
+    case "video": return `Clip · ${it.label.slice(0, 40)}`;
+    case "chat": return `Chat ${it.from} · ${it.text.slice(0, 30)}`;
+    case "list": return it.text.slice(0, 50);
+    case "note": return `Note · ${it.text.slice(0, 40)}`;
   }
 };
 
@@ -182,19 +204,56 @@ const highlight = (text: string, q: string) => {
   );
 };
 
-const EvidenceBoard = ({ title, items }: Props) => {
-  const [revealed, setRevealed] = useState(false);
+const isHighlighted = (
+  it: EvidenceItem,
+  ids: Set<string>,
+  tags: Set<string>,
+) => {
+  if (it.id && ids.has(it.id)) return true;
+  if (it.tags && it.tags.some((t) => tags.has(t))) return true;
+  return false;
+};
+
+const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen }: Props) => {
+  const [revealed, setRevealed] = useState(!!defaultOpen);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [query, setQuery] = useState("");
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [pulseOn, setPulseOn] = useState(true);
+  const firstHitRef = useRef<HTMLDivElement | null>(null);
 
-  // count items per type for filter chips
+  const idSet = useMemo(() => new Set(highlightIds ?? []), [highlightIds]);
+  const tagSet = useMemo(() => new Set(highlightTags ?? []), [highlightTags]);
+  const hasHighlights = idSet.size > 0 || tagSet.size > 0;
+
+  // Auto-open file + auto-expand highlighted items + scroll into view + pulse
+  useEffect(() => {
+    if (!hasHighlights) return;
+    setRevealed(true);
+    const next: Record<string, boolean> = {};
+    items.forEach((it, k) => {
+      if (isHighlighted(it, idSet, tagSet)) {
+        next[it.id ?? `idx-${k}`] = true;
+      }
+    });
+    setExpanded((cur) => ({ ...cur, ...next }));
+    setPulseOn(true);
+    const t1 = window.setTimeout(() => {
+      firstHitRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
+    const t2 = window.setTimeout(() => setPulseOn(false), 3200);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [highlightIds, highlightTags, items, hasHighlights, idSet, tagSet]);
+
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: items.length };
     for (const it of items) c[it.type] = (c[it.type] ?? 0) + 1;
     return c;
   }, [items]);
 
-  // available types only (hide chips with 0 items, but always show "all")
   const visibleFilters = FILTERS.filter((f) => f.key === "all" || (counts[f.key] ?? 0) > 0);
 
   const filtered = useMemo(() => {
@@ -206,11 +265,34 @@ const EvidenceBoard = ({ title, items }: Props) => {
     });
   }, [items, filter, query]);
 
+  const highlightedItems = useMemo(
+    () => items.filter((it) => isHighlighted(it, idSet, tagSet)),
+    [items, idSet, tagSet],
+  );
+
+  const expandableCount = items.filter((it) => !!it.detail).length;
+  const allExpanded =
+    expandableCount > 0 &&
+    items.every((it, k) => !it.detail || expanded[it.id ?? `idx-${k}`]);
+
+  const toggleAll = () => {
+    if (allExpanded) {
+      setExpanded({});
+    } else {
+      const next: Record<string, boolean> = {};
+      items.forEach((it, k) => {
+        if (it.detail) next[it.id ?? `idx-${k}`] = true;
+      });
+      setExpanded(next);
+    }
+  };
+
+  let firstHitAssigned = false;
+
   return (
     <div className="relative border-2 border-accent bg-background/85 p-3 space-y-3"
       style={{ boxShadow: "var(--shadow-pixel)" }}
     >
-      {/* file-tab header */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span
@@ -236,6 +318,28 @@ const EvidenceBoard = ({ title, items }: Props) => {
         </button>
       ) : (
         <div className="space-y-3 animate-fade-in">
+          {/* Highlight banner */}
+          {hasHighlights && highlightedItems.length > 0 && (
+            <div
+              className="border-2 border-primary bg-primary/15 p-2 animate-fade-in"
+              style={{ boxShadow: "2px 2px 0 hsl(0 0% 0%)" }}
+            >
+              <div className="pixel text-[9px] text-primary mb-1">
+                🔦 EVIDENCE LINKED TO YOUR CHOICE
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {highlightedItems.map((it, k) => (
+                  <span
+                    key={k}
+                    className="pixel text-[8px] px-2 py-0.5 border border-primary text-primary bg-background/50"
+                  >
+                    {itemTitle(it)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Search bar */}
           <div className="relative">
             <span className="absolute left-2 top-1/2 -translate-y-1/2 pixel text-[10px] text-accent">🔍</span>
@@ -281,21 +385,31 @@ const EvidenceBoard = ({ title, items }: Props) => {
           </div>
 
           {/* Results meta */}
-          <div className="pixel text-[8px] text-accent/80 flex items-center justify-between">
+          <div className="pixel text-[8px] text-accent/80 flex items-center justify-between gap-2">
             <span>
               SHOWING {filtered.length} / {items.length}
             </span>
-            {(filter !== "all" || query) && (
-              <button
-                onClick={() => {
-                  setFilter("all");
-                  setQuery("");
-                }}
-                className="pixel text-[8px] text-primary underline"
-              >
-                RESET
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {expandableCount > 0 && (
+                <button
+                  onClick={toggleAll}
+                  className="pixel text-[8px] text-primary underline"
+                >
+                  {allExpanded ? "COLLAPSE ALL" : "EXPAND ALL"}
+                </button>
+              )}
+              {(filter !== "all" || query) && (
+                <button
+                  onClick={() => {
+                    setFilter("all");
+                    setQuery("");
+                  }}
+                  className="pixel text-[8px] text-primary underline"
+                >
+                  RESET
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Filtered items */}
@@ -307,20 +421,101 @@ const EvidenceBoard = ({ title, items }: Props) => {
           ) : (
             <div className="space-y-2">
               {filtered.map((it, k) => {
+                const key = it.id ?? `idx-${k}`;
+                const hit = isHighlighted(it, idSet, tagSet);
+                const isOpen = !!expanded[key];
+                const setOpen = (v: boolean) =>
+                  setExpanded((cur) => ({ ...cur, [key]: v }));
+
+                let inner: React.ReactNode = null;
                 switch (it.type) {
                   case "cctv":
-                    return <CCTVCard key={k} label={highlight(it.label, query) as any} status={it.status} />;
+                    inner = <CCTVCard label={highlight(it.label, query) as any} status={it.status} />;
+                    break;
                   case "phone":
-                    return <PhoneCard key={k} label={highlight(it.label, query) as any} status={it.status} />;
+                    inner = <PhoneCard label={highlight(it.label, query) as any} status={it.status} />;
+                    break;
                   case "chat":
-                    return <ChatBubble key={k} from={it.from} text={highlight(it.text, query) as any} />;
+                    inner = <ChatBubble from={it.from} text={highlight(it.text, query) as any} />;
+                    break;
                   case "video":
-                    return <VideoCard key={k} label={highlight(it.label, query) as any} />;
+                    inner = <VideoCard label={highlight(it.label, query) as any} />;
+                    break;
                   case "list":
-                    return <ListItem key={k} text={highlight(it.text, query) as any} />;
+                    inner = <ListItem text={highlight(it.text, query) as any} />;
+                    break;
                   case "note":
-                    return <StickyNote key={k} text={highlight(it.text, query) as any} />;
+                    inner = <StickyNote text={highlight(it.text, query) as any} />;
+                    break;
                 }
+
+                const refCb =
+                  hit && !firstHitAssigned
+                    ? (el: HTMLDivElement | null) => {
+                        firstHitRef.current = el;
+                      }
+                    : undefined;
+                if (hit && !firstHitAssigned) firstHitAssigned = true;
+
+                return (
+                  <div
+                    key={key}
+                    ref={refCb}
+                    className={
+                      hit
+                        ? `relative rounded-sm ring-2 ring-primary ring-offset-2 ring-offset-background ${
+                            pulseOn ? "animate-pulse" : ""
+                          }`
+                        : ""
+                    }
+                  >
+                    {hit && (
+                      <span
+                        className="pixel text-[8px] absolute -top-2 left-2 z-10 px-1 bg-primary text-primary-foreground"
+                        style={{ boxShadow: "1px 1px 0 hsl(0 0% 0%)" }}
+                      >
+                        ★ LINKED
+                      </span>
+                    )}
+                    {inner}
+
+                    {it.detail && (
+                      <div className="mt-1">
+                        <button
+                          onClick={() => setOpen(!isOpen)}
+                          className="pixel text-[9px] text-accent flex items-center gap-1 hover:text-primary"
+                          aria-expanded={isOpen}
+                        >
+                          <span>{isOpen ? "▾" : "▸"}</span>
+                          <span>{isOpen ? "HIDE DETAIL" : "EXPAND DETAIL"}</span>
+                        </button>
+                        {isOpen && (
+                          <div className="mt-1 border-l-4 border-primary bg-card/70 px-2 py-1 animate-fade-in">
+                            <p className="text-xs leading-snug text-foreground/90">
+                              {it.detail}
+                            </p>
+                            {it.tags && it.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {it.tags.map((t) => (
+                                  <span
+                                    key={t}
+                                    className={`pixel text-[8px] px-1 border ${
+                                      tagSet.has(t)
+                                        ? "border-primary text-primary"
+                                        : "border-accent/60 text-accent/80"
+                                    }`}
+                                  >
+                                    #{t}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
               })}
             </div>
           )}
