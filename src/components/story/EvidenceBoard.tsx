@@ -220,6 +220,8 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
   const [query, setQuery] = useState("");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [pulseOn, setPulseOn] = useState(true);
+  const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
+  const [linkedOnly, setLinkedOnly] = useState(false);
   const firstHitRef = useRef<HTMLDivElement | null>(null);
 
   const idSet = useMemo(() => new Set(highlightIds ?? []), [highlightIds]);
@@ -238,6 +240,8 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
     });
     setExpanded((cur) => ({ ...cur, ...next }));
     setPulseOn(true);
+    setLinkedOnly(true);
+    const tLinked = window.setTimeout(() => setLinkedOnly(false), 3200);
     const t1 = window.setTimeout(() => {
       firstHitRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 80);
@@ -245,6 +249,7 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
+      window.clearTimeout(tLinked);
     };
   }, [highlightIds, highlightTags, items, hasHighlights, idSet, tagSet]);
 
@@ -256,14 +261,44 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
 
   const visibleFilters = FILTERS.filter((f) => f.key === "all" || (counts[f.key] ?? 0) > 0);
 
+  // Tag counts derived from items
+  const tagCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const it of items) {
+      if (!it.tags) continue;
+      for (const t of it.tags) m.set(t, (m.get(t) ?? 0) + 1);
+    }
+    return Array.from(m.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  }, [items]);
+
+  const linkedCount = useMemo(
+    () => items.filter((it) => isHighlighted(it, idSet, tagSet)).length,
+    [items, idSet, tagSet],
+  );
+
+  const toggleTag = (t: string) => {
+    setActiveTags((cur) => {
+      const n = new Set(cur);
+      if (n.has(t)) n.delete(t); else n.add(t);
+      return n;
+    });
+  };
+
+  const filtersActive =
+    filter !== "all" || !!query || activeTags.size > 0 || linkedOnly;
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return items.filter((it) => {
       if (filter !== "all" && it.type !== filter) return false;
+      if (linkedOnly && !isHighlighted(it, idSet, tagSet)) return false;
+      if (activeTags.size > 0) {
+        if (!it.tags || !it.tags.some((t) => activeTags.has(t))) return false;
+      }
       if (!q) return true;
       return itemSearchText(it).toLowerCase().includes(q);
     });
-  }, [items, filter, query]);
+  }, [items, filter, query, activeTags, linkedOnly, idSet, tagSet]);
 
   const highlightedItems = useMemo(
     () => items.filter((it) => isHighlighted(it, idSet, tagSet)),
@@ -362,8 +397,9 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
             )}
           </div>
 
-          {/* Filter chips */}
-          <div className="flex flex-wrap gap-1">
+          {/* TYPE chips */}
+          <div className="flex flex-wrap items-center gap-1">
+            <span className="pixel text-[8px] text-accent/70 mr-1 w-10">TYPE</span>
             {visibleFilters.map((f) => {
               const active = filter === f.key;
               const n = counts[f.key] ?? 0;
@@ -384,6 +420,58 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
             })}
           </div>
 
+          {/* TAG chips */}
+          {tagCounts.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="pixel text-[8px] text-accent/70 mr-1 w-10">TAGS</span>
+              {tagCounts.map(([t, n]) => {
+                const active = activeTags.has(t);
+                return (
+                  <button
+                    key={t}
+                    onClick={() => toggleTag(t)}
+                    className={`pixel text-[9px] px-2 py-1 border-2 transition-colors ${
+                      active
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card/60 text-foreground/80 border-primary/40 hover:border-primary"
+                    }`}
+                    style={{ boxShadow: active ? "2px 2px 0 hsl(0 0% 0%)" : undefined }}
+                    aria-pressed={active}
+                  >
+                    #{t} <span className="opacity-70">[{n}]</span>
+                  </button>
+                );
+              })}
+              {activeTags.size > 0 && (
+                <button
+                  onClick={() => setActiveTags(new Set())}
+                  className="pixel text-[8px] text-destructive underline ml-1"
+                >
+                  CLEAR
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* STATE chip — linked only */}
+          {hasHighlights && (
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="pixel text-[8px] text-accent/70 mr-1 w-10">STATE</span>
+              <button
+                onClick={() => setLinkedOnly((v) => !v)}
+                className={`pixel text-[9px] px-2 py-1 border-2 transition-colors ${
+                  linkedOnly
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card/60 text-foreground/80 border-primary/40 hover:border-primary"
+                }`}
+                style={{ boxShadow: linkedOnly ? "2px 2px 0 hsl(0 0% 0%)" : undefined }}
+                aria-pressed={linkedOnly}
+              >
+                ★ LINKED ONLY <span className="opacity-70">[{linkedCount}]</span>
+              </button>
+            </div>
+          )}
+
           {/* Results meta */}
           <div className="pixel text-[8px] text-accent/80 flex items-center justify-between gap-2">
             <span>
@@ -398,11 +486,13 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
                   {allExpanded ? "COLLAPSE ALL" : "EXPAND ALL"}
                 </button>
               )}
-              {(filter !== "all" || query) && (
+              {filtersActive && (
                 <button
                   onClick={() => {
                     setFilter("all");
                     setQuery("");
+                    setActiveTags(new Set());
+                    setLinkedOnly(false);
                   }}
                   className="pixel text-[8px] text-primary underline"
                 >
@@ -414,9 +504,18 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
 
           {/* Filtered items */}
           {filtered.length === 0 ? (
-            <div className="border-2 border-dashed border-accent/50 bg-card/40 py-6 text-center">
+            <div className="border-2 border-dashed border-accent/50 bg-card/40 py-6 text-center px-3">
               <div className="pixel text-[10px] text-accent/70">∅ NO MATCHING EVIDENCE</div>
-              <div className="text-xs text-foreground/60 mt-1">Try another filter or term.</div>
+              <div className="text-xs text-foreground/60 mt-1">
+                {(() => {
+                  const parts: string[] = [];
+                  if (filter !== "all") parts.push(`type=${filter.toUpperCase()}`);
+                  if (activeTags.size > 0) parts.push(`tags=${Array.from(activeTags).map((t) => `#${t}`).join(" ")}`);
+                  if (linkedOnly) parts.push("linked only");
+                  if (query) parts.push(`search="${query}"`);
+                  return parts.length ? `Active filters → ${parts.join(" · ")}` : "Try another filter or term.";
+                })()}
+              </div>
             </div>
           ) : (
             <div className="space-y-2">
@@ -496,18 +595,26 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
                             </p>
                             {it.tags && it.tags.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-1">
-                                {it.tags.map((t) => (
-                                  <span
-                                    key={t}
-                                    className={`pixel text-[8px] px-1 border ${
-                                      tagSet.has(t)
-                                        ? "border-primary text-primary"
-                                        : "border-accent/60 text-accent/80"
-                                    }`}
-                                  >
-                                    #{t}
-                                  </span>
-                                ))}
+                                {it.tags.map((t) => {
+                                  const filterActive = activeTags.has(t);
+                                  const linked = tagSet.has(t);
+                                  return (
+                                    <button
+                                      key={t}
+                                      onClick={() => toggleTag(t)}
+                                      title={filterActive ? `Click to remove #${t} filter` : `Click to filter by #${t}`}
+                                      className={`pixel text-[8px] px-1 border transition-colors ${
+                                        filterActive
+                                          ? "border-primary bg-primary text-primary-foreground"
+                                          : linked
+                                            ? "border-primary text-primary hover:bg-primary/15"
+                                            : "border-accent/60 text-accent/80 hover:border-primary hover:text-primary"
+                                      }`}
+                                    >
+                                      #{t}
+                                    </button>
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
