@@ -560,6 +560,7 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
                   <div
                     key={key}
                     ref={refCb}
+                    data-evidence-id={it.id}
                     className={
                       hit
                         ? `relative rounded-sm ring-2 ring-primary ring-offset-2 ring-offset-background ${
