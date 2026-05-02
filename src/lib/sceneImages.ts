@@ -52,6 +52,14 @@
 //   silent-dormitory / collapse              → dm-collapse.png
 //   silent-dormitory / hospital              → dm-hospital.png
 //   silent-dormitory / verdict               → dm-verdict.png
+//
+//   high-pay-trap / cafe           → hp-cafe.png
+//   high-pay-trap / office         → hp-office.png
+//   high-pay-trap / airport        → hp-airport.png
+//   high-pay-trap / compound       → hp-compound.png
+//   high-pay-trap / scam-floor     → hp-scam-floor.png
+//   high-pay-trap / interrogation  → hp-interrogation.png
+//   high-pay-trap / verdict        → hp-verdict.png
 // =============================================================================
 
 import runnerBrief from "@/assets/scenes/runner/runner-brief.png";
@@ -101,13 +109,22 @@ import dmCollapse from "@/assets/scenes/dormitory/dm-collapse.png";
 import dmHospital from "@/assets/scenes/dormitory/dm-hospital.png";
 import dmVerdict from "@/assets/scenes/dormitory/dm-verdict.png";
 
+import hpCafe from "@/assets/scenes/highpay/hp-cafe.png";
+import hpOffice from "@/assets/scenes/highpay/hp-office.png";
+import hpAirport from "@/assets/scenes/highpay/hp-airport.png";
+import hpCompound from "@/assets/scenes/highpay/hp-compound.png";
+import hpScamFloor from "@/assets/scenes/highpay/hp-scam-floor.png";
+import hpInterrogation from "@/assets/scenes/highpay/hp-interrogation.png";
+import hpVerdict from "@/assets/scenes/highpay/hp-verdict.png";
+
 export type ChapterId =
   | "the-runner"
   | "green-trade"
   | "silent-room"
   | "mask-of-authority"
   | "ritual-of-power"
-  | "silent-dormitory";
+  | "silent-dormitory"
+  | "high-pay-trap";
 
 const REGISTRY: Record<ChapterId, Record<string, string>> = {
   "the-runner": {
@@ -162,6 +179,15 @@ const REGISTRY: Record<ChapterId, Record<string, string>> = {
     collapse: dmCollapse,
     hospital: dmHospital,
     verdict: dmVerdict,
+  },
+  "high-pay-trap": {
+    cafe: hpCafe,
+    office: hpOffice,
+    airport: hpAirport,
+    compound: hpCompound,
+    "scam-floor": hpScamFloor,
+    interrogation: hpInterrogation,
+    verdict: hpVerdict,
   },
 };
 
@@ -218,6 +244,15 @@ const TITLE_FALLBACK: Record<ChapterId, Array<[RegExp, string]>> = {
     [/routine|normalisation|normalization|silence|habituation/i, "routine"],
     [/collapse|breaking|crisis/i, "collapse"],
     [/hospital|aftermath|doctor/i, "hospital"],
+    [/verdict|legal|court|reflection|ending|charge/i, "verdict"],
+  ],
+  "high-pay-trap": [
+    [/cafe|opportunity|advert|\bad\b|brief/i, "cafe"],
+    [/office|agent|recruit|trust/i, "office"],
+    [/airport|arrival|passport|seizure|turning/i, "airport"],
+    [/compound|exploitation|reality|debt|locked|hidden phone/i, "compound"],
+    [/scam|floor|sunk|rationalis|rationaliz|psychological/i, "scam-floor"],
+    [/interrogation|confront|suspect/i, "interrogation"],
     [/verdict|legal|court|reflection|ending|charge/i, "verdict"],
   ],
 };
