@@ -5,6 +5,7 @@ import bg from "@/assets/story-silent-fall.jpg";
 import DialogueLine from "@/components/story/DialogueLine";
 import SceneDialogue from "@/components/story/SceneDialogue";
 import EvidenceBoard, { EvidenceItem } from "@/components/story/EvidenceBoard";
+import ChoicePanel from "@/components/story/ChoicePanel";
 import sceneBrief from "@/assets/scenes/scene-brief.png";
 import sceneOffice from "@/assets/scenes/scene-office.png";
 import sceneDorm from "@/assets/scenes/scene-dorm.png";
@@ -14,7 +15,7 @@ import sceneFinal from "@/assets/scenes/scene-final.png";
 type ChoiceKey = "q1" | "q2" | "q3" | "rRoom" | "rSchool" | "rOnline";
 type Answers = Partial<Record<ChoiceKey, string>>;
 
-type Choice = { id: string; label: string; best?: boolean; ok?: boolean };
+type Choice = { id: string; label: string; best?: boolean; ok?: boolean; hint?: string; rationale?: string };
 type Step =
   | { kind: "scene"; title: string; image?: string; lines: { who?: string; text: string; inner?: boolean }[] }
   | { kind: "evidence"; title: string; items: EvidenceItem[] }
@@ -52,10 +53,10 @@ const STORY: Step[] = [
     title: "🎮 Choice ① · Initial Judgement",
     prompt: "What is your initial reading of the case?",
     options: [
-      { id: "A", label: "Likely an accident" },
-      { id: "B", label: "External force involved" },
-      { id: "C", label: "Cannot rule out human involvement", best: true },
-      { id: "D", label: "Need more evidence", best: true },
+      { id: "A", label: "Likely an accident", hint: "Aligns with the school's narrative.", rationale: "Closes the inquiry too early — ignores the parent's testimony and unverified scene." },
+      { id: "B", label: "External force involved", hint: "Strong claim — needs proof.", rationale: "No physical evidence yet supports a direct attack. Premature." },
+      { id: "C", label: "Cannot rule out human involvement", best: true, hint: "Keeps every theory alive.", rationale: "The right posture for an investigator: hold theories lightly until evidence settles them." },
+      { id: "D", label: "Need more evidence", best: true, hint: "The investigator's default.", rationale: "Acknowledges the gap. Demands the work before drawing a verdict." },
     ],
     reveal: "Best answers: C or D. Stay open — investigate before you conclude.",
   },
@@ -110,10 +111,10 @@ const STORY: Step[] = [
     title: "🎮 Choice ② · Does this count as a crime?",
     prompt: "How would you classify this pattern of behaviour?",
     options: [
-      { id: "A", label: "Normal student conflict" },
-      { id: "B", label: "Minor school issue" },
-      { id: "C", label: "Ongoing psychological harm", best: true },
-      { id: "D", label: "Cannot determine" },
+      { id: "A", label: "Normal student conflict", hint: "Minimises a clear pattern.", rationale: "Conflict is two-sided. This evidence shows targeting, not friction." },
+      { id: "B", label: "Minor school issue", hint: "Discipline-only framing.", rationale: "Treats systemic harm as paperwork. Lets the cause continue." },
+      { id: "C", label: "Ongoing psychological harm", best: true, hint: "Names the pattern accurately.", rationale: "Repetition + targeting + isolation = harm. Even without bruises." },
+      { id: "D", label: "Cannot determine", hint: "You already have evidence.", rationale: "There is enough here to classify. Refusing to is its own choice." },
     ],
     reveal: "Correct: C. Repeated, targeted harm crosses the line from conflict into harm.",
   },
@@ -141,10 +142,10 @@ const STORY: Step[] = [
     title: "🎮 Choice ③ · Case Classification",
     prompt: "How do you classify what happened?",
     options: [
-      { id: "A", label: "Suicide" },
-      { id: "B", label: "Accident" },
-      { id: "C", label: "Directly pushed" },
-      { id: "D", label: "Result of prolonged bullying", best: true },
+      { id: "A", label: "Suicide", hint: "Removes others from the picture.", rationale: "Ignores the documented pressure leading up to the moment. Convenient for the wrong people." },
+      { id: "B", label: "Accident", hint: "The school's preferred story.", rationale: "Not consistent with deleted footage, tampered camera, or the chat record." },
+      { id: "C", label: "Directly pushed", hint: "Strong, but unproven.", rationale: "The surviving footage cuts before any clear push. Don't claim what you cannot show." },
+      { id: "D", label: "Result of prolonged bullying", best: true, hint: "Names the chain, not just the moment.", rationale: "Captures the full causal pattern: months of harm culminated at that railing." },
     ],
     reveal: "Best: D. Even without a single direct act, prolonged harm can shape responsibility.",
   },
@@ -164,10 +165,10 @@ const STORY: Step[] = [
     title: "🎬 Responsibility · Roommates",
     prompt: "What responsibility do the roommates carry?",
     options: [
-      { id: "A", label: "No responsibility" },
-      { id: "B", label: "School discipline issue" },
-      { id: "C", label: "Psychological harm responsibility", best: true },
-      { id: "D", label: "Criminal liability", ok: true },
+      { id: "A", label: "No responsibility", hint: "Erases the perpetrators.", rationale: "Direct contradiction of the chat and video evidence." },
+      { id: "B", label: "School discipline issue", hint: "Too soft for sustained harm.", rationale: "Bypasses real accountability — keeps it as a school administrative matter." },
+      { id: "C", label: "Psychological harm responsibility", best: true, hint: "Matches the evidence.", rationale: "Repeated targeted harm makes the roommates responsible for the pattern they sustained." },
+      { id: "D", label: "Criminal liability", ok: true, hint: "Possible — needs intent.", rationale: "Defensible if intent to harm can be proven. Otherwise stay with C." },
     ],
     reveal: "Best: C, with partial D depending on evidence of intent.",
   },
@@ -177,10 +178,10 @@ const STORY: Step[] = [
     title: "🏫 Responsibility · School",
     prompt: "What is the school's responsibility?",
     options: [
-      { id: "A", label: "No responsibility" },
-      { id: "B", label: "Negligence", best: true },
-      { id: "C", label: "Indirect responsibility", best: true },
-      { id: "D", label: "Accomplice" },
+      { id: "A", label: "No responsibility", hint: "Ignores duty of care.", rationale: "Boarding schools owe a continuous duty of care. Silence is failure, not neutrality." },
+      { id: "B", label: "Negligence", best: true, hint: "Failure to act on warning signs.", rationale: "Calls and missed reports went unanswered. That is negligence." },
+      { id: "C", label: "Indirect responsibility", best: true, hint: "Systemic, not personal.", rationale: "The institution shaped the conditions that allowed the harm to continue." },
+      { id: "D", label: "Accomplice", hint: "Implies intent.", rationale: "No evidence the school willed the harm — overreach beyond what's proven." },
     ],
     reveal: "Correct: B or C. The school failed its duty of care, but did not act with intent.",
   },
@@ -190,10 +191,10 @@ const STORY: Step[] = [
     title: "🌐 Responsibility · Online Spreaders",
     prompt: "What about those who shared the videos online?",
     options: [
-      { id: "A", label: "Not involved" },
-      { id: "B", label: "Increased harm", best: true },
-      { id: "C", label: "Participated in bullying", best: true },
-      { id: "D", label: "Criminal liability", ok: true },
+      { id: "A", label: "Not involved", hint: "Sharing is participation.", rationale: "Each share extended the reach and the humiliation. Not neutral." },
+      { id: "B", label: "Increased harm", best: true, hint: "Reach amplified the wound.", rationale: "Distribution multiplied the audience — and the damage." },
+      { id: "C", label: "Participated in bullying", best: true, hint: "Sharing IS the act.", rationale: "In a digital chain, spreaders are part of the harm, not bystanders." },
+      { id: "D", label: "Criminal liability", ok: true, hint: "Possible under harassment law.", rationale: "If monetised or knowingly spread to harm, criminal liability is on the table." },
     ],
     reveal: "Best: B + C. Spreading the content multiplied the harm.",
   },
@@ -344,45 +345,16 @@ const SilentFall = () => {
         )}
 
         {step?.kind === "choice" && (
-          <div className="bg-card/90 border-2 border-primary p-3 shadow-[var(--shadow-pixel)] space-y-3">
-            <div className="pixel text-[10px] text-primary">{step.title}</div>
-            <p className="text-sm">{step.prompt}</p>
-            <div className="space-y-2">
-              {step.options.map((opt) => {
-                const picked = answers[step.key] === opt.id;
-                const revealed = revealedAt === i;
-                const tone = revealed
-                  ? opt.best
-                    ? "border-primary bg-primary/25"
-                    : opt.ok
-                      ? "border-accent bg-accent/15"
-                      : picked
-                        ? "border-destructive/70 bg-destructive/15"
-                        : "border-primary/30 bg-background/60"
-                  : picked
-                    ? "border-primary bg-primary/20"
-                    : "border-primary/40 bg-background/70";
-                return (
-                  <button
-                    key={opt.id}
-                    onClick={() => choose(step.key, opt.id)}
-                    className={`w-full text-left p-2 border-2 transition-colors ${tone}`}
-                  >
-                    <span className="pixel text-[10px] text-primary mr-2">{opt.id}.</span>
-                    <span className="text-sm">{opt.label}</span>
-                    {revealed && opt.best && (
-                      <span className="pixel text-[8px] text-primary ml-2">★ BEST</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-            {step.reveal && revealedAt === i && (
-              <div className="text-xs bg-background/80 border-2 border-primary/60 p-2">
-                {step.reveal}
-              </div>
-            )}
-          </div>
+          <ChoicePanel
+            title={step.title}
+            prompt={step.prompt}
+            options={step.options}
+            reveal={step.reveal}
+            selected={answers[step.key]}
+            revealed={revealedAt === i}
+            resetKey={`${i}-${step.key}`}
+            onSelect={(id) => choose(step.key, id)}
+          />
         )}
 
         {!done && (
