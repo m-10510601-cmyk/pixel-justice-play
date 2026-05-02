@@ -75,7 +75,7 @@ const STORY: Step[] = [
     items: [
       { id: "call-recording", type: "video", title: "Recording · ‘Monetary Authority’ call", label: "23 minutes. Calm authoritative voice. Refers to non-existent case number.", detail: "Spoofed Caller ID showing a real BNM exchange prefix. Classic vishing signature.", tags: ["pattern", "syndicate"] },
       { id: "call-script", type: "note", title: "Repeated phrasing across calls", text: "‘Suspected of illegal activity’ · ‘cooperate with the investigation’ · ‘funds must be frozen for verification’.", detail: "Word-for-word phrasing matches three other reports filed this month.", tags: ["pattern", "syndicate"] },
-      { id: "victim-stmt", type: "chat", from: "V", text: "“He told me not to tell anyone. He said the bank could be involved too.”", title: "Victim statement", detail: "Isolation tactic — cuts the victim off from anyone who would break the spell.", tags: ["pattern"] },
+      { id: "victim-stmt", type: "chat", from: "C", text: "“He told me not to tell anyone. He said the bank could be involved too.”", title: "Victim statement", detail: "Isolation tactic — cuts the victim off from anyone who would break the spell.", tags: ["pattern"] },
     ],
   },
   {
@@ -106,7 +106,7 @@ const STORY: Step[] = [
     items: [
       { id: "doorbell-cctv", type: "cctv", title: "Doorbell camera capture", label: "Suit, briefcase, wig, fake laminated ID lanyard.", detail: "Wardrobe clearly chosen to mimic a regulator/officer — psychological props, not a disguise.", tags: ["pattern", "syndicate"] },
       { id: "fake-id", type: "note", title: "‘Officer ID’ left at scene", text: "Plastic card with a misspelled department name and stock photo.", detail: "Cheap, mass-printed. Designed to hold up for 30 seconds at a doorstep.", tags: ["pattern"] },
-      { id: "victim-impression", type: "chat", from: "V", text: "“He looked like he belonged. That's why I opened the door.”", title: "Victim impression", detail: "Confirms the wardrobe achieved its psychological purpose.", tags: ["pattern"] },
+      { id: "victim-impression", type: "chat", from: "C", text: "“He looked like he belonged. That's why I opened the door.”", title: "Victim impression", detail: "Confirms the wardrobe achieved its psychological purpose.", tags: ["pattern"] },
     ],
   },
   {

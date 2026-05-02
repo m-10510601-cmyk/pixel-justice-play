@@ -22,6 +22,7 @@ import GreenTrade from "./pages/story/GreenTrade.tsx";
 import TheRunner from "./pages/story/TheRunner.tsx";
 import SilentRoom from "./pages/story/SilentRoom.tsx";
 import MaskOfAuthority from "./pages/story/MaskOfAuthority.tsx";
+import RitualOfPower from "./pages/story/RitualOfPower.tsx";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/story/the-runner" element={<TheRunner />} />
             <Route path="/story/silent-room" element={<SilentRoom />} />
             <Route path="/story/mask-of-authority" element={<MaskOfAuthority />} />
+            <Route path="/story/ritual-of-power" element={<RitualOfPower />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/store" element={<Store />} />
             <Route path="/triumph" element={<Triumph />} />

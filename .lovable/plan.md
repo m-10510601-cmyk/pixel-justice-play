@@ -1,106 +1,120 @@
-## Case V — The Silent Room
+## Case VII — The Ritual of Power
 
-A new multi-act story chapter modelled on Silent Fall / Green Trade / The Runner, themed around long-term child abuse, systemic failure, and the line between discipline and harm. Six acts, seven choices, three endings, full pixel-art scene set.
+A new society-arc chapter modelled on Mask of Authority / Silent Room. Themes: cult manipulation, consent vs legality, premeditated murder vs failed ritual, and a new media-sentiment mechanic that can mislead the player.
 
 ### 1. Routing & navigation
 
-- Add page `src/pages/story/SilentRoom.tsx`.
-- Register route `/story/silent-room` in `src/App.tsx`.
-- Add an entry card in `src/pages/Chapter.tsx` under the `society` chapter list (alongside The Runner):
-  - Title: "Chapter W · The Silent Room"
-  - Subtitle: "Child protection · systemic failure · multi-ending"
+- New page `src/pages/story/RitualOfPower.tsx`.
+- Register `/story/ritual-of-power` in `src/App.tsx`.
+- Add a "Chapter U · The Ritual of Power" card in the `society` section of `src/pages/Chapter.tsx`.
 
 ### 2. Pixel-art scene assets
 
-Generate 7 new 1024×1024 16-bit pixel-art backgrounds in `src/assets/scenes/silentroom/`, matching the style of the existing runner/greentrade sets:
+Generate 7 new 1024×1024 pixel-art backgrounds in `src/assets/scenes/ritual/`:
 
 | Key | File | Subject |
 |---|---|---|
-| `er` | `sr-er.png` | Hospital ER — child on gurney, doctor + agitated guardian |
-| `medical` | `sr-medical.png` | X-ray light box with multiple fractures, medical chart |
-| `neighborhood` | `sr-neighborhood.png` | Apartment corridor at night, child silhouette outside door |
-| `records` | `sr-records.png` | Stack of clinic folders / dossier on desk |
-| `interrogation` | `sr-interrogation.png` | Interrogation room with guardian seated under lamp |
-| `verdict` | `sr-verdict.png` | Courtroom — gavel, child's empty chair |
-| `reflection` | `sr-reflection.png` | A quiet, empty child's bedroom — the "silent room" |
+| `disappearance` | `rt-disappearance.png` | News desk / missing-person poster of Dato' Rahman |
+| `ritual` | `rt-ritual.png` | Dim ritual chamber: candles, sigils, altar, robed figures (silhouettes only) |
+| `mentor` | `rt-mentor.png` | The "spiritual mentor" in opulent study, occult symbols, cash on desk |
+| `assistant` | `rt-assistant.png` | Lina the assistant in a small room, isolation/brainwashing tone |
+| `media` | `rt-media.png` | Wall of TV screens with conflicting tabloid headlines |
+| `interrogation` | `rt-interrogation.png` | Standard pixel-art interrogation room |
+| `verdict` | `rt-verdict.png` | Malaysian courtroom (reuse the verdict aesthetic) |
+
+Tone guidance for image gen: no gore, no real religious iconography — silhouettes, candles, abstract sigils only.
 
 ### 3. Scene image registry
 
 Update `src/lib/sceneImages.ts`:
-- Extend `ChapterId` with `"silent-room"`.
-- Add the 7 imports + `silent-room` block in `REGISTRY`.
-- Add `TITLE_FALLBACK["silent-room"]` patterns: `/er|emergency|brief/i → er`, `/medical|x-?ray|fracture/i → medical`, `/neighbour|neighbor|hood|testimon/i → neighborhood`, `/records|clinic|history|pattern/i → records`, `/interrogation|guardian/i → interrogation`, `/verdict|legal|judgment|judgement/i → verdict`, `/reflection|ending|silent room/i → reflection`.
-- Update the comment-index header to list the new mappings.
+- Extend `ChapterId` with `"ritual-of-power"`.
+- Add 7 imports + the `ritual-of-power` block in `REGISTRY`.
+- Add `TITLE_FALLBACK["ritual-of-power"]` patterns:
+  - `/disappear|missing|brief/i → disappearance`
+  - `/ritual|ceremony|chamber/i → ritual`
+  - `/mentor|guru|master/i → mentor`
+  - `/assistant|lina|brainwash/i → assistant`
+  - `/media|headline|tabloid|press/i → media`
+  - `/interrogation/i → interrogation`
+  - `/verdict|legal|court|reflection|ending/i → verdict`
+- Update the comment-index header.
 
-### 4. Story structure (`SilentRoom.tsx`)
+### 4. Story structure (`RitualOfPower.tsx`)
 
-Mirror the `Step` union from `TheRunner.tsx` (`scene | evidence | choice | insight`). Use `SceneDialogue`, `EvidenceBoard`, `ChoicePanel`, `GameFrame`. Reuse `bg` from `@/assets/story-silent-fall.jpg` as the frame backdrop.
+Same `Step` union as `MaskOfAuthority.tsx` (`scene | evidence | choice | insight`). Reuses `GameFrame`, `SceneDialogue`, `EvidenceBoard`, `ChoicePanel`, and the same `RecapPanel` component.
 
-Acts and steps:
+Acts and steps (≈22 steps total):
 
-1. **Case Brief** (scene, `er`) — set 2026 Malaysia, child "Adi" (6) brought in unresponsive; guardian claims a fall.
-2. **Act I · ER Report** (scene, `er`) — Doctor whisper, agitated guardian, system narrative line.
-3. **Choice ① · Initial Judgment** (`q1`)
-   - A. Standard accident — *poor* (closes too early).
-   - B. Verify injuries match story — *best*.
-   - C. Guardian credible — *poor* (uncritical).
-   - D. Insufficient information — *best*.
-4. **Act II · Medical Anomalies** (scene, `medical`) — doctor explains bruises and fractures at different healing stages.
-5. **Evidence Board #1** — `medical-report` (reliable), `xray-old-fracture` (reliable), `xray-new-fracture` (reliable), `guardian-statement` (unreliable). Each item carries a short rationale.
-6. **Choice ② · Evidence Interpretation** (`q2`)
-   - A. Active child / minor injuries — *poor*.
-   - B. Possible recurring injuries — *ok*.
-   - C. Possible chart error — *poor*.
-   - D. Inconsistent with single-event accident — *best* (legal grounding).
-7. **Act III · Neighborhood** (scene, `neighborhood`) — Neighbor A and Neighbor B testimonies.
-8. **Evidence Board #2** — `neighbor-a` (ok / cautious weight), `neighbor-b` (ok), `school-silence` (reliable — bruises noted but never reported).
-9. **Choice ③ · Assessing Testimony** (`q3`)
-   - A. Standard family friction — *poor*.
-   - B. Possible neglect — *ok*.
-   - C. Neighbors unreliable — *poor*.
-   - D. Long-term abnormal pattern — *best*.
-10. **Act IV · Hidden Records** (scene, `records`) — discovery of multiple clinic visits at different hospitals, all logged as accidents.
-11. **Evidence Board #3** — `clinic-records` (reliable, with `evidenceTags: ["pattern"]`), `school-incident-log` (reliable), `cps-no-referral` (reliable — system failure).
-12. **Choice ④ · Pattern Recognition** (`q4`)
-   - A. Coincidence — *poor*.
-   - B. Clumsy child — *poor*.
-   - C. Pattern of systemic physical abuse — *best*.
-   - D. General negligence — *ok*.
-13. **Act V · Interrogation** (scene, `interrogation`) — guardian's emotional appeal, then the "discipline vs abuse" pivot dialogue.
-14. **Choice ⑤ · Response Strategy** (`q5`)
-   - A. Express sympathy — *poor* (manipulation risk).
-   - B. Focus on timeline — *best*.
-   - C. Confront medical contradictions — *best*.
-   - D. Suspend interrogation — *ok*.
-   - Reveal explains B+C is the strongest combined approach.
-15. **Insight · Discipline vs Abuse** — short framing block on Penal Code §302/§304 and Child Act 2001 (Malaysia), plus the line "every Tuesday for a month".
-16. **Act VI · Legal Junction** — two reasoning choices in sequence:
-    - **Choice ⑥ · Nature of Action** (`q6`): A Strict / B Excessive / **C Persistent abuse — best**.
-    - **Choice ⑦ · Nature of Death** (`q7`): A Single fall / B Compound accident / **C Death from long-term abuse — best**.
-17. **Verdict & Ending Resolver** (scene → reflection) — compute ending from answers (see §5).
-18. **Reflection** (`reflection`) — closing inner monologue: "It wasn't only the room that was silent."
+1. **Case Brief** (scene, `disappearance`) — Dato' Rahman, missing 6 days; ritual-mentor lead surfaces.
+2. **Act I · The Disappearance** (scene, `mentor`) — investigators trace large outflows to the mentor.
+3. **Choice ① · Initial Frame** (`q1`)
+   - A. Missing person — *poor* (closes too early).
+   - B. Fraud + suspicious disappearance — *best*.
+   - C. Voluntary disappearance — *poor*.
+   - D. Ordinary cult activity — *ok*.
+4. **Act II · The Ritual Site** (scene, `ritual`) — body recovered; ritual setup intact.
+5. **Evidence Board #1 · "It Was Voluntary"** — `ritual-video` (victim participating, reliable, tag `consent-trap`), `audio-consent` ("I accept all consequences", reliable, tag `consent-trap`), `ritual-injury` (forensic — fatal injury inflicted by mentor, reliable, tag `lethal-act`), `cause-of-death` (not survivable, reliable, tag `lethal-act`).
+6. **Choice ② · Does Consent Remove Liability?** (`q2`)
+   - A. Yes, consent erases the offence — *poor* (the legal trap).
+   - B. Consent reduces it to negligence — *ok*.
+   - C. Consent is not a defence to taking life — *best* (s.300 frame).
+   - D. Need more evidence — *poor* (evidence is on the table).
+   - Reveal cites: "agreement does not equal legality."
+7. **Insight · Consent and Life** — short legal frame: under Malaysian law consent does not legitimise an act intended to cause death; the only narrow exceptions don't reach lethal ritual harm.
+8. **Act III · The Assistant Lina** (scene, `assistant`) — interview reveals isolation, sleep deprivation, financial dependence, religious coercion.
+9. **Evidence Board #2 · Assistant's Position** — `lina-prep` (helped prepare the ritual, reliable, tag `participation`), `lina-diary` (fear, attempted to leave twice, reliable, tag `coercion`), `mentor-control-log` (controlled phone, finances, sleep, reliable, tag `coercion`).
+10. **Choice ③ · Lina's Status** (`q3`)
+    - A. Pure accomplice — *poor*.
+    - B. Pure victim — *ok* (humane but ignores participation).
+    - C. Both — accomplice in act, victim of coercion — *best* (mitigation, not acquittal).
+11. **Act IV · Money vs Faith** (scene, `mentor`) — financial trail + ritual notebooks side by side.
+12. **Evidence Board #3 · Mixed Motive** — `bank-transfers` (RM ~3.2M to mentor accounts, reliable, tag `fraud`), `ritual-notes` (detailed years-old liturgy, reliable, tag `belief`), `client-list` (other paying clients, reliable, tag `fraud`).
+13. **Choice ④ · Motive** (`q4`)
+    - A. Pure scam — *ok*.
+    - B. Sincere faith — *poor*.
+    - C. Mixed motive: sincere belief monetised — *best* (matches the evidence).
+14. **Act V · Media Pressure** (scene, `media`) — the new mechanic.
+15. **Choice ⑤ · Media Influence** (`q5`)
+    - A. Follow the "Occult Killings!" narrative — *poor*.
+    - B. Follow the "Victim Volunteered!" narrative — *poor*.
+    - C. Anchor on evidence; ignore both feeds — *best*.
+    - D. Issue a public statement to calm sentiment — *ok* (procedural, not investigative).
+    - Reveal: high-profile trials are won and lost by which narrative the investigator absorbs.
+16. **Act VI · The Failed-Ritual Twist** (scene, `interrogation`) — mentor claims the death was an "unintended overreach" of the rite.
+17. **Evidence Board #4 · Premeditation** — `prior-deaths` (two earlier "ritual deaths" in mentor's history, reliable, tag `premeditation`), `lethal-instructions` (mentor's own notes specify a fatal step, reliable, tag `premeditation`), `insurance-payout` (mentor named beneficiary on a policy taken out 3 weeks before, reliable, tag `premeditation`).
+18. **Choice ⑥ · Was It Murder?** (`q6`)
+    - A. Failed ritual / accident — *poor*.
+    - B. Voluntary self-harm by victim — *poor*.
+    - C. Premeditated lethal act — *best* (s.302 frame).
+19. **Choice ⑦ · Victim's Responsibility** (`q7`)
+    - A. None at all — *ok* (legally accurate).
+    - B. Errors in judgment — *best* (legally none, but acknowledges risk-taking — the chapter's controversy point).
+    - C. Partial criminal responsibility — *poor* (legally wrong; victims don't "share" their own murder).
+    - Reveal makes explicit: legally A, but the honest analytical answer is B — risk-taking ≠ liability.
+20. **Insight · Legal Frame** — Penal Code §302 (murder), §420 (cheating), §34 (common intention) tied to the assistant question.
+21. **Verdict scene** (scene, `verdict`).
+22. **Ending Resolver + Reflection card.**
 
 ### 5. Ending logic
 
-Score = count of optimal answers across q1–q7 (B/D, D, D, C, B+C, C, C). Q5 counts as optimal when **both** B and C are picked (multi-select shim: store as concatenated id like `"BC"`; treat any string containing both `B` and `C` as optimal).
+Score across q1–q7 with the optimal answers (B, C, C, C, C, C, B). Q5 and Q7 each carry a penalty if the player picks the "media-driven" or "victim-blames" answers.
 
-- **Justice Ending (green)** — score ≥ 6 and q4=C and q6=C and q7=C: abuse proven, guardian convicted, community reporting reform announced.
-- **Realistic Ending (yellow, default)** — score 4–5 or q7≠C: convicted of negligence causing death; "too little, too late".
-- **Failure Ending (red)** — score ≤ 3 or q1∈{A,C} and q2≠D: ruled accidental, case closed, the truth stays silent.
-
-Each ending shows: outcome banner, 2–3 line narrative, and a "What this teaches" insight tying back to systemic failure (school + neighbours + clinics).
+- **Perfect (green)** — `q2=C` AND `q6=C` AND `q3=C` AND score ≥ 11: mentor convicted under §302 + §420; assistant receives a reduced sentence with proven coercion; client list opens leads into the syndicate arc.
+- **Ambiguous (yellow)** — `q6=C` but other choices weaker, OR media-driven q5: mentor convicted of murder; the public still debates whether the victim "asked for it"; assistant's sentencing is harsh because coercion wasn't argued well.
+- **Failure (red)** — `q2 ∈ {A,B}` OR `q6 ∈ {A,B}` OR overall score ≤ 6: ruled "accidental death during ritual"; mentor walks; the client list is never pulled.
 
 ### 6. UX details
 
-- Scenes resolve backgrounds via `sceneImageFor("silent-room", step.sceneKey ?? step.title)` — same pattern as `TheRunner.tsx`.
-- Evidence cards support `evidenceTags: ["pattern", "system-failure"]` so the recap card highlights the through-line.
-- After verdict, render an `EvidenceBoard` recap with rationale + jump-to-evidence (reuse the existing `EvidenceBoard` interactions added earlier).
-- Footer button row: "Replay chapter" (resets answers), "Back to chapter list" (`/chapter/society`).
+- Same scene rendering pattern: `step.image ?? sceneImageFor("ritual-of-power", step.sceneKey ?? step.title)`.
+- Evidence cards use `evidenceTags` to drive Recap highlighting (`consent-trap`, `lethal-act`, `coercion`, `participation`, `fraud`, `belief`, `premeditation`).
+- Media act renders two stacked tabloid mock-cards (one sensational, one apologist) above the choice — implemented inline in the scene step's `lines` plus a small in-page `<div>` block; no new component needed.
+- Closing "What This Teaches" card highlights: consent is not a defence to murder, mixed motives are real, media narratives are not evidence, and coercion is mitigation not acquittal.
+- Footer: REPLAY + CONTINUE (back to `/chapter/society`).
 
 ### Technical notes
 
-- New files: `src/pages/story/SilentRoom.tsx`, 7 PNGs in `src/assets/scenes/silentroom/`.
-- Edited files: `src/App.tsx` (route + import), `src/pages/Chapter.tsx` (society card), `src/lib/sceneImages.ts` (registry + fallbacks + header comment).
+- New files: `src/pages/story/RitualOfPower.tsx`, 7 PNGs in `src/assets/scenes/ritual/`.
+- Edited files: `src/App.tsx` (route + import), `src/pages/Chapter.tsx` (society card), `src/lib/sceneImages.ts` (chapter id, registry, fallbacks, header comment).
 - No backend, no schema changes, no new dependencies.
-- Sensitive-topic guard: keep all descriptions clinical/legal; no graphic depiction in pixel art (silhouettes, charts, empty rooms).
-- After generation, QA each PNG by viewing once to confirm tone before wiring.
+- Sensitive-topic guard for image gen: silhouettes only, no real religious iconography, no graphic injury — keep visuals symbolic (candles, sigils, empty altar, abstract robes).
+- After generation, view each PNG once for tone QA before wiring.
