@@ -23,6 +23,17 @@ const Chapter = () => {
 
       <main className="flex-1 flex flex-col px-6 py-4 gap-4 overflow-y-auto">
         <p className="text-foreground/95 text-base bg-background/70 p-3 border-2 border-primary/60">{blurb}</p>
+        {chapter === "school" && (
+          <Link
+            to="/story/silent-fall"
+            className="pixel-btn text-left text-sm border-accent"
+            style={{ display: "block" }}
+          >
+            <div className="text-[10px] opacity-80">★ MAIN STORY</div>
+            <div className="text-base mt-1">Chapter X · Silent Fall</div>
+            <div className="text-[10px] opacity-80 mt-1">Real-case inspired · multi-ending</div>
+          </Link>
+        )}
         {list.map((c, i) => (
           <Link key={c.id} to={`/case/${c.id}/brief`} className="pixel-btn text-left text-sm" style={{ display: "block" }}>
             <div className="text-[10px] opacity-80">{t("chapter.case")} {i + 1}</div>

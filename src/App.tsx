@@ -17,6 +17,7 @@ import Evidence from "./pages/case/Evidence.tsx";
 import Legal from "./pages/case/Legal.tsx";
 import VerdictPage from "./pages/case/VerdictPage.tsx";
 import Result from "./pages/case/Result.tsx";
+import SilentFall from "./pages/story/SilentFall.tsx";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/case/:id/legal" element={<Legal />} />
             <Route path="/case/:id/verdict" element={<VerdictPage />} />
             <Route path="/case/:id/result" element={<Result />} />
+            <Route path="/story/silent-fall" element={<SilentFall />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/store" element={<Store />} />
             <Route path="/triumph" element={<Triumph />} />
