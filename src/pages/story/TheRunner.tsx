@@ -94,7 +94,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 4 · Suspicion", image: sceneCall,
+    title: "🎬 Scene 4 · Suspicion", image: sceneStation,
     lines: [
       { who: "Mr. Tan", text: "“They said they would return everything… but no one has contacted me.”" },
       { text: "Days later. Police station. Mr. Tan walks in, hands shaking." },
@@ -174,7 +174,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 5 · The Arrest", image: sceneInterrogation,
+    title: "🎬 Scene 5 · The Arrest", image: sceneArrest,
     lines: [
       { who: "Officer Lim", text: "“We tracked the suspect through CCTV and movement records.”" },
       { text: "(The suspect is detained at a budget hotel near the border.)" },
