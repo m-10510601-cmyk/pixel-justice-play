@@ -14,7 +14,16 @@ import sceneFinal from "@/assets/scenes/scene-final.png";
 type ChoiceKey = "q1" | "q2" | "q3" | "q4" | "iA" | "iB" | "q5A" | "q5B";
 type Answers = Partial<Record<ChoiceKey, string>>;
 
-type Choice = { id: string; label: string; best?: boolean; ok?: boolean; hint?: string; rationale?: string };
+type Choice = {
+  id: string;
+  label: string;
+  best?: boolean;
+  ok?: boolean;
+  hint?: string;
+  rationale?: string;
+  evidenceRefs?: string[];
+  evidenceTags?: string[];
+};
 type Step =
   | { kind: "scene"; title: string; image?: string; lines: { who?: string; text: string; inner?: boolean }[] }
   | { kind: "evidence"; title: string; items: EvidenceItem[] }
@@ -40,8 +49,8 @@ const STORY: Step[] = [
     prompt: "Where do you begin?",
     options: [
       { id: "A", label: "Raid the student dorms immediately", hint: "Fast, but loud.", rationale: "Tips off the network. Evidence is destroyed before you read the first chat." },
-      { id: "B", label: "Tail suspicious transactions", best: true, hint: "Quiet, patient, productive.", rationale: "Surveillance maps the chain without alerting it. Standard early-stage tradecraft." },
-      { id: "C", label: "Analyse financial flows", best: true, hint: "Money never lies.", rationale: "E-wallet patterns reveal a distribution model long before any seizure." },
+      { id: "B", label: "Tail suspicious transactions", best: true, hint: "Quiet, patient, productive.", rationale: "Surveillance maps the chain without alerting it. Standard early-stage tradecraft.", evidenceTags: ["chat", "chain"] },
+      { id: "C", label: "Analyse financial flows", best: true, hint: "Money never lies.", rationale: "E-wallet patterns reveal a distribution model long before any seizure.", evidenceTags: ["money"] },
       { id: "D", label: "Observe the campus environment first", ok: true, hint: "Background, not breakthrough.", rationale: "Useful context, but slow. Won't crack the case alone." },
     ],
     reveal: "Best: B or C. Investigate the chain before you touch the node.",
@@ -58,11 +67,36 @@ const STORY: Step[] = [
     kind: "evidence",
     title: "📱 Evidence 1 · Coded Chat Logs",
     items: [
-      { type: "chat", from: "A", text: "new stock in 🌿" },
-      { type: "chat", from: "B", text: "green stuff still RM50/pack?" },
-      { type: "chat", from: "A", text: "ya. min 5 pack for delivery" },
-      { type: "chat", from: "C", text: "need 10. usual drop?" },
-      { type: "chat", from: "A", text: "back gate. 11pm." },
+      {
+        type: "chat", from: "A", text: "new stock in 🌿",
+        id: "chat-stock", title: "Chat · 'new stock in'",
+        tags: ["chat", "chain"],
+        detail: "Wholesale-style announcement. ‘Stock’ language treats supply as inventory, not personal use. Timestamp aligns with the next inbound wave on the e-wallet.",
+      },
+      {
+        type: "chat", from: "B", text: "green stuff still RM50/pack?",
+        id: "chat-pack", title: "Chat · 'RM50/pack'",
+        tags: ["chat", "money"],
+        detail: "Per-unit pricing + plural ‘pack’ implies retail bundling. Standardised price = a market, not a one-off favour.",
+      },
+      {
+        type: "chat", from: "A", text: "ya. min 5 pack for delivery",
+        id: "chat-min", title: "Chat · 'min 5 pack'",
+        tags: ["chat", "chain"],
+        detail: "Minimum order quantity is a reseller mechanic. A personal user has no need to set MOQs.",
+      },
+      {
+        type: "chat", from: "C", text: "need 10. usual drop?",
+        id: "chat-drop", title: "Chat · 'usual drop'",
+        tags: ["chat", "chain"],
+        detail: "‘Usual drop’ implies a recurring pickup location. Recurrence is the hallmark of distribution, not consumption.",
+      },
+      {
+        type: "chat", from: "A", text: "back gate. 11pm.",
+        id: "chat-loc", title: "Chat · 'back gate 11pm'",
+        tags: ["chat"],
+        detail: "Late-night, low-CCTV corridor. Operationally chosen — not casually agreed.",
+      },
       { type: "note", text: "“Stock”, “pack”, “drop” — wholesale vocabulary, not personal use." },
     ],
   },
@@ -73,7 +107,7 @@ const STORY: Step[] = [
     prompt: "How do you classify these messages?",
     options: [
       { id: "A", label: "Normal commercial transaction", hint: "Ignores the coded language.", rationale: "No legitimate retail talks about “drops at the back gate at 11pm”." },
-      { id: "B", label: "Suspicious transaction", best: true, hint: "Cautious, evidence-led.", rationale: "Suspicion is enough to escalate surveillance. Conclusions wait for chemistry." },
+      { id: "B", label: "Suspicious transaction", best: true, hint: "Cautious, evidence-led.", rationale: "Suspicion is enough to escalate surveillance. Conclusions wait for chemistry.", evidenceRefs: ["chat-stock", "chat-drop"], evidenceTags: ["chat"] },
       { id: "C", label: "Clear illegal contraband", hint: "Premature without lab proof.", rationale: "“Green stuff” is suggestive, not proof. Charging now risks a thrown-out case." },
       { id: "D", label: "Indeterminable", hint: "You have more than nothing.", rationale: "Refusing to assess is also a decision — and the wrong one here." },
     ],
@@ -93,8 +127,18 @@ const STORY: Step[] = [
     kind: "evidence",
     title: "🪪 Suspect Profiles",
     items: [
-      { type: "list", text: "Suspect A · 21 · quiet · 3 e-wallets · cash deposits inconsistent with allowance" },
-      { type: "list", text: "Suspect B · 22 · social butterfly · introduces buyers · no direct stock holding observed" },
+      {
+        type: "list", text: "Suspect A · 21 · quiet · 3 e-wallets · cash deposits inconsistent with allowance",
+        id: "prof-a", title: "Profile · Suspect A",
+        tags: ["money", "suspect-a"],
+        detail: "Three separate e-wallets is unusual for a student. Splits inflows across accounts to stay under per-account anomaly thresholds.",
+      },
+      {
+        type: "list", text: "Suspect B · 22 · social butterfly · introduces buyers · no direct stock holding observed",
+        id: "prof-b", title: "Profile · Suspect B",
+        tags: ["chain", "suspect-b"],
+        detail: "B never touches the product. Acts as a broker between supply (A) and end buyers — pure distribution role.",
+      },
       { type: "note", text: "Different roles. Same chain. Don't fall for the obvious target." },
     ],
   },
@@ -104,9 +148,9 @@ const STORY: Step[] = [
     title: "🎮 Choice ③ · Who is more suspicious?",
     prompt: "Read the two profiles. Who do you focus on?",
     options: [
-      { id: "A", label: "Suspect A — financial anomalies", ok: true, hint: "Half the picture.", rationale: "A holds the supply, but ignoring B leaves the distribution network intact." },
-      { id: "B", label: "Suspect B — behavioural anomalies", hint: "The flashy one.", rationale: "Easy to suspect, but B alone explains nothing about the supply or the money." },
-      { id: "C", label: "Both — they fulfil different roles", best: true, hint: "Read the roles, not the vibes.", rationale: "A = supply node. B = distribution node. The chain only works because of both." },
+      { id: "A", label: "Suspect A — financial anomalies", ok: true, hint: "Half the picture.", rationale: "A holds the supply, but ignoring B leaves the distribution network intact.", evidenceRefs: ["prof-a"] },
+      { id: "B", label: "Suspect B — behavioural anomalies", hint: "The flashy one.", rationale: "Easy to suspect, but B alone explains nothing about the supply or the money.", evidenceRefs: ["prof-b"] },
+      { id: "C", label: "Both — they fulfil different roles", best: true, hint: "Read the roles, not the vibes.", rationale: "A = supply node. B = distribution node. The chain only works because of both.", evidenceRefs: ["prof-a", "prof-b"], evidenceTags: ["chain"] },
       { id: "D", label: "Both look like ordinary students", hint: "Exactly the cover.", rationale: "“Ordinary” is the disguise. The evidence already contradicts it." },
     ],
     reveal: "Correct: C. The chain has multiple nodes — investigate them as a system.",
@@ -115,8 +159,18 @@ const STORY: Step[] = [
     kind: "evidence",
     title: "💰 Evidence 2 · E-Wallet Records",
     items: [
-      { type: "list", text: "47 inbound transfers in 30 days · RM30–RM250 · 22 unique senders" },
-      { type: "list", text: "Outbound: 3 large transfers to a single account flagged in another state" },
+      {
+        type: "list", text: "47 inbound transfers in 30 days · RM30–RM250 · 22 unique senders",
+        id: "wallet-in", title: "Wallet · 47 inbound",
+        tags: ["money", "chain"],
+        detail: "High-frequency, low-value, many-to-one inflows = retail demand. Senders cluster within campus geofences.",
+      },
+      {
+        type: "list", text: "Outbound: 3 large transfers to a single account flagged in another state",
+        id: "wallet-out", title: "Wallet · 3 outbound",
+        tags: ["money", "chain"],
+        detail: "Few, large outbound payments to a single cross-state account = upstream wholesaler. The shape of a Ponzi-of-supply.",
+      },
       { type: "note", text: "Many small in, few large out. Textbook retail-to-wholesaler structure." },
     ],
   },
@@ -124,9 +178,24 @@ const STORY: Step[] = [
     kind: "evidence",
     title: "📦 Evidence 3 · The Package",
     items: [
-      { type: "list", text: "Recovered from Dorm 4C ceiling panel" },
-      { type: "list", text: "8 vacuum-sealed bags · uniform weight · plant matter" },
-      { type: "list", text: "No personal-use paraphernalia nearby — only packaging supplies" },
+      {
+        type: "list", text: "Recovered from Dorm 4C ceiling panel",
+        id: "pkg-loc", title: "Package · ceiling stash",
+        tags: ["weight"],
+        detail: "Concealment in a ceiling panel = deliberate hiding. Demonstrates knowledge of the contents.",
+      },
+      {
+        type: "list", text: "8 vacuum-sealed bags · uniform weight · plant matter",
+        id: "pkg-bags", title: "Package · 8 sealed bags",
+        tags: ["weight", "chain"],
+        detail: "Uniform sealing implies pre-portioned retail units, not bulk personal stash.",
+      },
+      {
+        type: "list", text: "No personal-use paraphernalia nearby — only packaging supplies",
+        id: "pkg-supplies", title: "Package · packaging supplies",
+        tags: ["chain"],
+        detail: "Vacuum sealer, scales, ziplocks — the tooling of a distributor, not a user.",
+      },
       { type: "note", text: "Packaging supplies = preparation to distribute. Not consumption." },
     ],
   },
@@ -134,9 +203,24 @@ const STORY: Step[] = [
     kind: "evidence",
     title: "🧪 Evidence 4 · Lab Report",
     items: [
-      { type: "list", text: "Substance: Cannabis (confirmed)" },
-      { type: "list", text: "Total weight: 1.27 kg" },
-      { type: "list", text: "Purity consistent across all 8 bags — single source" },
+      {
+        type: "list", text: "Substance: Cannabis (confirmed)",
+        id: "lab-id", title: "Lab · cannabis confirmed",
+        tags: ["forensics"],
+        detail: "Confirmed by GC-MS. Removes ambiguity — no longer ‘green stuff’, now a controlled substance.",
+      },
+      {
+        type: "list", text: "Total weight: 1.27 kg",
+        id: "lab-weight", title: "Lab · 1.27kg total",
+        tags: ["weight", "forensics"],
+        detail: "Above the statutory threshold under the Dangerous Drugs Act 1952. Triggers the presumption of trafficking.",
+      },
+      {
+        type: "list", text: "Purity consistent across all 8 bags — single source",
+        id: "lab-purity", title: "Lab · uniform purity",
+        tags: ["chain", "forensics"],
+        detail: "Same source = same upstream supplier. Forensic confirmation of the supply chain inferred from the chats.",
+      },
       { type: "note", text: "Over 1kg. Under Malaysian law, the threshold matters enormously." },
     ],
   },
@@ -147,8 +231,8 @@ const STORY: Step[] = [
     prompt: "Given quantity, packaging, and transfer frequency — what is this?",
     options: [
       { id: "A", label: "Personal use", hint: "Ignores 1.27kg + 47 transfers.", rationale: "Dangerous downgrade. Treats a network as a private habit." },
-      { id: "B", label: "Small-scale dealing", hint: "Minimises the scale.", rationale: "47 buyers and uniform packaging exceed “small-scale”." },
-      { id: "C", label: "Distribution network", best: true, hint: "Quantity + frequency = structure.", rationale: "The financial pattern, packaging, and weight together establish a distribution operation." },
+      { id: "B", label: "Small-scale dealing", hint: "Minimises the scale.", rationale: "47 buyers and uniform packaging exceed “small-scale”.", evidenceRefs: ["wallet-in"] },
+      { id: "C", label: "Distribution network", best: true, hint: "Quantity + frequency = structure.", rationale: "The financial pattern, packaging, and weight together establish a distribution operation.", evidenceRefs: ["wallet-in", "wallet-out", "pkg-bags", "lab-weight"], evidenceTags: ["chain", "weight", "money"] },
       { id: "D", label: "Uncertain", hint: "The evidence is unusually clear.", rationale: "Refusing to classify wastes the strongest evidence set in the case." },
     ],
     reveal: "Correct: C. This is a distribution network, not personal use.",
@@ -173,7 +257,7 @@ const STORY: Step[] = [
     prompt: "Where do you push?",
     options: [
       { id: "A", label: "Believe the story, release on bail", hint: "Hands the chain back its supplier.", rationale: "Ignores documented financial activity. Fatal to the case." },
-      { id: "B", label: "Question the source of the funds", best: true, hint: "Money is the contradiction.", rationale: "His own e-wallet contradicts the “just keeping it” story. The crack opens here." },
+      { id: "B", label: "Question the source of the funds", best: true, hint: "Money is the contradiction.", rationale: "His own e-wallet contradicts the “just keeping it” story. The crack opens here.", evidenceRefs: ["wallet-in", "wallet-out"], evidenceTags: ["money"] },
       { id: "C", label: "Threaten with maximum sentence", hint: "Coercion taints confessions.", rationale: "Improperly obtained statements get excluded. Don't poison your own evidence." },
       { id: "D", label: "Drop and pivot to Suspect B", hint: "You haven't used your leverage.", rationale: "A still holds key answers about the upstream supplier. Don't waste the room." },
     ],
@@ -194,7 +278,7 @@ const STORY: Step[] = [
     prompt: "Where do you push?",
     options: [
       { id: "A", label: "Accept the excuse", hint: "Surrenders the lead.", rationale: "“Everyone does it” is deflection, not defence." },
-      { id: "B", label: "Press for the upstream supplier", best: true, hint: "Use his own framing against him.", rationale: "If he's “one of many”, he can name the source. This is how you climb the chain." },
+      { id: "B", label: "Press for the upstream supplier", best: true, hint: "Use his own framing against him.", rationale: "If he's “one of many”, he can name the source. This is how you climb the chain.", evidenceRefs: ["chat-drop", "wallet-out"], evidenceTags: ["chain"] },
       { id: "C", label: "Charge him as the sole organiser", hint: "Overreach against the evidence.", rationale: "B is a distributor, not the apex. Charging him as kingpin collapses at trial." },
       { id: "D", label: "Drop the interview", hint: "You're at the breakthrough.", rationale: "Stopping now leaves the syndicate untouched." },
     ],
@@ -212,8 +296,8 @@ const STORY: Step[] = [
     prompt: "Final charge for Suspect A (supply node, 1.27kg, 47 transfers)?",
     options: [
       { id: "A", label: "Possession only", hint: "Ignores statutory threshold.", rationale: "Above the trafficking threshold, possession-only is legally indefensible here." },
-      { id: "B", label: "Distributor", ok: true, hint: "Defensible, but understated.", rationale: "Captures the conduct, but the weight presumption pushes higher." },
-      { id: "C", label: "Trafficking", best: true, hint: "Triggered by weight + intent indicators.", rationale: "Quantity over threshold + packaging + ledger = trafficking under the DDA 1952 presumption." },
+      { id: "B", label: "Distributor", ok: true, hint: "Defensible, but understated.", rationale: "Captures the conduct, but the weight presumption pushes higher.", evidenceRefs: ["pkg-bags"] },
+      { id: "C", label: "Trafficking", best: true, hint: "Triggered by weight + intent indicators.", rationale: "Quantity over threshold + packaging + ledger = trafficking under the DDA 1952 presumption.", evidenceRefs: ["lab-weight", "pkg-bags", "wallet-in"], evidenceTags: ["weight", "forensics"] },
       { id: "D", label: "Insufficient evidence", hint: "You have a forensic match.", rationale: "Lab report + financial trail + physical seizure: this is among the strongest evidence sets possible." },
     ],
     reveal: "Best: C. The presumption of trafficking is squarely engaged.",
@@ -225,7 +309,7 @@ const STORY: Step[] = [
     prompt: "Final charge for Suspect B (distribution-side, no stock holding observed)?",
     options: [
       { id: "A", label: "Possession", hint: "He never held stock.", rationale: "No physical possession was observed — the wrong charge frame." },
-      { id: "B", label: "Distributor", best: true, hint: "Matches his role exactly.", rationale: "Acts as the broker / introducer between supply (A) and buyers. That is distribution." },
+      { id: "B", label: "Distributor", best: true, hint: "Matches his role exactly.", rationale: "Acts as the broker / introducer between supply (A) and buyers. That is distribution.", evidenceRefs: ["chat-drop", "prof-b"], evidenceTags: ["chain"] },
       { id: "C", label: "Trafficking (capital)", hint: "Over-charge for his role.", rationale: "Without weight in his possession, the trafficking presumption doesn't anchor on him." },
       { id: "D", label: "Insufficient evidence", hint: "Chats and surveillance say otherwise.", rationale: "The intercepted messages and observed introductions are sufficient." },
     ],
@@ -235,9 +319,24 @@ const STORY: Step[] = [
     kind: "evidence",
     title: "📁 Phone Forensics · Beyond the Campus",
     items: [
-      { type: "phone", label: "Contacts list: 14 entries — all coded numerics, no names", status: "ok" },
-      { type: "list", text: "Transaction history links to 3 accounts flagged in 2 other states" },
-      { type: "list", text: "Encrypted folder · same upload signature as content seen in Chapter X · Silent Fall" },
+      {
+        type: "phone", label: "Contacts list: 14 entries — all coded numerics, no names", status: "ok",
+        id: "phone-contacts", title: "Phone · coded contacts",
+        tags: ["chain", "forensics"],
+        detail: "Numeric handles instead of names = compartmentalisation. Each student knows only their adjacent node — the syndicate's classic firewall.",
+      },
+      {
+        type: "list", text: "Transaction history links to 3 accounts flagged in 2 other states",
+        id: "phone-accounts", title: "Phone · cross-state accounts",
+        tags: ["money", "chain"],
+        detail: "Account fingerprints match prior intelligence files from other state task forces. This campus is a branch, not the trunk.",
+      },
+      {
+        type: "list", text: "Encrypted folder · same upload signature as content seen in Chapter X · Silent Fall",
+        id: "phone-link", title: "Phone · syndicate signature",
+        tags: ["chain"],
+        detail: "Identical upload signature ties this case to the underground content network from Silent Fall — the same syndicate, two faces.",
+      },
       { type: "note", text: "This isn't one campus. This is one node in something national." },
     ],
   },
@@ -268,7 +367,6 @@ const QUIZ = {
 };
 
 function gradeEnding(a: Answers): "green" | "yellow" | "red" {
-  // Hard fail: downgrades to personal use
   if (a.q4 === "A" || a.q5A === "A") return "red";
   let score = 0;
   if (["B", "C"].includes(a.q1 ?? "")) score++;
@@ -307,6 +405,10 @@ const GreenTrade = () => {
   const [answers, setAnswers] = useState<Answers>({});
   const [revealedAt, setRevealedAt] = useState<number | null>(null);
   const [quiz, setQuiz] = useState<string | null>(null);
+  // highlights queued by the most recent choice — applied to the next evidence step
+  const [pendingHighlights, setPendingHighlights] = useState<{ ids: string[]; tags: string[] } | null>(null);
+  const [activeHighlights, setActiveHighlights] = useState<{ ids: string[]; tags: string[] } | null>(null);
+  const [highlightStepIdx, setHighlightStepIdx] = useState<number | null>(null);
 
   const total = STORY.length;
   const done = i >= total;
@@ -315,12 +417,40 @@ const GreenTrade = () => {
 
   const next = () => {
     setRevealedAt(null);
-    setI((x) => x + 1);
+    setI((x) => {
+      const nx = x + 1;
+      // If we have pending highlights and the next step is an evidence board, apply them.
+      if (pendingHighlights && STORY[nx]?.kind === "evidence") {
+        setActiveHighlights(pendingHighlights);
+        setHighlightStepIdx(nx);
+        setPendingHighlights(null);
+      } else {
+        // Clear stale highlights if leaving the highlighted evidence step
+        if (highlightStepIdx !== null && nx !== highlightStepIdx) {
+          setActiveHighlights(null);
+          setHighlightStepIdx(null);
+        }
+      }
+      return nx;
+    });
   };
 
   const choose = (key: ChoiceKey, id: string) => {
     setAnswers((a) => ({ ...a, [key]: id }));
     setRevealedAt(i);
+    // Find option to extract evidence refs
+    const stepNow = STORY[i];
+    if (stepNow?.kind === "choice") {
+      const opt = stepNow.options.find((o) => o.id === id);
+      if (opt && (opt.evidenceRefs?.length || opt.evidenceTags?.length)) {
+        setPendingHighlights({
+          ids: opt.evidenceRefs ?? [],
+          tags: opt.evidenceTags ?? [],
+        });
+      } else {
+        setPendingHighlights(null);
+      }
+    }
   };
 
   const restart = () => {
@@ -328,7 +458,13 @@ const GreenTrade = () => {
     setAnswers({});
     setRevealedAt(null);
     setQuiz(null);
+    setPendingHighlights(null);
+    setActiveHighlights(null);
+    setHighlightStepIdx(null);
   };
+
+  const stepHighlights =
+    step?.kind === "evidence" && highlightStepIdx === i ? activeHighlights : null;
 
   return (
     <GameFrame bgImage={bg}>
@@ -383,7 +519,13 @@ const GreenTrade = () => {
         )}
 
         {step?.kind === "evidence" && (
-          <EvidenceBoard title={step.title} items={step.items} />
+          <EvidenceBoard
+            title={step.title}
+            items={step.items}
+            highlightIds={stepHighlights?.ids}
+            highlightTags={stepHighlights?.tags}
+            defaultOpen={!!stepHighlights}
+          />
         )}
 
         {step?.kind === "insight" && (
