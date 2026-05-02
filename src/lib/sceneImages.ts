@@ -36,6 +36,14 @@
 //   mask-of-authority / interrogation → mask-interrogation.png
 //   mask-of-authority / scripts       → mask-scripts.png
 //   mask-of-authority / verdict       → mask-verdict.png
+//
+//   ritual-of-power / disappearance  → rt-disappearance.png
+//   ritual-of-power / ritual         → rt-ritual.png
+//   ritual-of-power / mentor         → rt-mentor.png
+//   ritual-of-power / assistant      → rt-assistant.png
+//   ritual-of-power / media          → rt-media.png
+//   ritual-of-power / interrogation  → rt-interrogation.png
+//   ritual-of-power / verdict        → rt-verdict.png
 // =============================================================================
 
 import runnerBrief from "@/assets/scenes/runner/runner-brief.png";
@@ -69,7 +77,20 @@ import maskInterrogation from "@/assets/scenes/mask/mask-interrogation.png";
 import maskScripts from "@/assets/scenes/mask/mask-scripts.png";
 import maskVerdict from "@/assets/scenes/mask/mask-verdict.png";
 
-export type ChapterId = "the-runner" | "green-trade" | "silent-room" | "mask-of-authority";
+import rtDisappearance from "@/assets/scenes/ritual/rt-disappearance.png";
+import rtRitual from "@/assets/scenes/ritual/rt-ritual.png";
+import rtMentor from "@/assets/scenes/ritual/rt-mentor.png";
+import rtAssistant from "@/assets/scenes/ritual/rt-assistant.png";
+import rtMedia from "@/assets/scenes/ritual/rt-media.png";
+import rtInterrogation from "@/assets/scenes/ritual/rt-interrogation.png";
+import rtVerdict from "@/assets/scenes/ritual/rt-verdict.png";
+
+export type ChapterId =
+  | "the-runner"
+  | "green-trade"
+  | "silent-room"
+  | "mask-of-authority"
+  | "ritual-of-power";
 
 const REGISTRY: Record<ChapterId, Record<string, string>> = {
   "the-runner": {
@@ -106,6 +127,15 @@ const REGISTRY: Record<ChapterId, Record<string, string>> = {
     interrogation: maskInterrogation,
     scripts: maskScripts,
     verdict: maskVerdict,
+  },
+  "ritual-of-power": {
+    disappearance: rtDisappearance,
+    ritual: rtRitual,
+    mentor: rtMentor,
+    assistant: rtAssistant,
+    media: rtMedia,
+    interrogation: rtInterrogation,
+    verdict: rtVerdict,
   },
 };
 
@@ -144,6 +174,15 @@ const TITLE_FALLBACK: Record<ChapterId, Array<[RegExp, string]>> = {
     [/money|financial|trail|mule/i, "money"],
     [/interrogation|arrest|suspect/i, "interrogation"],
     [/script|phone evidence|twist|folder/i, "scripts"],
+    [/verdict|legal|court|reflection|ending/i, "verdict"],
+  ],
+  "ritual-of-power": [
+    [/disappear|missing|brief/i, "disappearance"],
+    [/ritual|ceremony|chamber|site/i, "ritual"],
+    [/mentor|guru|master|money/i, "mentor"],
+    [/assistant|lina|brainwash/i, "assistant"],
+    [/media|headline|tabloid|press|pressure/i, "media"],
+    [/interrogation|twist/i, "interrogation"],
     [/verdict|legal|court|reflection|ending/i, "verdict"],
   ],
 };
