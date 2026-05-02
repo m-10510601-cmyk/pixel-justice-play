@@ -74,6 +74,15 @@ const Chapter = () => {
               <div className="text-base mt-1">Chapter V · The Mask of Authority</div>
               <div className="text-[10px] opacity-80 mt-1">Impersonation scam · syndicate hook · multi-ending</div>
             </Link>
+            <Link
+              to="/story/ritual-of-power"
+              className="pixel-btn text-left text-sm border-accent"
+              style={{ display: "block" }}
+            >
+              <div className="text-[10px] opacity-80">★ MAIN STORY</div>
+              <div className="text-base mt-1">Chapter U · The Ritual of Power</div>
+              <div className="text-[10px] opacity-80 mt-1">Cult manipulation · consent vs legality · multi-ending</div>
+            </Link>
           </>
         )}
         {list.map((c, i) => (
