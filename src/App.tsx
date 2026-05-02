@@ -11,7 +11,6 @@ import Quest from "./pages/Quest.tsx";
 import Settings from "./pages/Settings.tsx";
 import Store from "./pages/Store.tsx";
 import Triumph from "./pages/Triumph.tsx";
-import Chapter from "./pages/Chapter.tsx";
 import Brief from "./pages/case/Brief.tsx";
 import Evidence from "./pages/case/Evidence.tsx";
 import Legal from "./pages/case/Legal.tsx";
@@ -40,7 +39,6 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/quest" element={<Quest />} />
-            <Route path="/chapter/:chapter" element={<Chapter />} />
             <Route path="/case/:id/brief" element={<Brief />} />
             <Route path="/case/:id/evidence" element={<Evidence />} />
             <Route path="/case/:id/legal" element={<Legal />} />

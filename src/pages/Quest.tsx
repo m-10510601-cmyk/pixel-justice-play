@@ -1,11 +1,20 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import GameFrame from "@/components/GameFrame";
-import schoolBg from "@/assets/school-bg.jpg";
-import societyBg from "@/assets/society-bg.jpg";
 import justiceBg from "@/assets/justice-bg.jpg";
 import { useSettings } from "@/game/SettingsContext";
 import { TutorialModal } from "@/components/HomeOverlays";
+
+const CASES: { to: string; chapter: string; title: string; tag: string }[] = [
+  { to: "/story/silent-fall", chapter: "Chapter X", title: "Silent Fall", tag: "Real-case inspired · multi-ending" },
+  { to: "/story/green-trade", chapter: "Chapter Y", title: "The Green Trade", tag: "Campus drug trafficking · syndicate hook" },
+  { to: "/story/silent-dormitory", chapter: "Chapter W", title: "The Silent Dormitory", tag: "Mob mentality · §302 vs §304" },
+  { to: "/story/the-runner", chapter: "Chapter Z", title: "The Runner", tag: "Cross-border impersonation scam" },
+  { to: "/story/silent-room", chapter: "Chapter W", title: "The Silent Room", tag: "Child protection · systemic failure" },
+  { to: "/story/mask-of-authority", chapter: "Chapter V", title: "The Mask of Authority", tag: "Impersonation scam · syndicate hook" },
+  { to: "/story/ritual-of-power", chapter: "Chapter U", title: "The Ritual of Power", tag: "Cult manipulation · consent vs legality" },
+  { to: "/story/high-pay-trap", chapter: "Chapter T", title: "The High-Pay Trap", tag: "Trafficking by deception · ATIPSOM 2007" },
+];
 
 const Quest = () => {
   const { t, tutorialSeen, markTutorialSeen } = useSettings();
@@ -20,54 +29,28 @@ const Quest = () => {
         </h1>
       </header>
 
-      <main className="flex-1 flex flex-col justify-center gap-6 px-6">
-        {/* Gateway: School Life — split screen preview */}
-        <Link
-          to="/chapter/school"
-          className="pixel-btn btn-corners relative h-36 overflow-hidden text-lg group"
-          style={{ padding: 0 }}
-          aria-label={t("quest.school")}
-        >
-          <div className="absolute inset-0 grid grid-cols-2">
-            <img src={schoolBg} alt="" aria-hidden className="w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" />
-            <img src={societyBg} alt="" aria-hidden className="w-full h-full object-cover opacity-30 saturate-50" />
-          </div>
-          {/* Center divider gate */}
-          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-1 bg-gradient-to-b from-primary via-accent to-primary shadow-[0_0_12px_hsl(var(--gold))]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40" />
-          {/* Floating ! tutorial marker */}
-          {!tutorialSeen && (
-            <span
-              className="absolute -top-3 -right-2 pixel float-bob text-[14px] z-20 pixel-text"
-              style={{ color: "hsl(48 100% 65%)" }}
-              aria-hidden="true"
-            >!</span>
-          )}
-          <span className="relative z-10 text-plate px-4 py-2 pixel text-[11px] pixel-text">
-            🏫 {t("quest.school")}
-          </span>
-        </Link>
-
-        {/* Gateway: Society Life — split screen preview */}
-        <Link
-          to="/chapter/society"
-          className="pixel-btn btn-corners relative h-36 overflow-hidden text-lg group"
-          style={{ padding: 0 }}
-          aria-label={t("quest.society")}
-        >
-          <div className="absolute inset-0 grid grid-cols-2">
-            <img src={schoolBg} alt="" aria-hidden className="w-full h-full object-cover opacity-30 saturate-50" />
-            <img src={societyBg} alt="" aria-hidden className="w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105" />
-          </div>
-          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-1 bg-gradient-to-b from-primary via-accent to-primary shadow-[0_0_12px_hsl(var(--gold))]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40" />
-          <span className="relative z-10 text-plate px-4 py-2 pixel text-[11px] pixel-text">
-            🏙 {t("quest.society")}
-          </span>
-        </Link>
+      <main className="flex-1 flex flex-col gap-3 px-6 py-4 overflow-y-auto">
+        {CASES.map((c, i) => (
+          <Link
+            key={c.to}
+            to={c.to}
+            className="pixel-btn text-left text-sm border-accent relative"
+            style={{ display: "block" }}
+          >
+            {!tutorialSeen && i === 0 && (
+              <span
+                className="absolute -top-3 -right-2 pixel float-bob text-[14px] z-20 pixel-text"
+                style={{ color: "hsl(48 100% 65%)" }}
+                aria-hidden="true"
+              >!</span>
+            )}
+            <div className="text-[10px] opacity-80">★ {c.chapter}</div>
+            <div className="text-base mt-1">{c.title}</div>
+            <div className="text-[10px] opacity-80 mt-1">{c.tag}</div>
+          </Link>
+        ))}
       </main>
 
-      <div className="pb-6" />
       <TutorialModal open={showTut} onClose={() => { markTutorialSeen(); setShowTut(false); }} />
     </GameFrame>
   );
