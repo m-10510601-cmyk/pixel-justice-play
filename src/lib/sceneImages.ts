@@ -44,6 +44,14 @@
 //   ritual-of-power / media          → rt-media.png
 //   ritual-of-power / interrogation  → rt-interrogation.png
 //   ritual-of-power / verdict        → rt-verdict.png
+//
+//   silent-dormitory / dorm-night            → dm-dorm-night.png
+//   silent-dormitory / interrogation-circle  → dm-circle.png
+//   silent-dormitory / escalation            → dm-escalation.png
+//   silent-dormitory / routine               → dm-routine.png
+//   silent-dormitory / collapse              → dm-collapse.png
+//   silent-dormitory / hospital              → dm-hospital.png
+//   silent-dormitory / verdict               → dm-verdict.png
 // =============================================================================
 
 import runnerBrief from "@/assets/scenes/runner/runner-brief.png";
@@ -85,12 +93,21 @@ import rtMedia from "@/assets/scenes/ritual/rt-media.png";
 import rtInterrogation from "@/assets/scenes/ritual/rt-interrogation.png";
 import rtVerdict from "@/assets/scenes/ritual/rt-verdict.png";
 
+import dmDormNight from "@/assets/scenes/dormitory/dm-dorm-night.png";
+import dmCircle from "@/assets/scenes/dormitory/dm-circle.png";
+import dmEscalation from "@/assets/scenes/dormitory/dm-escalation.png";
+import dmRoutine from "@/assets/scenes/dormitory/dm-routine.png";
+import dmCollapse from "@/assets/scenes/dormitory/dm-collapse.png";
+import dmHospital from "@/assets/scenes/dormitory/dm-hospital.png";
+import dmVerdict from "@/assets/scenes/dormitory/dm-verdict.png";
+
 export type ChapterId =
   | "the-runner"
   | "green-trade"
   | "silent-room"
   | "mask-of-authority"
-  | "ritual-of-power";
+  | "ritual-of-power"
+  | "silent-dormitory";
 
 const REGISTRY: Record<ChapterId, Record<string, string>> = {
   "the-runner": {
@@ -136,6 +153,15 @@ const REGISTRY: Record<ChapterId, Record<string, string>> = {
     media: rtMedia,
     interrogation: rtInterrogation,
     verdict: rtVerdict,
+  },
+  "silent-dormitory": {
+    "dorm-night": dmDormNight,
+    "interrogation-circle": dmCircle,
+    escalation: dmEscalation,
+    routine: dmRoutine,
+    collapse: dmCollapse,
+    hospital: dmHospital,
+    verdict: dmVerdict,
   },
 };
 
@@ -184,6 +210,15 @@ const TITLE_FALLBACK: Record<ChapterId, Array<[RegExp, string]>> = {
     [/media|headline|tabloid|press|pressure/i, "media"],
     [/interrogation|twist/i, "interrogation"],
     [/verdict|legal|court|reflection|ending/i, "verdict"],
+  ],
+  "silent-dormitory": [
+    [/dorm|seed|brief|laptop|suspicion/i, "dorm-night"],
+    [/interrogation|questioning|circle|pressure/i, "interrogation-circle"],
+    [/escalation|hidden|thread|exit|punishment/i, "escalation"],
+    [/routine|normalisation|normalization|silence|habituation/i, "routine"],
+    [/collapse|breaking|crisis/i, "collapse"],
+    [/hospital|aftermath|doctor/i, "hospital"],
+    [/verdict|legal|court|reflection|ending|charge/i, "verdict"],
   ],
 };
 
