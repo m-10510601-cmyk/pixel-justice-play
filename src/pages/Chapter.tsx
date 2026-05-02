@@ -45,6 +45,17 @@ const Chapter = () => {
             </Link>
           </>
         )}
+        {chapter === "society" && (
+          <Link
+            to="/story/the-runner"
+            className="pixel-btn text-left text-sm border-accent"
+            style={{ display: "block" }}
+          >
+            <div className="text-[10px] opacity-80">★ MAIN STORY</div>
+            <div className="text-base mt-1">Chapter Z · The Runner</div>
+            <div className="text-[10px] opacity-80 mt-1">Cross-border impersonation scam · multi-ending</div>
+          </Link>
+        )}
         {list.map((c, i) => (
           <Link key={c.id} to={`/case/${c.id}/brief`} className="pixel-btn text-left text-sm" style={{ display: "block" }}>
             <div className="text-[10px] opacity-80">{t("chapter.case")} {i + 1}</div>
