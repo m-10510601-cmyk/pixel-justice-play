@@ -22,7 +22,7 @@ import GreenTrade from "./pages/story/GreenTrade.tsx";
 import TheRunner from "./pages/story/TheRunner.tsx";
 import SilentRoom from "./pages/story/SilentRoom.tsx";
 import MaskOfAuthority from "./pages/story/MaskOfAuthority.tsx";
-import RitualOfPower from "./pages/story/RitualOfPower.tsx";
+import RitualOfPower from "./pages/story/RitualOfPower";
 
 const queryClient = new QueryClient();
 
