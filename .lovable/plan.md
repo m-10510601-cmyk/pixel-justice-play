@@ -1,56 +1,86 @@
-# Plan: Show Characters in Dialogue Scenes (Silent Fall)
+# Plan: Optional Voice Narration for Dialogue
 
-Goal: When a dialogue line is spoken, display a pixel-art character portrait beside the text — like a classic visual novel — so scenes feel alive instead of just text on a card.
+Add ElevenLabs text-to-speech to the Silent Fall dialogue scenes. When enabled, each line is read aloud and the typewriter effect synchronizes its reveal speed to the audio's duration so the text finishes typing exactly when the voice finishes speaking.
 
 ## What the user will see
 
-For each `scene` step with dialogue:
-- A character portrait appears on the left (or right, alternating by speaker) of each line.
-- The currently-speaking character is highlighted (full color + slight bounce); others would be dimmed if shown.
-- "Inner thoughts" (the player's own reflection) show the player avatar with a thought-bubble style frame instead of a speech tone.
-- Narration lines (no `who`) show no portrait, just italic narration text — keeps pacing clean.
-- A small nameplate above each speech bubble shows the speaker's name in pixel font.
+In each scene:
+- A new toolbar button next to AUTO/SKIP: **🔊 VOICE** (toggle on/off, persisted).
+- When **VOICE is ON**:
+  - As each new dialogue line appears, audio starts playing.
+  - Typewriter pace adapts to the audio length: the last character is revealed right as the line finishes speaking.
+  - Different voices per character (Principal, Aira's Parent, You / inner monologue, narrator).
+  - Inner monologue uses a softer, more intimate voice with lower volume.
+  - A subtle "🔊" pulse appears on the active speaker's portrait.
+  - "PAUSE" stops both audio and typing; "SKIP ▶▶" stops audio and reveals all lines.
+- When **VOICE is OFF**: behaves exactly like today (constant `charDelay` typewriter, no audio).
 
-Speakers that need portraits in the current story:
-- Principal (middle-aged man, formal shirt, glasses)
-- Aira's Parent (worried adult, simple blouse)
-- You / Player (the guardian — reuse the existing `AvatarBadge` style, scaled up)
-- Aira (referenced in flashback evidence — optional small portrait in evidence cards too)
+A global setting in **Settings → Sound** also exposes a master "Voice Narration" toggle so it persists across sessions.
+
+## Required setup
+
+1. **Lovable Cloud** must be enabled — needed to host the secure edge function that holds the ElevenLabs API key.
+2. **ElevenLabs API key** must be added as a secret (`ELEVENLABS_API_KEY`) in Lovable Cloud. After enabling Cloud, the user will be prompted to paste the key.
 
 ## How it will be built
 
-1. New component `src/components/story/CharacterPortrait.tsx`
-   - Pure CSS/divs pixel-art portraits (no image assets needed) in the same style as `AvatarBadge.tsx`.
-   - Props: `character: "principal" | "parent" | "you" | "aira"`, `size?: number`, `speaking?: boolean`.
-   - Each character defined as a small set of colored pixel blocks (hair, face, eyes, mouth, clothing collar). ~30–40 lines per character.
-   - When `speaking`, add `animate-bob` (gentle 2px up/down) and full opacity; otherwise dim to 60%.
+### 1. Edge function `supabase/functions/tts/index.ts`
+- Accepts `{ text, voiceId, modelId? }` POST body.
+- Calls ElevenLabs `/v1/text-to-speech/{voiceId}?output_format=mp3_44100_128`.
+- Returns raw `audio/mpeg` bytes (no base64) with permissive CORS so the browser can `fetch().blob()` it directly.
+- Uses `eleven_turbo_v2_5` by default for low first-byte latency.
+- Errors return JSON `{ error }` with 4xx/5xx status; client falls back to silent typewriter.
 
-2. New component `src/components/story/DialogueLine.tsx`
-   - Renders one line: `[portrait] [nameplate + bubble]`.
-   - Alternates portrait side based on speaker (Principal left, Parent right, You center-left as inner monologue with dashed border).
-   - Uses existing pixel UI tokens: `bg-card/90`, `border-2 border-primary`, `pixel` font, `text-plate` for high contrast.
-   - Inner thoughts: italic + dashed border + "💭" prefix in nameplate.
+### 2. Voice mapping `src/lib/voiceMap.ts`
+Maps each `CharacterKey` to an ElevenLabs voice ID + per-character settings:
+- `principal` → George (`JBFqnCBsd6RMkjVDRZzb`) — formal, controlled.
+- `parent` → Sarah (`EXAVITQu4vr4xnSDxMaL`) — warm, worried.
+- `aira` → Lily (`pFZP5JQG7iQjIQuC4Bku`) — young, soft.
+- `you` (player, spoken) → Brian (`nPczCjzI2devNBz1zQrb`).
+- `you` (inner monologue) → River (`SAz9YHcvj6GT2YYXdXww`) — quieter, lower volume.
+- `narrator` → Daniel (`onwK4e9ZLuTAKqWW03F9`).
 
-3. Update `src/pages/story/SilentFall.tsx`
-   - Extend the `scene` line type with optional `character` field (auto-mapped from `who` string for backwards compatibility — e.g. `"Principal"` → `principal`).
-   - Replace the current scene render block to map each line to `<DialogueLine>` instead of inline text.
-   - Keep narration (lines with no `who`) rendered as plain text above/between bubbles.
-   - Add a subtle scene-title banner at the top of each scene (unchanged styling).
+### 3. Audio hook `src/hooks/useLineNarration.ts`
+- `play(text, voiceId, opts)` → `Promise<{ duration: number; stop: () => void }>`.
+- Internally fetches the edge function URL, creates an `Audio` from a blob URL, awaits `loadedmetadata` to get `duration`, then plays.
+- Caches blobs in an in-memory `Map<key, Blob>` (key = `voiceId + sha1(text)`) so re-typing the same line (RETRY) is instant and free.
+- Exposes `stopAll()` to halt any active sound.
+- Handles "voice off" / API errors gracefully by resolving with `duration: 0`.
 
-4. Minor CSS in `src/index.css`
-   - `@keyframes speak-bob` (2px translateY, 0.9s ease-in-out infinite) and `.speak-bob` utility.
-   - `.dialogue-bubble` with a small pixel "tail" pointing toward the portrait (made with a rotated bordered square).
+### 4. Update `SceneDialogue.tsx`
+- Accept new prop `voiceEnabled: boolean`.
+- When a new line becomes current:
+  1. If voice on, request audio first; once `duration` is known, set effective `charDelay = max(15, (duration*1000 - 250) / textLength)` so typing pace matches the spoken pace (a small lead-out pad keeps the cursor from racing past speech).
+  2. Start typewriter and `audio.play()` together.
+  3. On audio `ended`, advance after the existing `pauseAfter`.
+- When user presses PAUSE: pause audio + stop typewriter timer.
+- When SKIP: stop audio, reveal all lines instantly.
+- When user taps to skip a line: stop audio for that line and advance.
+
+### 5. UI additions
+- `SceneDialogue` toolbar gains a **🔊 / 🔈** button bound to local + global voice setting.
+- `CharacterPortrait` accepts new prop `talking?: boolean`; when true, adds a small pulsing speaker dot in the corner.
+- `Settings.tsx` adds a "Voice Narration" toggle row under SOUND, stored in `SettingsContext` as `voiceNarration: boolean` (default `false`).
+- `SettingsContext` persists the new flag to `localStorage` like the existing `sound` flag.
+
+### 6. Files
+
+Create:
+- `supabase/functions/tts/index.ts`
+- `src/lib/voiceMap.ts`
+- `src/hooks/useLineNarration.ts`
+
+Edit:
+- `src/components/story/SceneDialogue.tsx` (audio sync + voice toggle)
+- `src/components/story/CharacterPortrait.tsx` (add `talking` indicator)
+- `src/game/SettingsContext.tsx` (add `voiceNarration` flag + persistence + i18n strings)
+- `src/pages/Settings.tsx` (add toggle row)
+- `src/pages/story/SilentFall.tsx` (pass global `voiceNarration` to `SceneDialogue`)
 
 ## Technical notes
 
-- No new image assets — portraits are CSS pixel art so they stay crisp at any zoom and match the retro aesthetic.
-- Backwards compatible: existing `STORY` data only needs `who` strings; the component infers the character key. New optional `character` field lets us override (e.g. for Aira flashbacks).
-- Choice / evidence / insight steps are unchanged.
-- Mobile: portraits sized 56×56 px so two-column layout (portrait + bubble) still fits the 2:3 vertical viewport.
-
-## Files
-
-- create `src/components/story/CharacterPortrait.tsx`
-- create `src/components/story/DialogueLine.tsx`
-- edit `src/pages/story/SilentFall.tsx` (scene render only)
-- edit `src/index.css` (add speak-bob keyframes + bubble tail)
+- All audio bytes flow through the edge function — the ElevenLabs key never reaches the client.
+- We rely on `audio.duration` (read after `loadedmetadata`) to compute the per-character delay; if the metadata doesn't arrive in 600ms we fall back to the default `charDelay` and just play the audio over the standard typing.
+- The blob cache lives in memory only (no IndexedDB); a full page reload re-fetches. This keeps things simple and avoids stale-cache bugs.
+- Voice narration default is **OFF** to avoid surprise audio on first visit.
+- No changes to choice/evidence/insight steps.
