@@ -3,13 +3,18 @@ import { Link } from "react-router-dom";
 import GameFrame from "@/components/GameFrame";
 import bg from "@/assets/story-silent-fall.jpg";
 import DialogueLine from "@/components/story/DialogueLine";
+import sceneBrief from "@/assets/scenes/scene-brief.png";
+import sceneOffice from "@/assets/scenes/scene-office.png";
+import sceneDorm from "@/assets/scenes/scene-dorm.png";
+import sceneTurning from "@/assets/scenes/scene-turning.png";
+import sceneFinal from "@/assets/scenes/scene-final.png";
 
 type ChoiceKey = "q1" | "q2" | "q3" | "rRoom" | "rSchool" | "rOnline";
 type Answers = Partial<Record<ChoiceKey, string>>;
 
 type Choice = { id: string; label: string; best?: boolean; ok?: boolean };
 type Step =
-  | { kind: "scene"; title: string; lines: { who?: string; text: string; inner?: boolean }[] }
+  | { kind: "scene"; title: string; image?: string; lines: { who?: string; text: string; inner?: boolean }[] }
   | { kind: "evidence"; title: string; lines: string[] }
   | { kind: "choice"; key: ChoiceKey; title: string; prompt: string; options: Choice[]; reveal?: string }
   | { kind: "insight"; title: string; text: string };
@@ -17,7 +22,7 @@ type Step =
 const STORY: Step[] = [
   {
     kind: "scene",
-    title: "📖 Case Brief",
+    title: "📖 Case Brief", image: sceneBrief,
     lines: [
       { text: "Time: 2026 — A boarding school in Malaysia." },
       { text: "Aira (15) was found severely injured after falling from a dormitory building." },
@@ -26,7 +31,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 1 · School Office",
+    title: "🎬 Scene 1 · School Office", image: sceneOffice,
     lines: [
       { who: "Principal", text: "“This appears to be an unfortunate accident.”" },
       { who: "Aira's Parent", text: "“No. She was not happy there. Something was wrong.”" },
@@ -48,7 +53,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 2 · Dormitory",
+    title: "🎬 Scene 2 · Dormitory", image: sceneDorm,
     lines: [
       { text: "You enter the dormitory…" },
       { who: "You", inner: true, text: "No signs of a struggle… but something feels off." },
@@ -103,7 +108,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 4 · The Turning Point",
+    title: "🎬 Scene 4 · The Turning Point", image: sceneTurning,
     lines: [
       { text: "Deleted data recovered. A video plays — moments before the fall." },
       { text: "Aira surrounded. Verbal pressure. Minor physical contact." },
@@ -175,7 +180,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Final Reflection",
+    title: "🎬 Final Reflection", image: sceneFinal,
     lines: [
       { who: "You", text: "“No one pushed her…" },
       { who: "You", text: "But no one stopped it either.”" },
@@ -278,10 +283,29 @@ const SilentFall = () => {
 
       <main className="flex-1 px-5 py-4 overflow-y-auto space-y-4">
         {step?.kind === "scene" && (
-          <div className="space-y-3">
-            <div className="bg-card/90 border-2 border-primary px-3 py-2 shadow-[var(--shadow-pixel)] inline-block">
-              <div className="pixel text-[10px] text-primary">{step.title}</div>
-            </div>
+          <div className="space-y-3 animate-fade-in">
+            {step.image && (
+              <div
+                className="relative w-full overflow-hidden border-2 border-primary shadow-[var(--shadow-pixel)]"
+                style={{ aspectRatio: "16 / 10", imageRendering: "pixelated" }}
+              >
+                <img
+                  src={step.image}
+                  alt={step.title}
+                  className="w-full h-full object-cover"
+                  style={{ imageRendering: "pixelated" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-2 left-2 bg-card/90 border-2 border-primary px-2 py-1 shadow-[var(--shadow-pixel)]">
+                  <div className="pixel text-[10px] text-primary">{step.title}</div>
+                </div>
+              </div>
+            )}
+            {!step.image && (
+              <div className="bg-card/90 border-2 border-primary px-3 py-2 shadow-[var(--shadow-pixel)] inline-block">
+                <div className="pixel text-[10px] text-primary">{step.title}</div>
+              </div>
+            )}
             <div className="space-y-3">
               {step.lines.map((l, k) => (
                 <DialogueLine key={k} who={l.who} text={l.text} inner={l.inner} />
