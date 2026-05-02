@@ -1,5 +1,3 @@
-import schoolLaptopImg from "@/assets/case-school-laptop.jpg";
-import societyFraudImg from "@/assets/case-society-fraud.jpg";
 import type { Lang } from "@/game/SettingsContext";
 
 export type LocStr = { en: string; zh: string; ms: string };
