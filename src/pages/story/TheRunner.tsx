@@ -342,6 +342,129 @@ const ENDINGS = {
   },
 };
 
+type Highlights = { ids: string[]; tags: string[] } | null;
+type Source = { choiceTitle: string; optionLabel: string; rationale?: string } | null;
+
+const RecapPanel = ({
+  evTitle,
+  items,
+  highlights,
+  source,
+}: {
+  evTitle: string;
+  items: EvidenceItem[];
+  highlights: Highlights;
+  source: Source;
+}) => {
+  const ids = new Set(highlights?.ids ?? []);
+  const tags = new Set(highlights?.tags ?? []);
+  const linked = items.filter(
+    (it) =>
+      (it.id && ids.has(it.id)) ||
+      (it.tags && it.tags.some((t) => tags.has(t))),
+  );
+
+  const jumpTo = (id?: string) => {
+    if (!id) return;
+    // Try recap board first, then any other board on screen
+    const nodes = document.querySelectorAll<HTMLElement>(
+      `[data-evidence-id="${CSS.escape(id)}"]`,
+    );
+    const target = nodes[nodes.length - 1] ?? nodes[0];
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    target.classList.add("ring-4", "ring-accent");
+    window.setTimeout(
+      () => target.classList.remove("ring-4", "ring-accent"),
+      1400,
+    );
+    // Auto-expand the detail by clicking its toggle if collapsed
+    const toggle = target.querySelector<HTMLButtonElement>(
+      'button[aria-expanded="false"]',
+    );
+    toggle?.click();
+  };
+
+  const titleFor = (it: EvidenceItem) => {
+    if (it.title) return it.title;
+    switch (it.type) {
+      case "cctv":
+      case "phone":
+      case "video":
+        return it.label.slice(0, 36);
+      case "chat":
+        return `${it.from}: ${it.text.slice(0, 28)}`;
+      case "list":
+      case "note":
+        return it.text.slice(0, 36);
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <div
+        className="border-2 border-accent bg-accent/10 p-2 space-y-2"
+        style={{ boxShadow: "2px 2px 0 hsl(0 0% 0%)" }}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <span
+            className="pixel text-[8px] px-2 py-1 bg-accent text-accent-foreground"
+            style={{ boxShadow: "2px 2px 0 hsl(0 0% 0%)" }}
+          >
+            📂 RECAP
+          </span>
+          <span className="pixel text-[8px] text-accent">
+            {linked.length} LINKED · {evTitle}
+          </span>
+        </div>
+
+        {source && (
+          <div className="border-l-4 border-primary bg-background/70 px-2 py-1">
+            <div className="pixel text-[8px] text-primary">
+              YOU CHOSE · {source.optionLabel}
+            </div>
+            {source.rationale && (
+              <p className="text-xs leading-snug text-foreground/90 mt-1">
+                {source.rationale}
+              </p>
+            )}
+          </div>
+        )}
+
+        {linked.length > 0 && (
+          <div className="space-y-1">
+            <div className="pixel text-[8px] text-accent/80">
+              JUMP TO EVIDENCE ↓
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {linked.map((it, k) => (
+                <button
+                  key={(it.id ?? "x") + k}
+                  onClick={() => jumpTo(it.id)}
+                  disabled={!it.id}
+                  className="pixel text-[8px] px-2 py-1 border-2 border-primary text-primary bg-background/80 hover:bg-primary hover:text-primary-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ boxShadow: "2px 2px 0 hsl(0 0% 0%)" }}
+                  title={it.detail ?? "Open in evidence board"}
+                >
+                  ▸ {titleFor(it)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <EvidenceBoard
+        title={`RECAP · ${evTitle}`}
+        items={items}
+        highlightIds={highlights?.ids}
+        highlightTags={highlights?.tags}
+        defaultOpen
+      />
+    </div>
+  );
+};
+
 const TheRunner = () => {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
@@ -350,6 +473,7 @@ const TheRunner = () => {
   const [pendingHighlights, setPendingHighlights] = useState<{ ids: string[]; tags: string[] } | null>(null);
   const [activeHighlights, setActiveHighlights] = useState<{ ids: string[]; tags: string[] } | null>(null);
   const [highlightStepIdx, setHighlightStepIdx] = useState<number | null>(null);
+  const [highlightSource, setHighlightSource] = useState<{ choiceTitle: string; optionLabel: string; rationale?: string } | null>(null);
 
   const total = STORY.length;
   const done = i >= total;
@@ -379,14 +503,14 @@ const TheRunner = () => {
     if (stepNow?.kind === "choice") {
       const opt = stepNow.options.find((o) => o.id === id);
       if (opt && (opt.evidenceRefs?.length || opt.evidenceTags?.length)) {
-        // Find next evidence step; if found, queue. Otherwise, light up the most recent evidence step retroactively.
         const ids = opt.evidenceRefs ?? [];
         const tags = opt.evidenceTags ?? [];
-        const futureEvidence = STORY.slice(i + 1).findIndex((s) => s.kind === "evidence");
+        const source = { choiceTitle: stepNow.title, optionLabel: opt.label, rationale: opt.rationale };
+        const futureEvidence = STORY.slice(i + 1).findIndex((st) => st.kind === "evidence");
         if (futureEvidence >= 0) {
           setPendingHighlights({ ids, tags });
+          setHighlightSource(source);
         } else {
-          // No more evidence ahead — re-highlight the last evidence step in place.
           let lastEv = -1;
           for (let k = i - 1; k >= 0; k--) {
             if (STORY[k].kind === "evidence") { lastEv = k; break; }
@@ -394,10 +518,12 @@ const TheRunner = () => {
           if (lastEv >= 0) {
             setActiveHighlights({ ids, tags });
             setHighlightStepIdx(lastEv);
+            setHighlightSource(source);
           }
         }
       } else {
         setPendingHighlights(null);
+        setHighlightSource(null);
       }
     }
   };
@@ -410,6 +536,7 @@ const TheRunner = () => {
     setPendingHighlights(null);
     setActiveHighlights(null);
     setHighlightStepIdx(null);
+    setHighlightSource(null);
   };
 
   const stepHighlights =
@@ -506,12 +633,11 @@ const TheRunner = () => {
               onSelect={(id) => choose(step.key, id)}
             />
             {lateRecap && (
-              <EvidenceBoard
-                title={`📂 RECAP · ${lateRecap.ev.title}`}
+              <RecapPanel
+                evTitle={lateRecap.ev.title}
                 items={lateRecap.ev.items}
-                highlightIds={activeHighlights?.ids}
-                highlightTags={activeHighlights?.tags}
-                defaultOpen
+                highlights={activeHighlights}
+                source={highlightSource}
               />
             )}
           </>
