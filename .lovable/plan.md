@@ -1,120 +1,113 @@
-## Case VII — The Ritual of Power
+## Case W — The Silent Dormitory
 
-A new society-arc chapter modelled on Mask of Authority / Silent Room. Themes: cult manipulation, consent vs legality, premeditated murder vs failed ritual, and a new media-sentiment mechanic that can mislead the player.
+A new **school-arc** chapter inspired by the Zulfarhan Osman case. Themes: mob mentality, diffusion of responsibility, seniority abuse, and the §302 vs §304 legal crux. Built on the same pattern as Mask of Authority / Ritual of Power (single-page narrative, 6 acts, choice-driven, multi-ending).
 
 ### 1. Routing & navigation
 
-- New page `src/pages/story/RitualOfPower.tsx`.
-- Register `/story/ritual-of-power` in `src/App.tsx`.
-- Add a "Chapter U · The Ritual of Power" card in the `society` section of `src/pages/Chapter.tsx`.
+- New page `src/pages/story/SilentDormitory.tsx`.
+- Register `/story/silent-dormitory` in `src/App.tsx` (import + `<Route>`).
+- Add a "Chapter W · The Silent Dormitory" card in the `school` section of `src/pages/Chapter.tsx` (under Silent Fall / Green Trade).
 
 ### 2. Pixel-art scene assets
 
-Generate 7 new 1024×1024 pixel-art backgrounds in `src/assets/scenes/ritual/`:
+Generate 7 new 1024×1024 pixel-art backgrounds in `src/assets/scenes/dormitory/`. Tone guidance: **no graphic violence, no blood, no real military insignia** — silhouettes, shadows, empty bunks, atmospheric tension only.
 
 | Key | File | Subject |
 |---|---|---|
-| `disappearance` | `rt-disappearance.png` | News desk / missing-person poster of Dato' Rahman |
-| `ritual` | `rt-ritual.png` | Dim ritual chamber: candles, sigils, altar, robed figures (silhouettes only) |
-| `mentor` | `rt-mentor.png` | The "spiritual mentor" in opulent study, occult symbols, cash on desk |
-| `assistant` | `rt-assistant.png` | Lina the assistant in a small room, isolation/brainwashing tone |
-| `media` | `rt-media.png` | Wall of TV screens with conflicting tabloid headlines |
-| `interrogation` | `rt-interrogation.png` | Standard pixel-art interrogation room |
-| `verdict` | `rt-verdict.png` | Malaysian courtroom (reuse the verdict aesthetic) |
-
-Tone guidance for image gen: no gore, no real religious iconography — silhouettes, candles, abstract sigils only.
+| `dorm-night` | `dm-dorm-night.png` | Dim military-style dorm, bunks, single desk lamp, missing laptop spot |
+| `interrogation-circle` | `dm-circle.png` | Group of students surrounding one seated figure (silhouettes), tense lighting |
+| `escalation` | `dm-escalation.png` | Hallway at night, one student arguing with another out of sight of group |
+| `routine` | `dm-routine.png` | Same dorm in daylight — abuse normalised, students studying as if nothing wrong |
+| `collapse` | `dm-collapse.png` | Dorm floor at night, victim slumped (silhouette only), panicked classmates |
+| `hospital` | `dm-hospital.png` | Hospital corridor, doctor with clipboard, grim mood |
+| `verdict` | `dm-verdict.png` | Malaysian courtroom (verdict aesthetic) |
 
 ### 3. Scene image registry
 
 Update `src/lib/sceneImages.ts`:
-- Extend `ChapterId` with `"ritual-of-power"`.
-- Add 7 imports + the `ritual-of-power` block in `REGISTRY`.
-- Add `TITLE_FALLBACK["ritual-of-power"]` patterns:
-  - `/disappear|missing|brief/i → disappearance`
-  - `/ritual|ceremony|chamber/i → ritual`
-  - `/mentor|guru|master/i → mentor`
-  - `/assistant|lina|brainwash/i → assistant`
-  - `/media|headline|tabloid|press/i → media`
-  - `/interrogation/i → interrogation`
+- Extend `ChapterId` union with `"silent-dormitory"`.
+- Add 7 imports + the `silent-dormitory` block in `REGISTRY`.
+- Add `TITLE_FALLBACK["silent-dormitory"]`:
+  - `/dorm|night|seed|brief|laptop/i → dorm-night`
+  - `/interrogation|questioning|circle|pressure/i → interrogation-circle`
+  - `/escalation|hidden|thread|exit|punishment/i → escalation`
+  - `/routine|normalisation|normalization|silence|habituation/i → routine`
+  - `/collapse|breaking|crisis/i → collapse`
+  - `/hospital|aftermath|doctor/i → hospital`
   - `/verdict|legal|court|reflection|ending/i → verdict`
 - Update the comment-index header.
 
-### 4. Story structure (`RitualOfPower.tsx`)
+### 4. Story structure (`SilentDormitory.tsx`)
 
-Same `Step` union as `MaskOfAuthority.tsx` (`scene | evidence | choice | insight`). Reuses `GameFrame`, `SceneDialogue`, `EvidenceBoard`, `ChoicePanel`, and the same `RecapPanel` component.
+Same `Step` union as MaskOfAuthority (`scene | evidence | choice | insight`). Reuses `GameFrame`, `SceneDialogue`, `EvidenceBoard`, `ChoicePanel`. ~24 steps across 6 acts:
 
-Acts and steps (≈22 steps total):
-
-1. **Case Brief** (scene, `disappearance`) — Dato' Rahman, missing 6 days; ritual-mentor lead surfaces.
-2. **Act I · The Disappearance** (scene, `mentor`) — investigators trace large outflows to the mentor.
-3. **Choice ① · Initial Frame** (`q1`)
-   - A. Missing person — *poor* (closes too early).
-   - B. Fraud + suspicious disappearance — *best*.
-   - C. Voluntary disappearance — *poor*.
-   - D. Ordinary cult activity — *ok*.
-4. **Act II · The Ritual Site** (scene, `ritual`) — body recovered; ritual setup intact.
-5. **Evidence Board #1 · "It Was Voluntary"** — `ritual-video` (victim participating, reliable, tag `consent-trap`), `audio-consent` ("I accept all consequences", reliable, tag `consent-trap`), `ritual-injury` (forensic — fatal injury inflicted by mentor, reliable, tag `lethal-act`), `cause-of-death` (not survivable, reliable, tag `lethal-act`).
-6. **Choice ② · Does Consent Remove Liability?** (`q2`)
-   - A. Yes, consent erases the offence — *poor* (the legal trap).
-   - B. Consent reduces it to negligence — *ok*.
-   - C. Consent is not a defence to taking life — *best* (s.300 frame).
-   - D. Need more evidence — *poor* (evidence is on the table).
-   - Reveal cites: "agreement does not equal legality."
-7. **Insight · Consent and Life** — short legal frame: under Malaysian law consent does not legitimise an act intended to cause death; the only narrow exceptions don't reach lethal ritual harm.
-8. **Act III · The Assistant Lina** (scene, `assistant`) — interview reveals isolation, sleep deprivation, financial dependence, religious coercion.
-9. **Evidence Board #2 · Assistant's Position** — `lina-prep` (helped prepare the ritual, reliable, tag `participation`), `lina-diary` (fear, attempted to leave twice, reliable, tag `coercion`), `mentor-control-log` (controlled phone, finances, sleep, reliable, tag `coercion`).
-10. **Choice ③ · Lina's Status** (`q3`)
-    - A. Pure accomplice — *poor*.
-    - B. Pure victim — *ok* (humane but ignores participation).
-    - C. Both — accomplice in act, victim of coercion — *best* (mitigation, not acquittal).
-11. **Act IV · Money vs Faith** (scene, `mentor`) — financial trail + ritual notebooks side by side.
-12. **Evidence Board #3 · Mixed Motive** — `bank-transfers` (RM ~3.2M to mentor accounts, reliable, tag `fraud`), `ritual-notes` (detailed years-old liturgy, reliable, tag `belief`), `client-list` (other paying clients, reliable, tag `fraud`).
-13. **Choice ④ · Motive** (`q4`)
-    - A. Pure scam — *ok*.
-    - B. Sincere faith — *poor*.
-    - C. Mixed motive: sincere belief monetised — *best* (matches the evidence).
-14. **Act V · Media Pressure** (scene, `media`) — the new mechanic.
-15. **Choice ⑤ · Media Influence** (`q5`)
-    - A. Follow the "Occult Killings!" narrative — *poor*.
-    - B. Follow the "Victim Volunteered!" narrative — *poor*.
-    - C. Anchor on evidence; ignore both feeds — *best*.
-    - D. Issue a public statement to calm sentiment — *ok* (procedural, not investigative).
-    - Reveal: high-profile trials are won and lost by which narrative the investigator absorbs.
-16. **Act VI · The Failed-Ritual Twist** (scene, `interrogation`) — mentor claims the death was an "unintended overreach" of the rite.
-17. **Evidence Board #4 · Premeditation** — `prior-deaths` (two earlier "ritual deaths" in mentor's history, reliable, tag `premeditation`), `lethal-instructions` (mentor's own notes specify a fatal step, reliable, tag `premeditation`), `insurance-payout` (mentor named beneficiary on a policy taken out 3 weeks before, reliable, tag `premeditation`).
-18. **Choice ⑥ · Was It Murder?** (`q6`)
-    - A. Failed ritual / accident — *poor*.
-    - B. Voluntary self-harm by victim — *poor*.
-    - C. Premeditated lethal act — *best* (s.302 frame).
-19. **Choice ⑦ · Victim's Responsibility** (`q7`)
-    - A. None at all — *ok* (legally accurate).
-    - B. Errors in judgment — *best* (legally none, but acknowledges risk-taking — the chapter's controversy point).
-    - C. Partial criminal responsibility — *poor* (legally wrong; victims don't "share" their own murder).
-    - Reveal makes explicit: legally A, but the honest analytical answer is B — risk-taking ≠ liability.
-20. **Insight · Legal Frame** — Penal Code §302 (murder), §420 (cheating), §34 (common intention) tied to the assistant question.
-21. **Verdict scene** (scene, `verdict`).
-22. **Ending Resolver + Reflection card.**
+1. **Case Brief** (scene, `dorm-night`) — A laptop goes missing in a military university dorm. Victim accused with no evidence.
+2. **Act I · The Seed of Suspicion** (scene, `dorm-night`) — Student A/B confront the victim.
+3. **Choice ① · Initial Judgment** (`q1`)
+   - A. Trust group intuition — *poor*.
+   - B. Demand physical evidence — *best*.
+   - C. Escalate to superiors — *ok*.
+   - D. Stay a bystander — *poor*.
+4. **Act II · The Interrogation** (scene, `interrogation-circle`) — verbal "encirclement", no force yet.
+5. **Evidence Board #1 · Chat Logs** — `chat-pressure` ("Give him a bit more pressure", reliable, tag `escalation`), `witness-stmt` (hallway witness, reliable, tag `coercion`), `roster` (six students consistently present, reliable, tag `collective`).
+6. **Choice ② · Behavioural Assessment** (`q2`)
+   - A. Reasonable inquiry — *poor*.
+   - B. Emotional venting — *poor*.
+   - C. Peer pressure / mob formation — *best*.
+   - D. Normal interaction — *poor*.
+7. **Act III · The Escalation** (scene, `escalation`) — Student D hesitates; Student B threatens "you're an accomplice if you back out".
+8. **Choice ③ · Group Dynamic** (`q3`)
+   - A. Isolated individual acts — *poor*.
+   - B. Formation of collective criminal intent (§34 common intention) — *best*.
+   - C. Simple conflict — *poor*.
+9. **Insight · Common Intention (§34)** — short legal frame: shared purpose + concerted acts = each liable for the act of all.
+10. **Act IV · The Normalisation of Silence** (scene, `routine`) — abuse becomes routine; moral rationalisation.
+11. **Choice ④ · Critical Perception** (`q4`)
+    - A. Situation stabilised — *poor*.
+    - B. Risk decreasing — *poor*.
+    - C. Fatal danger ignored due to habituation — *best*.
+12. **Evidence Board #2 · The Pattern** — `medic-log` (no medical visit logged in 8 days, reliable, tag `omission`), `bystander-diary` (Student D's notes — fear of retaliation, reliable, tag `coercion`), `injury-pattern` (forensic — repeated trauma over days, reliable, tag `prolonged`).
+13. **Act V · The Breaking Point** (scene, `collapse`) — victim collapses; A says "if we call now we're all finished".
+14. **Choice ⑤ · The Decision** (`q5`)
+    - A. Call medical help immediately — *best*.
+    - B. Observe for another hour — *poor* (the inertia trap).
+    - C. Keep pressing for the laptop — *poor*.
+    - D. Do nothing — *poor*.
+    - Reveal: psychological inertia is the killer here, not any single blow.
+15. **Act VI · Aftermath** (scene, `hospital`) — doctor: "delay was fatal; injuries sustained over a long period."
+16. **Evidence Board #3 · Role Allocation** — `student-A-acts` (instigator, sustained pressure, reliable, tag `instigator`), `student-B-acts` (executor of physical acts, reliable, tag `executor`), `student-D-silence` (knew, did not report, reliable, tag `bystander`), `laptop-found` (laptop was misplaced, never stolen — reliable, tag `irony`).
+17. **Choice ⑥ · Student A — Instigator** (`q6`) — A. One-off mistake / B. Persistent course of conduct (best) / C. Not responsible.
+18. **Choice ⑦ · Student B — Executor** (`q7`) — A. Just following / B. Common intention under §34 (best) / C. Not responsible.
+19. **Insight · Bystander & Duty** — short note on moral failing vs limited legal duty for Student D in Malaysian law.
+20. **Act VI (cont.) · The Legal Crux** (scene, `verdict`).
+21. **Choice ⑧ · Final Classification** (`q8`)
+    - A. Murder §302 — *ok* (emotional justice; intent to kill is hard to prove).
+    - B. Culpable homicide §304 — *best* (knowledge that acts were likely to cause death, no specific intent to kill).
+    - C. Accident — *poor*.
+    - Reveal: maps to the real-case legal transition.
+22. **Insight · §302 vs §304** — clear contrast: intent to kill vs knowledge of likely death.
+23. **Verdict scene** (scene, `verdict`).
+24. **Ending Resolver + Reflection card**.
 
 ### 5. Ending logic
 
-Score across q1–q7 with the optimal answers (B, C, C, C, C, C, B). Q5 and Q7 each carry a penalty if the player picks the "media-driven" or "victim-blames" answers.
+Optimal answers: q1=B, q2=C, q3=B, q4=C, q5=A, q6=B, q7=B, q8=B. Score sums "best=2, ok=1, poor=0".
 
-- **Perfect (green)** — `q2=C` AND `q6=C` AND `q3=C` AND score ≥ 11: mentor convicted under §302 + §420; assistant receives a reduced sentence with proven coercion; client list opens leads into the syndicate arc.
-- **Ambiguous (yellow)** — `q6=C` but other choices weaker, OR media-driven q5: mentor convicted of murder; the public still debates whether the victim "asked for it"; assistant's sentencing is harsh because coercion wasn't argued well.
-- **Failure (red)** — `q2 ∈ {A,B}` OR `q6 ∈ {A,B}` OR overall score ≤ 6: ruled "accidental death during ritual"; mentor walks; the client list is never pulled.
+- **Perfect / Legally Precise (green)** — `q8=B` AND `q3=B` AND `q5=A` AND score ≥ 12: §304 conviction for A and B (common intention); D censured; institutional "seniority culture" exposed and ties into the syndicate arc.
+- **Emotional Justice (yellow)** — `q8=A` OR (`q8=B` but score 7–11): §302 conviction that risks being overturned on appeal for lack of specific intent; the player feels vindicated but the law is uneasy.
+- **Failure (red)** — `q8=C` OR `q5 ∈ {B,C,D}` OR score ≤ 6: ruled accidental; minor disciplinary action; institution closes ranks.
 
 ### 6. UX details
 
-- Same scene rendering pattern: `step.image ?? sceneImageFor("ritual-of-power", step.sceneKey ?? step.title)`.
-- Evidence cards use `evidenceTags` to drive Recap highlighting (`consent-trap`, `lethal-act`, `coercion`, `participation`, `fraud`, `belief`, `premeditation`).
-- Media act renders two stacked tabloid mock-cards (one sensational, one apologist) above the choice — implemented inline in the scene step's `lines` plus a small in-page `<div>` block; no new component needed.
-- Closing "What This Teaches" card highlights: consent is not a defence to murder, mixed motives are real, media narratives are not evidence, and coercion is mitigation not acquittal.
-- Footer: REPLAY + CONTINUE (back to `/chapter/society`).
+- Standard pattern: `step.image ?? sceneImageFor("silent-dormitory", step.sceneKey ?? step.title)`.
+- Evidence cards use `evidenceTags`: `escalation`, `coercion`, `collective`, `omission`, `prolonged`, `instigator`, `executor`, `bystander`, `irony`.
+- Closing "What This Teaches" card highlights the four lessons: mob mentality, diffusion of responsibility, normalisation of silence, and §302 vs §304.
+- Footer: REPLAY + CONTINUE (back to `/chapter/school`).
 
 ### Technical notes
 
-- New files: `src/pages/story/RitualOfPower.tsx`, 7 PNGs in `src/assets/scenes/ritual/`.
-- Edited files: `src/App.tsx` (route + import), `src/pages/Chapter.tsx` (society card), `src/lib/sceneImages.ts` (chapter id, registry, fallbacks, header comment).
+- **New files**: `src/pages/story/SilentDormitory.tsx`, 7 PNGs in `src/assets/scenes/dormitory/`.
+- **Edited files**: `src/App.tsx` (import + route), `src/pages/Chapter.tsx` (school card), `src/lib/sceneImages.ts` (chapter id, registry, fallbacks, header comment).
 - No backend, no schema changes, no new dependencies.
-- Sensitive-topic guard for image gen: silhouettes only, no real religious iconography, no graphic injury — keep visuals symbolic (candles, sigils, empty altar, abstract robes).
-- After generation, view each PNG once for tone QA before wiring.
+- Sensitive-topic guard for image gen: silhouettes only, no graphic injury, no blood, no real insignia. Lighting and posture do all the work.
+- After image generation, view each PNG once for tone QA before wiring.

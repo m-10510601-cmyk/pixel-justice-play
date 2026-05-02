@@ -43,6 +43,15 @@ const Chapter = () => {
               <div className="text-base mt-1">Chapter Y · The Green Trade</div>
               <div className="text-[10px] opacity-80 mt-1">Campus drug trafficking · syndicate hook</div>
             </Link>
+            <Link
+              to="/story/silent-dormitory"
+              className="pixel-btn text-left text-sm border-accent"
+              style={{ display: "block" }}
+            >
+              <div className="text-[10px] opacity-80">★ MAIN STORY</div>
+              <div className="text-base mt-1">Chapter W · The Silent Dormitory</div>
+              <div className="text-[10px] opacity-80 mt-1">Mob mentality · §302 vs §304 · multi-ending</div>
+            </Link>
           </>
         )}
         {chapter === "society" && (
