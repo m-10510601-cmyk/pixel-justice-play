@@ -185,7 +185,7 @@ const STORY: Step[] = [
     items: [
       { id: "student-A-acts", type: "note", title: "Student A · the Instigator", text: "Initiated the accusation. Sustained the pressure. Vetoed the medical call.", detail: "Course of conduct, not a one-off act. Drives the §304 framing.", tags: ["instigator"] },
       { id: "student-B-acts", type: "note", title: "Student B · the Executor", text: "Carried out the physical 'lessons' on most nights. Threatened the dissenter to keep the group in line.", detail: "Direct actor + enforcer of common intention.", tags: ["executor", "collective"] },
-      { id: "student-D-silence", type: "chat", from: "D", text: "“I knew. I didn't tell anyone. I was scared they'd turn on me.”", title: "Student D · the silent objector", detail: "Coercion is documented; complete acquittal is not available, but mitigation is.", tags: ["bystander", "coercion"] },
+      { id: "student-D-silence", type: "chat", from: "C", text: "“I knew. I didn't tell anyone. I was scared they'd turn on me.”", title: "Student D · the silent objector", detail: "Coercion is documented; complete acquittal is not available, but mitigation is.", tags: ["bystander", "coercion"] },
       { id: "laptop-found", type: "list", title: "Laptop recovered", text: "Found on a shelf in the common room. Misplaced, never stolen.", detail: "The original premise of the accusation was false from the beginning.", tags: ["irony"] },
     ],
   },
