@@ -28,6 +28,14 @@
 //   silent-room / interrogation  → sr-interrogation.png
 //   silent-room / verdict        → sr-verdict.png
 //   silent-room / reflection     → sr-reflection.png
+//
+//   mask-of-authority / report        → mask-report.png
+//   mask-of-authority / call          → mask-call.png
+//   mask-of-authority / doorstep      → mask-doorstep.png
+//   mask-of-authority / money         → mask-money.png
+//   mask-of-authority / interrogation → mask-interrogation.png
+//   mask-of-authority / scripts       → mask-scripts.png
+//   mask-of-authority / verdict       → mask-verdict.png
 // =============================================================================
 
 import runnerBrief from "@/assets/scenes/runner/runner-brief.png";
@@ -53,7 +61,15 @@ import srInterrogation from "@/assets/scenes/silentroom/sr-interrogation.png";
 import srVerdict from "@/assets/scenes/silentroom/sr-verdict.png";
 import srReflection from "@/assets/scenes/silentroom/sr-reflection.png";
 
-export type ChapterId = "the-runner" | "green-trade" | "silent-room";
+import maskReport from "@/assets/scenes/mask/mask-report.png";
+import maskCall from "@/assets/scenes/mask/mask-call.png";
+import maskDoorstep from "@/assets/scenes/mask/mask-doorstep.png";
+import maskMoney from "@/assets/scenes/mask/mask-money.png";
+import maskInterrogation from "@/assets/scenes/mask/mask-interrogation.png";
+import maskScripts from "@/assets/scenes/mask/mask-scripts.png";
+import maskVerdict from "@/assets/scenes/mask/mask-verdict.png";
+
+export type ChapterId = "the-runner" | "green-trade" | "silent-room" | "mask-of-authority";
 
 const REGISTRY: Record<ChapterId, Record<string, string>> = {
   "the-runner": {
@@ -81,6 +97,15 @@ const REGISTRY: Record<ChapterId, Record<string, string>> = {
     interrogation: srInterrogation,
     verdict: srVerdict,
     reflection: srReflection,
+  },
+  "mask-of-authority": {
+    report: maskReport,
+    call: maskCall,
+    doorstep: maskDoorstep,
+    money: maskMoney,
+    interrogation: maskInterrogation,
+    scripts: maskScripts,
+    verdict: maskVerdict,
   },
 };
 
@@ -111,6 +136,15 @@ const TITLE_FALLBACK: Record<ChapterId, Array<[RegExp, string]>> = {
     [/interrogation|guardian/i, "interrogation"],
     [/verdict|legal|judgment|judgement|court/i, "verdict"],
     [/reflection|ending|silent room/i, "reflection"],
+  ],
+  "mask-of-authority": [
+    [/report|station|brief/i, "report"],
+    [/call|vishing|phone/i, "call"],
+    [/door|on-?site|collection/i, "doorstep"],
+    [/money|financial|trail|mule/i, "money"],
+    [/interrogation|arrest|suspect/i, "interrogation"],
+    [/script|phone evidence|twist|folder/i, "scripts"],
+    [/verdict|legal|court|reflection|ending/i, "verdict"],
   ],
 };
 
