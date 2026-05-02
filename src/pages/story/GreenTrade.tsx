@@ -5,11 +5,7 @@ import bg from "@/assets/story-silent-fall.jpg";
 import SceneDialogue from "@/components/story/SceneDialogue";
 import EvidenceBoard, { EvidenceItem } from "@/components/story/EvidenceBoard";
 import ChoicePanel from "@/components/story/ChoicePanel";
-import sceneBrief from "@/assets/scenes/scene-brief.png";
-import sceneOffice from "@/assets/scenes/scene-office.png";
-import sceneDorm from "@/assets/scenes/scene-dorm.png";
-import sceneTurning from "@/assets/scenes/scene-turning.png";
-import sceneFinal from "@/assets/scenes/scene-final.png";
+import { sceneImageFor } from "@/lib/sceneImages";
 
 type ChoiceKey = "q1" | "q2" | "q3" | "q4" | "iA" | "iB" | "q5A" | "q5B";
 type Answers = Partial<Record<ChoiceKey, string>>;
@@ -25,7 +21,7 @@ type Choice = {
   evidenceTags?: string[];
 };
 type Step =
-  | { kind: "scene"; title: string; image?: string; lines: { who?: string; text: string; inner?: boolean }[] }
+  | { kind: "scene"; title: string; sceneKey?: string; image?: string; lines: { who?: string; text: string; inner?: boolean }[] }
   | { kind: "evidence"; title: string; items: EvidenceItem[] }
   | { kind: "choice"; key: ChoiceKey; title: string; prompt: string; options: Choice[]; reveal?: string }
   | { kind: "insight"; title: string; text: string };
@@ -33,7 +29,7 @@ type Step =
 const STORY: Step[] = [
   {
     kind: "scene",
-    title: "📖 Act I · The Tip-off", image: sceneOffice,
+    title: "📖 Act I · The Tip-off", sceneKey: "tipoff",
     lines: [
       { text: "Location: District Police Station. 23:40." },
       { who: "Officer Tan", text: "“Recent intelligence suggests a drug trafficking operation has emerged at a local university — and the scale is significant.”" },
@@ -57,7 +53,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Act II · Surveillance Intercept", image: sceneBrief,
+    title: "🎬 Act II · Surveillance Intercept", sceneKey: "surveillance",
     lines: [
       { text: "A burner phone is mirrored. Group chats spill onto your screen." },
       { who: "You", inner: true, text: "Too clean. No emojis, no slang. Just product words." },
@@ -115,7 +111,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎭 Act III · The Two Faces", image: sceneDorm,
+    title: "🎭 Act III · The Two Faces", sceneKey: "twofaces",
     lines: [
       { text: "Two names recur in the surveillance feed." },
       { who: "Profiler", text: "“Suspect A — average grades, low profile. But unexplained income.”" },
@@ -244,7 +240,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Act V · Interrogating Suspect A", image: sceneTurning,
+    title: "🎬 Act V · Interrogating Suspect A", sceneKey: "interrogation-a",
     lines: [
       { who: "Suspect A", text: "“I was just helping to keep it for someone. I don't even know what's inside.”" },
       { who: "You", inner: true, text: "Then explain the e-wallet ledger. 47 transfers don't ‘keep themselves’." },
@@ -265,7 +261,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Act V · Interrogating Suspect B", image: sceneTurning,
+    title: "🎬 Act V · Interrogating Suspect B", sceneKey: "interrogation-b",
     lines: [
       { who: "Suspect B", text: "“Everyone is selling it. I'm just one of many. Why me?”" },
       { who: "You", inner: true, text: "“One of many” means there's a many. So tell me about the many." },
@@ -347,7 +343,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Act VIII · Final Reflection", image: sceneFinal,
+    title: "🎬 Act VIII · Final Reflection", sceneKey: "reflection",
     lines: [
       { text: "The case file closes on two students. The map on the wall opens onto the rest of the country." },
       { who: "You", inner: true, text: "Two arrests. One node. The chain still hums somewhere upstream." },
@@ -492,28 +488,30 @@ const GreenTrade = () => {
       <main className="flex-1 px-5 py-4 overflow-y-auto space-y-4">
         {step?.kind === "scene" && (
           <div className="space-y-3 animate-fade-in">
-            {step.image && (
-              <div
-                className="relative w-full overflow-hidden border-2 border-primary shadow-[var(--shadow-pixel)]"
-                style={{ aspectRatio: "16 / 10", imageRendering: "pixelated" }}
-              >
-                <img
-                  src={step.image}
-                  alt={step.title}
-                  className="w-full h-full object-cover"
-                  style={{ imageRendering: "pixelated" }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute bottom-2 left-2 bg-card/90 border-2 border-primary px-2 py-1 shadow-[var(--shadow-pixel)]">
+            {(() => {
+              const sceneImg = step.image ?? sceneImageFor("green-trade", step.sceneKey ?? step.title);
+              return sceneImg ? (
+                <div
+                  className="relative w-full overflow-hidden border-2 border-primary shadow-[var(--shadow-pixel)]"
+                  style={{ aspectRatio: "16 / 10", imageRendering: "pixelated" }}
+                >
+                  <img
+                    src={sceneImg}
+                    alt={step.title}
+                    className="w-full h-full object-cover"
+                    style={{ imageRendering: "pixelated" }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute bottom-2 left-2 bg-card/90 border-2 border-primary px-2 py-1 shadow-[var(--shadow-pixel)]">
+                    <div className="pixel text-[10px] text-primary">{step.title}</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-card/90 border-2 border-primary px-3 py-2 shadow-[var(--shadow-pixel)] inline-block">
                   <div className="pixel text-[10px] text-primary">{step.title}</div>
                 </div>
-              </div>
-            )}
-            {!step.image && (
-              <div className="bg-card/90 border-2 border-primary px-3 py-2 shadow-[var(--shadow-pixel)] inline-block">
-                <div className="pixel text-[10px] text-primary">{step.title}</div>
-              </div>
-            )}
+              );
+            })()}
             <SceneDialogue lines={step.lines} resetKey={i} />
           </div>
         )}
