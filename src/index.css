@@ -477,3 +477,11 @@ html.theme-light .brightness-overlay {
   outline: 3px solid hsl(var(--accent));
   outline-offset: 2px;
 }
+
+@keyframes speak-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+.speak-bob {
+  animation: speak-bob 0.9s ease-in-out infinite;
+}
