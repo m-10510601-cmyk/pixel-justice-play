@@ -5,11 +5,13 @@ import bg from "@/assets/story-silent-fall.jpg";
 import SceneDialogue from "@/components/story/SceneDialogue";
 import EvidenceBoard, { EvidenceItem } from "@/components/story/EvidenceBoard";
 import ChoicePanel from "@/components/story/ChoicePanel";
-import sceneBrief from "@/assets/scenes/scene-brief.png";
-import sceneOffice from "@/assets/scenes/scene-office.png";
-import sceneDorm from "@/assets/scenes/scene-dorm.png";
-import sceneTurning from "@/assets/scenes/scene-turning.png";
-import sceneFinal from "@/assets/scenes/scene-final.png";
+import sceneBrief from "@/assets/scenes/runner/runner-brief.png";
+import sceneCall from "@/assets/scenes/runner/runner-call.png";
+import sceneDoor from "@/assets/scenes/runner/runner-door.png";
+import sceneStation from "@/assets/scenes/runner/runner-station.png";
+import sceneArrest from "@/assets/scenes/runner/runner-arrest.png";
+import sceneInterrogation from "@/assets/scenes/runner/runner-interrogation.png";
+import sceneReflection from "@/assets/scenes/runner/runner-reflection.png";
 
 type ChoiceKey = "c1" | "c2a" | "c2b" | "c2c" | "c3a" | "c3b" | "c3c" | "q1" | "q2" | "q3" | "qV";
 type Answers = Partial<Record<ChoiceKey, string>>;
