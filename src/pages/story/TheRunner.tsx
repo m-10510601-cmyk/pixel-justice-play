@@ -5,13 +5,7 @@ import bg from "@/assets/story-silent-fall.jpg";
 import SceneDialogue from "@/components/story/SceneDialogue";
 import EvidenceBoard, { EvidenceItem } from "@/components/story/EvidenceBoard";
 import ChoicePanel from "@/components/story/ChoicePanel";
-import sceneBrief from "@/assets/scenes/runner/runner-brief.png";
-import sceneCall from "@/assets/scenes/runner/runner-call.png";
-import sceneDoor from "@/assets/scenes/runner/runner-door.png";
-import sceneStation from "@/assets/scenes/runner/runner-station.png";
-import sceneArrest from "@/assets/scenes/runner/runner-arrest.png";
-import sceneInterrogation from "@/assets/scenes/runner/runner-interrogation.png";
-import sceneReflection from "@/assets/scenes/runner/runner-reflection.png";
+import { sceneImageFor } from "@/lib/sceneImages";
 
 type ChoiceKey = "c1" | "c2a" | "c2b" | "c2c" | "c3a" | "c3b" | "c3c" | "q1" | "q2" | "q3" | "qV";
 type Answers = Partial<Record<ChoiceKey, string>>;
@@ -27,7 +21,7 @@ type Choice = {
   evidenceTags?: string[];
 };
 type Step =
-  | { kind: "scene"; title: string; image?: string; lines: { who?: string; text: string; inner?: boolean }[] }
+  | { kind: "scene"; title: string; sceneKey?: string; image?: string; lines: { who?: string; text: string; inner?: boolean }[] }
   | { kind: "evidence"; title: string; items: EvidenceItem[] }
   | { kind: "choice"; key: ChoiceKey; title: string; prompt: string; options: Choice[]; reveal?: string }
   | { kind: "insight"; title: string; text: string };
@@ -35,7 +29,7 @@ type Step =
 const STORY: Step[] = [
   {
     kind: "scene",
-    title: "📖 Case Brief", image: sceneBrief,
+    title: "📖 Case Brief", sceneKey: "brief",
     lines: [
       { text: "Time: 2026 · Location: Singapore." },
       { text: "Victim: Mr. Tan, retired engineer. Suspect: a 40-year-old Malaysian national." },
@@ -45,7 +39,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 1 · The Call", image: sceneCall,
+    title: "🎬 Scene 1 · The Call", sceneKey: "call",
     lines: [
       { text: "(Phone ringing)" },
       { who: "Mr. Tan", text: "“Hello?”" },
@@ -61,7 +55,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 2 · Fear & Manipulation", image: sceneCall,
+    title: "🎬 Scene 2 · Fear & Manipulation", sceneKey: "call",
     lines: [
       { who: "Fake MAS Officer", text: "“You must not tell anyone. This is a confidential investigation.”" },
       { who: "Mr. Tan", text: "“What should I do?”" },
@@ -82,7 +76,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 3 · The Collection", image: sceneDoor,
+    title: "🎬 Scene 3 · The Collection", sceneKey: "door",
     lines: [
       { text: "(A knock at Mr. Tan's door.)" },
       { who: "Suspect", text: "“I'm from the Monetary Authority.”" },
@@ -94,7 +88,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 4 · Suspicion", image: sceneStation,
+    title: "🎬 Scene 4 · Suspicion", sceneKey: "station",
     lines: [
       { who: "Mr. Tan", text: "“They said they would return everything… but no one has contacted me.”" },
       { text: "Days later. Police station. Mr. Tan walks in, hands shaking." },
@@ -174,7 +168,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 5 · The Arrest", image: sceneArrest,
+    title: "🎬 Scene 5 · The Arrest", sceneKey: "arrest",
     lines: [
       { who: "Officer Lim", text: "“We tracked the suspect through CCTV and movement records.”" },
       { text: "(The suspect is detained at a budget hotel near the border.)" },
@@ -183,7 +177,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 6 · Interrogation", image: sceneInterrogation,
+    title: "🎬 Scene 6 · Interrogation", sceneKey: "interrogation",
     lines: [
       { who: "Suspect", text: "“I didn't scam anyone. I was just told to collect items.”" },
       { who: "You", inner: true, text: "‘Just told to.’ Said by every link in every chain." },
@@ -224,7 +218,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Scene 7 · Breaking Point", image: sceneInterrogation,
+    title: "🎬 Scene 7 · Breaking Point", sceneKey: "interrogation",
     lines: [
       { text: "You slide the printed badge and a CCTV still across the table." },
       { who: "You", text: "“You used a fake identity and collected valuables.”" },
@@ -288,7 +282,7 @@ const STORY: Step[] = [
   },
   {
     kind: "scene",
-    title: "🎬 Ending · Reflection", image: sceneReflection,
+    title: "🎬 Ending · Reflection", sceneKey: "reflection",
     lines: [
       { who: "Narrator", text: "“He did not make the call… but he made the crime possible.”" },
       { who: "You", text: "“Crime is not just about who plans it…”" },
@@ -579,28 +573,30 @@ const TheRunner = () => {
       <main className="flex-1 px-5 py-4 overflow-y-auto space-y-4">
         {step?.kind === "scene" && (
           <div className="space-y-3 animate-fade-in">
-            {step.image && (
-              <div
-                className="relative w-full overflow-hidden border-2 border-primary shadow-[var(--shadow-pixel)]"
-                style={{ aspectRatio: "16 / 10", imageRendering: "pixelated" }}
-              >
-                <img
-                  src={step.image}
-                  alt={step.title}
-                  className="w-full h-full object-cover"
-                  style={{ imageRendering: "pixelated" }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute bottom-2 left-2 bg-card/90 border-2 border-primary px-2 py-1 shadow-[var(--shadow-pixel)]">
+            {(() => {
+              const sceneImg = step.image ?? sceneImageFor("the-runner", step.sceneKey ?? step.title);
+              return sceneImg ? (
+                <div
+                  className="relative w-full overflow-hidden border-2 border-primary shadow-[var(--shadow-pixel)]"
+                  style={{ aspectRatio: "16 / 10", imageRendering: "pixelated" }}
+                >
+                  <img
+                    src={sceneImg}
+                    alt={step.title}
+                    className="w-full h-full object-cover"
+                    style={{ imageRendering: "pixelated" }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute bottom-2 left-2 bg-card/90 border-2 border-primary px-2 py-1 shadow-[var(--shadow-pixel)]">
+                    <div className="pixel text-[10px] text-primary">{step.title}</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-card/90 border-2 border-primary px-3 py-2 shadow-[var(--shadow-pixel)] inline-block">
                   <div className="pixel text-[10px] text-primary">{step.title}</div>
                 </div>
-              </div>
-            )}
-            {!step.image && (
-              <div className="bg-card/90 border-2 border-primary px-3 py-2 shadow-[var(--shadow-pixel)] inline-block">
-                <div className="pixel text-[10px] text-primary">{step.title}</div>
-              </div>
-            )}
+              );
+            })()}
             <SceneDialogue lines={step.lines} resetKey={i} />
           </div>
         )}
