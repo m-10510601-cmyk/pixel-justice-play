@@ -117,6 +117,14 @@ import hpScamFloor from "@/assets/scenes/highpay/hp-scam-floor.png";
 import hpInterrogation from "@/assets/scenes/highpay/hp-interrogation.png";
 import hpVerdict from "@/assets/scenes/highpay/hp-verdict.png";
 
+import dnHighway from "@/assets/scenes/darknight/dn-highway.png";
+import dnScene from "@/assets/scenes/darknight/dn-scene.png";
+import dnStation from "@/assets/scenes/darknight/dn-station.png";
+import dnFlashback from "@/assets/scenes/darknight/dn-flashback.png";
+import dnFeed from "@/assets/scenes/darknight/dn-feed.png";
+import dnCourt from "@/assets/scenes/darknight/dn-court.png";
+import dnVerdict from "@/assets/scenes/darknight/dn-verdict.png";
+
 export type ChapterId =
   | "the-runner"
   | "green-trade"
@@ -124,7 +132,8 @@ export type ChapterId =
   | "mask-of-authority"
   | "ritual-of-power"
   | "silent-dormitory"
-  | "high-pay-trap";
+  | "high-pay-trap"
+  | "dark-night";
 
 const REGISTRY: Record<ChapterId, Record<string, string>> = {
   "the-runner": {
@@ -188,6 +197,15 @@ const REGISTRY: Record<ChapterId, Record<string, string>> = {
     "scam-floor": hpScamFloor,
     interrogation: hpInterrogation,
     verdict: hpVerdict,
+  },
+  "dark-night": {
+    highway: dnHighway,
+    scene: dnScene,
+    station: dnStation,
+    flashback: dnFlashback,
+    feed: dnFeed,
+    court: dnCourt,
+    verdict: dnVerdict,
   },
 };
 
@@ -254,6 +272,15 @@ const TITLE_FALLBACK: Record<ChapterId, Array<[RegExp, string]>> = {
     [/scam|floor|sunk|rationalis|rationaliz|psychological/i, "scam-floor"],
     [/interrogation|confront|suspect/i, "interrogation"],
     [/verdict|legal|court|reflection|ending|charge/i, "verdict"],
+  ],
+  "dark-night": [
+    [/highway|impact|midnight|act i\b/i, "highway"],
+    [/chaos|bystand|accident site|act ii\b/i, "scene"],
+    [/station|first report|act iii\b/i, "station"],
+    [/memory|flashback|earlier|act iv|act v\b/i, "flashback"],
+    [/social media|feed|opinion|act vi\b/i, "feed"],
+    [/court|technical|expert|legal showdown|act vii|act viii/i, "court"],
+    [/verdict|judgment|judgement|final|act ix|ending/i, "verdict"],
   ],
 };
 
