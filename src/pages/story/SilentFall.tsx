@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useStoryProgress } from "@/hooks/useStoryProgress";
 import { Link } from "react-router-dom";
 import GameFrame from "@/components/GameFrame";
 import bg from "@/assets/story-silent-fall.jpg";
@@ -261,6 +262,8 @@ const SilentFall = () => {
 
   const total = STORY.length;
   const done = i >= total;
+
+  useStoryProgress({ slug: "silent-fall", title: "Silent Fall", route: "/story/silent-fall", i, setI, answers: answers as Record<string, string>, setAnswers: setAnswers as unknown as (a: Record<string, string>) => void, total, done });
   const ending = useMemo(() => (done ? gradeEnding(answers) : null), [done, answers]);
   const step = !done ? STORY[i] : null;
 
