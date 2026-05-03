@@ -4,6 +4,7 @@ import GameFrame from "@/components/GameFrame";
 import justiceBg from "@/assets/justice-bg.jpg";
 import { useSettings } from "@/game/SettingsContext";
 import { TutorialModal } from "@/components/HomeOverlays";
+import { loadProgress } from "@/lib/progress";
 
 const CASES: { to: string; chapter: string; title: string; tag: string }[] = [
   { to: "/story/silent-fall", chapter: "Chapter X", title: "Silent Fall", tag: "Real-case inspired · multi-ending" },
@@ -20,6 +21,8 @@ const Quest = () => {
   const { t, tutorialSeen, markTutorialSeen } = useSettings();
   const [showTut, setShowTut] = useState(false);
   useEffect(() => { if (!tutorialSeen) setShowTut(true); }, [tutorialSeen]);
+  const slugFromRoute = (r: string) => r.replace("/story/", "");
+  const progressFor = (route: string) => loadProgress(slugFromRoute(route));
   return (
     <GameFrame bgImage={justiceBg}>
       <header className="pt-6 px-6 flex items-center gap-3">
@@ -31,6 +34,10 @@ const Quest = () => {
 
       <main className="flex-1 flex flex-col gap-3 px-6 py-4 overflow-y-auto">
         {CASES.map((c, i) => (
+          (() => {
+          const p = progressFor(c.to);
+          const pct = p ? Math.round((p.i / Math.max(1, p.total)) * 100) : 0;
+          return (
           <Link
             key={c.to}
             to={c.to}
@@ -47,7 +54,17 @@ const Quest = () => {
             <div className="text-[10px] opacity-80">★ {c.chapter}</div>
             <div className="text-base mt-1">{c.title}</div>
             <div className="text-[10px] opacity-80 mt-1">{c.tag}</div>
+            {p && (
+              <div className="mt-2">
+                <div className="h-1.5 border border-primary/60 bg-background/60">
+                  <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
+                </div>
+                <div className="text-[9px] opacity-80 mt-1">▶ CONTINUE · {pct}%</div>
+              </div>
+            )}
           </Link>
+          );
+          })()
         ))}
       </main>
 

@@ -6,6 +6,7 @@ import SceneDialogue from "@/components/story/SceneDialogue";
 import EvidenceBoard, { EvidenceItem } from "@/components/story/EvidenceBoard";
 import ChoicePanel from "@/components/story/ChoicePanel";
 import { sceneImageFor } from "@/lib/sceneImages";
+import { useStoryProgress } from "@/hooks/useStoryProgress";
 
 type ChoiceKey = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7" | "q8";
 type Answers = Partial<Record<ChoiceKey, string>>;
@@ -422,6 +423,8 @@ const HighPayTrap = () => {
 
   const total = STORY.length;
   const done = i >= total;
+
+  useStoryProgress({ slug: "high-pay-trap", title: "The High-Pay Trap", route: "/story/high-pay-trap", i, setI, answers: answers as Record<string, string>, setAnswers: setAnswers as unknown as (a: Record<string, string>) => void, total, done });
   const ending = useMemo(() => (done ? gradeEnding(answers) : null), [done, answers]);
   const step = !done ? STORY[i] : null;
 

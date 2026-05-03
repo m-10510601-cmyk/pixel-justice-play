@@ -4,6 +4,7 @@ import GameFrame from "@/components/GameFrame";
 import bg from "@/assets/justice-bg.jpg";
 import { useSettings } from "@/game/SettingsContext";
 import AvatarBadge from "@/components/AvatarBadge";
+import { getLastPlayed, type LastPlayed } from "@/lib/progress";
 import {
   DailyRewardsModal,
   ShareModal,
@@ -17,6 +18,11 @@ const Index = () => {
   const [openShare, setOpenShare] = useState(false);
   const [openSave, setOpenSave] = useState(false);
   const [openFeedback, setOpenFeedback] = useState(false);
+  const [lastPlayed, setLast] = useState<LastPlayed | null>(null);
+
+  useEffect(() => {
+    setLast(getLastPlayed());
+  }, []);
 
   // Auto-open daily rewards once after agreeing to terms, when an unclaimed day is available.
   useEffect(() => {
@@ -94,6 +100,18 @@ const Index = () => {
             <span className="rivet tl" /><span className="rivet tr" />
             <span className="rivet bl" /><span className="rivet br" />
           </Link>
+          {lastPlayed && (
+            <Link
+              to={lastPlayed.route}
+              className="pixel-btn pixel-btn-secondary w-56 text-xs text-center"
+              aria-label="Continue last case"
+            >
+              ▶ CONTINUE
+              <div className="text-[9px] opacity-80 mt-1 normal-case">
+                {lastPlayed.title} · {Math.round((lastPlayed.i / Math.max(1, lastPlayed.total)) * 100)}%
+              </div>
+            </Link>
+          )}
           <button
             onClick={() => setOpenShare(true)}
             className="pixel-btn pixel-btn-secondary burst-host text-[10px] px-4 pixel-text"

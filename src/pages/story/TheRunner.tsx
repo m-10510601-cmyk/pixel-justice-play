@@ -6,6 +6,7 @@ import SceneDialogue from "@/components/story/SceneDialogue";
 import EvidenceBoard, { EvidenceItem } from "@/components/story/EvidenceBoard";
 import ChoicePanel from "@/components/story/ChoicePanel";
 import { sceneImageFor } from "@/lib/sceneImages";
+import { useStoryProgress } from "@/hooks/useStoryProgress";
 
 type ChoiceKey = "c1" | "c2a" | "c2b" | "c2c" | "c3a" | "c3b" | "c3c" | "q1" | "q2" | "q3" | "qV";
 type Answers = Partial<Record<ChoiceKey, string>>;
@@ -473,6 +474,8 @@ const TheRunner = () => {
 
   const total = STORY.length;
   const done = i >= total;
+
+  useStoryProgress({ slug: "the-runner", title: "The Runner", route: "/story/the-runner", i, setI, answers: answers as Record<string, string>, setAnswers: setAnswers as unknown as (a: Record<string, string>) => void, total, done });
   const ending = useMemo(() => (done ? gradeEnding(answers) : null), [done, answers]);
   const step = !done ? STORY[i] : null;
 
