@@ -166,7 +166,7 @@ const STORY: Step[] = [
     items: [
       { id: "speed", type: "list", title: "Speed data (EDR + skid analysis)", text: "Estimated impact speed: 64 km/h. Posted limit on segment: 70 km/h. Not speeding.", detail: "Within the legal limit, but in the upper band for an unlit segment with reduced visibility. ‘Legal’ is not synonymous with ‘safe’.", tags: ["speed"] },
       { id: "bikes", type: "note", title: "Modified bicycles · technical inspection", text: "Brakes removed or non-functional on 6 of 8 inspected units. No front lamp, no rear reflector. Frame geometry altered for downhill speed.", detail: "Vehicles built specifically to go faster, with the safety systems specifically removed.", tags: ["bikes"] },
-      { id: "uploads", type: "chat", from: "?", text: "“Tonight's run uploaded. Likes already at 4k. Sponsor said keep posting.”", title: "Recovered chat — uploads + sponsor", detail: "The ‘run’ was being filmed for an online audience and a paying sponsor. The risk-taking had a business model.", tags: ["online", "syndicate"] },
+      { id: "uploads", type: "chat", from: "A", text: "“Tonight's run uploaded. Likes already at 4k. Sponsor said keep posting.”", title: "Recovered chat — uploads + sponsor", detail: "The ‘run’ was being filmed for an online audience and a paying sponsor. The risk-taking had a business model.", tags: ["online", "syndicate"] },
     ],
   },
 
