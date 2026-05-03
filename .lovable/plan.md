@@ -1,48 +1,60 @@
-# Restructure: Unified Case Selection Hub
+## New Case: Responsibility of the Dark Night
 
-## Goal
-Remove the two-tier navigation (Quest → School/Society → Cases). After tapping START on the home screen, the player lands directly on a single **Case Selection Hub** that lists all 8 story chapters in one scrollable grid.
+A 9-act story chapter inspired by the Basikal Lajak case, focused on negligence vs. unforeseeability and public-opinion bias.
 
-## Current Flow (to remove)
-```text
-Index (/) → Quest (/quest) → Chapter (/chapter/school | /chapter/society) → Story page
-```
-- `/quest` shows two big gateway tiles (School / Society)
-- `/chapter/:chapter` filters stories by chapter and lists them
+### Files to add
 
-## New Flow
-```text
-Index (/) → Case Hub (/quest) → Story page
-```
-A single hub page with all cases in one list (no school/society split).
+- `src/pages/story/DarkNight.tsx` — full 9-act story page (scene → evidence → choice → insight → ending), modeled on `HighPayTrap.tsx`. Uses existing `SceneDialogue`, `EvidenceBoard`, `ChoicePanel`, and `useStoryProgress` for save/continue.
+- `src/assets/scenes/darknight/` — 6 generated pixel-art scenes:
+  - `dn-highway.png` (midnight highway impact)
+  - `dn-scene.png` (chaotic accident site, bystanders)
+  - `dn-station.png` (police station / first report)
+  - `dn-flashback.png` (driver memory, shadows in headlights)
+  - `dn-feed.png` (social-media polarization)
+  - `dn-court.png` (courtroom / expert testimony)
+  - `dn-verdict.png` (final judgment ending card)
 
-## Changes
+### Files to edit
 
-### 1. Rewrite `src/pages/Quest.tsx` → Case Selection Hub
-- Remove the two `Link` tiles to `/chapter/school` and `/chapter/society`.
-- Replace with one scrollable list of 8 case cards (same `pixel-btn` styling currently used in `Chapter.tsx`), each linking directly to its `/story/...` route.
-- Keep the existing tutorial modal trigger and header/back button.
-- Cases to include (in order):
-  1. Chapter X · Silent Fall → `/story/silent-fall`
-  2. Chapter Y · The Green Trade → `/story/green-trade`
-  3. Chapter W · The Silent Dormitory → `/story/silent-dormitory`
-  4. Chapter Z · The Runner → `/story/the-runner`
-  5. Chapter W · The Silent Room → `/story/silent-room`
-  6. Chapter V · The Mask of Authority → `/story/mask-of-authority`
-  7. Chapter U · The Ritual of Power → `/story/ritual-of-power`
-  8. Chapter T · The High-Pay Trap → `/story/high-pay-trap`
-- Use `justiceBg` as the background (neutral), drop the school/society split-preview imagery.
-- Title: reuse `t("quest.title")` (or simple "CASE FILES" text).
+- `src/App.tsx` — register route `/story/dark-night` → `DarkNight`.
+- `src/pages/Quest.tsx` — append a 9th case card: `Chapter S · Responsibility of the Dark Night` (tag: "Negligence vs. unforeseeability · public bias").
+- `src/lib/sceneImages.ts` — register the 6 darknight scene keys (`highway`, `scene`, `station`, `flashback`, `feed`, `court`, `verdict`) under slug `dark-night`.
 
-### 2. Delete `src/pages/Chapter.tsx` and its route
-- Remove the `import Chapter` line and the `<Route path="/chapter/:chapter" ...>` from `src/App.tsx`.
-- Delete the file `src/pages/Chapter.tsx`.
+### Story structure (mirrors existing chapters)
 
-### 3. Leave untouched
-- `src/data/cases.ts` (already empty `CASES[]`, no school/society data to remove).
-- All `src/pages/story/*.tsx` files — routes and content unchanged.
-- Home (`Index.tsx`) START button still points to `/quest`.
+Steps in order:
+1. Scene — Act I Impact (highway)
+2. Choice ① Initial Impression (best: B/D)
+3. Scene — Act II Chaos (bystanders)
+4. Choice ② Social Influence (best: C)
+5. Evidence — Initial intel (road, lighting, group)
+6. Scene — Act III First Report
+7. Choice ③ Nature of case (best: B)
+8. Scene — Act IV Driver flashback
+9. Choice ④ Foreseeability (best: B/C)
+10. Scene — Act V Teenagers earlier that night
+11. Choice ⑤ Judging the group (best: B+C)
+12. Evidence — Speed data, modified bicycles, no signage
+13. Scene — Act VI Social media explosion
+14. Choice ⑥ Bias test (best: C; A/B applies hidden bias penalty to score)
+15. Scene — Act VII Expert testimony
+16. Choice ⑦ Technical reality (best: B)
+17. Scene — Act VIII Legal showdown
+18. Choice ⑧ Negligence (best: C — contributory)
+19. Choice ⑨a Driver liability (best: B partial)
+20. Choice ⑨b Teenagers liability (best: B/C)
+21. Choice ⑨c Social system (best: D multi-party — hidden high score)
+22. Insight — syndicate hook: night-activity videos uploaded → traffic/gambling recruitment
+23. Ending screen — three branches:
+    - 🟢 Balanced (most "best" picks, no bias penalty)
+    - 🟡 Emotional (bias penalty triggered)
+    - 🔴 Failure (extreme one-sided liability)
 
-## Notes
-- No translation keys need to be added; existing `quest.title` is reused. The school/society translation keys can stay unused (harmless).
-- This is a UI/routing-only change; no data, no backend, no asset changes.
+### Technical details
+
+- `useStoryProgress({ slug: "dark-night", title: "Responsibility of the Dark Night", route: "/story/dark-night", ... })` — automatic save/restore + Continue button on Index/Quest, consistent with the other 8 chapters.
+- Choice options carry `evidenceRefs`/`evidenceTags` to highlight the relevant evidence (road conditions, speed, modified bikes), reusing the highlight pipeline already in `HighPayTrap.tsx`.
+- `gradeEnding(answers)` computes a score: +1 per "best" answer, -2 if Choice ⑥ is A or B (bias penalty), +2 if Choice ⑨c = D. Thresholds map to Balanced / Emotional / Failure.
+- Scene images generated at 1024×1024 pixel-art, dark cinematic palette consistent with existing chapters.
+
+No backend or schema changes required.
