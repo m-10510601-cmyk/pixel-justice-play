@@ -15,6 +15,7 @@ const CASES: { to: string; chapter: string; title: string; tag: string }[] = [
   { to: "/story/mask-of-authority", chapter: "Chapter V", title: "The Mask of Authority", tag: "Impersonation scam · syndicate hook" },
   { to: "/story/ritual-of-power", chapter: "Chapter U", title: "The Ritual of Power", tag: "Cult manipulation · consent vs legality" },
   { to: "/story/high-pay-trap", chapter: "Chapter T", title: "The High-Pay Trap", tag: "Trafficking by deception · ATIPSOM 2007" },
+  { to: "/story/dark-night", chapter: "Chapter S", title: "Responsibility of the Dark Night", tag: "Negligence vs. unforeseeability · public bias" },
 ];
 
 const Quest = () => {
