@@ -499,7 +499,7 @@ const SilentDormitory = () => {
   return (
     <GameFrame bgImage={bg}>
       <header className="pt-5 px-5 flex items-center gap-3">
-        <Link to="/chapter/school" className="pixel-btn-square" aria-label="Back">←</Link>
+        <Link to="/quest" className="pixel-btn-square" aria-label="Back">←</Link>
         <h1 className="pixel text-glow text-xs sm:text-sm text-primary flex-1 text-center pr-12">
           CHAPTER W · THE SILENT DORMITORY
         </h1>
@@ -628,7 +628,7 @@ const SilentDormitory = () => {
               <button onClick={restart} className="pixel-btn pixel-btn-secondary text-sm">
                 REPLAY
               </button>
-              <Link to="/chapter/school" className="pixel-btn text-sm text-center">
+              <Link to="/quest" className="pixel-btn text-sm text-center">
                 CONTINUE
               </Link>
             </div>
