@@ -42,13 +42,13 @@ const Index = () => {
         {/* === TOP HUD: split into two corner clusters with safe padding === */}
         <div className="flex items-start justify-between gap-3 mb-5">
           {/* Top-left: avatar + coins + level */}
-          <div className="hud-bar rounded-md px-2 py-1.5 flex items-center gap-2 shrink-0">
+          <div className="hud-bar-purple rounded-sm px-3 py-1.5 flex items-center gap-2 shrink-0">
             <AvatarBadge />
-            <div className="pixel text-[10px] text-primary pixel-text flex items-center gap-1">
-              <span className="coin-spin text-base leading-none">⭐</span>
-              <span>{coins}</span>
+            <div className="pixel text-[10px] text-white pixel-text flex items-center gap-1">
+              <span className="coin-spin text-base leading-none">🪙</span>
+              <span>B {coins}</span>
             </div>
-            <div className="pixel text-[8px] px-2 py-1 rounded bg-accent/20 border border-accent/60 text-accent pixel-text">
+            <div className="pixel text-[8px] px-2 py-1 rounded bg-black/40 border-2 border-black text-[hsl(48_100%_75%)] pixel-text">
               LV 1
             </div>
           </div>
@@ -84,7 +84,7 @@ const Index = () => {
           <h1 className="pixel text-glow text-2xl sm:text-3xl leading-tight px-2">
             {t("app.title")}
           </h1>
-          <p className="text-plate text-sm sm:text-base max-w-[92%] mx-auto leading-snug pixel-text">
+          <p className="banner-purple text-xs sm:text-sm max-w-[92%] mx-auto leading-snug pixel-text pixel">
             {t("home.tagline")}
           </p>
         </header>
@@ -93,10 +93,11 @@ const Index = () => {
         <div className="flex-1 flex flex-col items-center justify-evenly py-4 min-h-0">
           <Link
             to="/quest"
-            className="pixel-btn btn-corners btn-rivets dither-shadow burst-host w-56 text-base animate-blink"
+            className="pixel-btn-start-orange btn-corners btn-rivets dither-shadow burst-host animate-blink"
             aria-label="Start"
           >
-            {t("btn.start")}
+            <span className="text-2xl leading-none">▶</span>
+            <span>{t("btn.start")}</span>
             <span className="rivet tl" /><span className="rivet tr" />
             <span className="rivet bl" /><span className="rivet br" />
           </Link>
@@ -131,7 +132,7 @@ const Index = () => {
             <span className="mt-1 pixel-text">{t("nav.settings")}</span>
           </Link>
           <Link to="/store" className="pixel-btn-circle sparkle-host dither-shadow burst-host" aria-label="Store" style={{ width: 70, height: 70, fontSize: 8 }}>
-            <span className="text-lg leading-none">🛒</span>
+            <span className="text-lg leading-none">🏪</span>
             <span className="mt-1 pixel-text">{t("nav.store")}</span>
           </Link>
         </footer>
