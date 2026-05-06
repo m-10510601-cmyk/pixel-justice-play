@@ -7,15 +7,15 @@ import { TutorialModal } from "@/components/HomeOverlays";
 import { loadProgress } from "@/lib/progress";
 
 const CASES: { to: string; chapter: string; title: string; tag: string }[] = [
-  { to: "/story/silent-fall", chapter: "Chapter X", title: "Silent Fall", tag: "Real-case inspired · multi-ending" },
-  { to: "/story/green-trade", chapter: "Chapter Y", title: "The Green Trade", tag: "Campus drug trafficking · syndicate hook" },
-  { to: "/story/silent-dormitory", chapter: "Chapter W", title: "The Silent Dormitory", tag: "Mob mentality · §302 vs §304" },
-  { to: "/story/the-runner", chapter: "Chapter Z", title: "The Runner", tag: "Cross-border impersonation scam" },
-  { to: "/story/silent-room", chapter: "Chapter W", title: "The Silent Room", tag: "Child protection · systemic failure" },
-  { to: "/story/mask-of-authority", chapter: "Chapter V", title: "The Mask of Authority", tag: "Impersonation scam · syndicate hook" },
-  { to: "/story/ritual-of-power", chapter: "Chapter U", title: "The Ritual of Power", tag: "Cult manipulation · consent vs legality" },
-  { to: "/story/high-pay-trap", chapter: "Chapter T", title: "The High-Pay Trap", tag: "Trafficking by deception · ATIPSOM 2007" },
-  { to: "/story/dark-night", chapter: "Chapter S", title: "Responsibility of the Dark Night", tag: "Negligence vs. unforeseeability · public bias" },
+  { to: "/story/silent-fall", chapter: "Chapter 1", title: "Silent Fall", tag: "Real-case inspired · multi-ending" },
+  { to: "/story/green-trade", chapter: "Chapter 2", title: "The Green Trade", tag: "Campus drug trafficking · syndicate hook" },
+  { to: "/story/silent-dormitory", chapter: "Chapter 3", title: "The Silent Dormitory", tag: "Mob mentality · §302 vs §304" },
+  { to: "/story/the-runner", chapter: "Chapter 4", title: "The Runner", tag: "Cross-border impersonation scam" },
+  { to: "/story/silent-room", chapter: "Chapter 5", title: "The Silent Room", tag: "Child protection · systemic failure" },
+  { to: "/story/mask-of-authority", chapter: "Chapter 6", title: "The Mask of Authority", tag: "Impersonation scam · syndicate hook" },
+  { to: "/story/ritual-of-power", chapter: "Chapter 7", title: "The Ritual of Power", tag: "Cult manipulation · consent vs legality" },
+  { to: "/story/high-pay-trap", chapter: "Chapter 8", title: "The High-Pay Trap", tag: "Trafficking by deception · ATIPSOM 2007" },
+  { to: "/story/dark-night", chapter: "Chapter 9", title: "Responsibility of the Dark Night", tag: "Negligence vs. unforeseeability · public bias" },
 ];
 
 const Quest = () => {
