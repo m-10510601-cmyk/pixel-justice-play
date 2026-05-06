@@ -1,13 +1,10 @@
-## Add "Responsibility of the Dark Night" card to Case Selection Hub
+## Plan
 
-The chapter exists (route, page, assets) but is missing from the `CASES` array in `src/pages/Quest.tsx`, so there's no card to click on `/quest`.
+Replace `src/assets/justice-bg.jpg` with the uploaded pixel-art courthouse image.
 
-### Change
+### Steps
+1. Copy `user-uploads://photo_2026-05-05_22-03-51.jpg` to `src/assets/justice-bg.jpg` (overwrite).
+2. No code changes needed — `Index.tsx`, `Quest.tsx`, and other pages already import from `@/assets/justice-bg.jpg`, so the new background will appear everywhere it's used automatically.
 
-Edit `src/pages/Quest.tsx` — append one entry to the `CASES` array:
-
-```ts
-{ to: "/story/dark-night", chapter: "Chapter S", title: "Responsibility of the Dark Night", tag: "Negligence vs. unforeseeability · public bias" },
-```
-
-That's it — the existing `.map()` render and `useStoryProgress` continue/progress-bar logic will pick it up automatically. No other files need changes.
+### Notes
+- All existing overlays (god-rays, stained-glass, dither, ornate frame) in `GameFrame` will continue to layer over the new image. If they make the new clean pixel-art look too busy, we can optionally pass `plain` on selected pages later.
