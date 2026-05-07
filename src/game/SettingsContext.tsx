@@ -51,6 +51,9 @@ const DICT: Record<Lang, Dict> = {
     "settings.title": "SETTINGS",
     "settings.brightness": "BRIGHTNESS",
     "settings.sound": "SOUND",
+  "settings.bgm": "MUSIC",
+  "settings.on": "ON",
+  "settings.off": "OFF",
     "settings.language": "LANGUAGE",
     "settings.terms": "TERMS OF POLICY",
     "settings.feedback": "FEEDBACK",
@@ -151,6 +154,9 @@ const DICT: Record<Lang, Dict> = {
     "settings.title": "设置",
     "settings.brightness": "亮度",
     "settings.sound": "音量",
+   "settings.bgm": "背景音乐",
+   "settings.on": "开",
+   "settings.off": "关",
     "settings.language": "语言",
     "settings.terms": "服务条款",
     "settings.feedback": "反馈",
@@ -251,6 +257,9 @@ const DICT: Record<Lang, Dict> = {
     "settings.title": "TETAPAN",
     "settings.brightness": "KECERAHAN",
     "settings.sound": "BUNYI",
+   "settings.bgm": "MUZIK",
+   "settings.on": "HIDUP",
+   "settings.off": "MATI",
     "settings.language": "BAHASA",
     "settings.terms": "TERMA POLISI",
     "settings.feedback": "MAKLUM BALAS",
@@ -312,6 +321,8 @@ interface Ctx {
   setTheme: (t: Theme) => void;
   volume: number;
   setVolume: (v: number) => void;
+  bgmEnabled: boolean;
+  setBgmEnabled: (b: boolean) => void;
   lang: Lang;
   setLang: (l: Lang) => void;
   t: (key: string) => string;
@@ -375,6 +386,7 @@ const load = () => {
     const raw = localStorage.getItem(LS);
     if (!raw) return null;
     return JSON.parse(raw) as { theme?: Theme; volume?: number; lang?: Lang };
+    // bgmEnabled is read separately below to keep back-compat
   } catch {
     return null;
   }
@@ -386,15 +398,23 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [volume, setVolumeState] = useState<number>(
     typeof initial?.volume === "number" ? Math.min(100, Math.max(0, initial.volume)) : 70
   );
+  const [bgmEnabled, setBgmEnabledState] = useState<boolean>(() => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem(LS) : null;
+      if (!raw) return true;
+      const v = JSON.parse(raw) as { bgmEnabled?: boolean };
+      return v.bgmEnabled !== false;
+    } catch { return true; }
+  });
   const [lang, setLangState] = useState<Lang>(initial?.lang ?? "en");
   const [meta, setMeta] = useState<Meta>(() => (typeof window !== "undefined" ? loadMeta() : { ...DEFAULT_META }));
 
   // Persist
   useEffect(() => {
     try {
-      localStorage.setItem(LS, JSON.stringify({ theme, volume, lang }));
+      localStorage.setItem(LS, JSON.stringify({ theme, volume, lang, bgmEnabled }));
     } catch {}
-  }, [theme, volume, lang]);
+  }, [theme, volume, lang, bgmEnabled]);
 
   useEffect(() => {
     try { localStorage.setItem(META_LS, JSON.stringify(meta)); } catch {}
@@ -431,6 +451,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
   const setTheme = useCallback((t: Theme) => setThemeState(t), []);
   const setVolume = useCallback((v: number) => setVolumeState(Math.min(100, Math.max(0, v))), []);
+  const setBgmEnabled = useCallback((b: boolean) => setBgmEnabledState(b), []);
   const setLang = useCallback((l: Lang) => setLangState(l), []);
 
   const t = useCallback((key: string) => DICT[lang][key] ?? DICT.en[key] ?? key, [lang]);
@@ -504,7 +525,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
   const value = useMemo<Ctx>(
     () => ({
-      theme, setTheme, volume, setVolume, lang, setLang, t, playCue,
+      theme, setTheme, volume, setVolume, bgmEnabled, setBgmEnabled, lang, setLang, t, playCue,
       coins: meta.coins, addCoins, spendCoins,
       agreedTerms: meta.agreedTerms, acceptTerms,
       tutorialSeen: meta.tutorialSeen, markTutorialSeen,
@@ -512,7 +533,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       dailyClaims: meta.dailyClaims, dailyAvailableDay, claimDailyDay,
       timeExtensions: meta.timeExtensions, buyTimeExtension,
     }),
-    [theme, setTheme, volume, setVolume, lang, setLang, t, playCue, meta, addCoins, spendCoins, acceptTerms, markTutorialSeen, claimShare, dailyAvailableDay, claimDailyDay, buyTimeExtension]
+    [theme, setTheme, volume, setVolume, bgmEnabled, setBgmEnabled, lang, setLang, t, playCue, meta, addCoins, spendCoins, acceptTerms, markTutorialSeen, claimShare, dailyAvailableDay, claimDailyDay, buyTimeExtension]
   );
 
   return <SettingsCtx.Provider value={value}>{children}</SettingsCtx.Provider>;
