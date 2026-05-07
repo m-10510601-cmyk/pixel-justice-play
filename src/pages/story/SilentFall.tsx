@@ -123,7 +123,7 @@ const STORY: Step[] = [
   {
     kind: "insight",
     title: "⚖️ Legal Insight",
-    text: "Repeated emotional harm may form part of a legal case, especially when combined with corroborating evidence and intent.",
+    text: "本章故事剧情改编自真实事件「Zara 事件」。在司法语境中，长期、针对性的情绪伤害可能构成法律案件的一部分，尤其是在有佐证与意图证据时。",
   },
   {
     kind: "scene",
