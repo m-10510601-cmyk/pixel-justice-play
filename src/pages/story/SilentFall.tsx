@@ -123,7 +123,7 @@ const STORY: Step[] = [
   {
     kind: "insight",
     title: "⚖️ Legal Insight",
-    text: "本章故事剧情改编自真实事件「Zara 事件」。在司法语境中，长期、针对性的情绪伤害可能构成法律案件的一部分，尤其是在有佐证与意图证据时。",
+    text: "This chapter is based on the true \"Zara Qairina Case\". In a legal context, long-term, targeted emotional harm can constitute part of a legal case, especially when there is supporting evidence and intent.",
   },
   {
     kind: "scene",
