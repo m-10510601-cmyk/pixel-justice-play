@@ -124,3 +124,8 @@ export const useLiveTranslate = (text: string | undefined, lang: Lang): string =
   }, []);
   return text ? translateText(text, lang) : (text ?? "");
 };
+
+export const subscribeI18n = (fn: () => void) => {
+  subscribers.add(fn);
+  return () => { subscribers.delete(fn); };
+};
