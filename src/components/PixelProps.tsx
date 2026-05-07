@@ -5,21 +5,7 @@
 const PixelProps = () => {
   return (
     <div className="absolute inset-0 z-[3] pointer-events-none" aria-hidden="true">
-      {/* Malaysian flag (top-left wall) */}
-      <div className="absolute" style={{ top: "8%", left: "6%", width: 36, height: 22 }}>
-        <div className="w-full h-full relative" style={{
-          background:
-            "repeating-linear-gradient(180deg, hsl(0 80% 45%) 0 2px, hsl(0 0% 100%) 2px 4px)",
-          boxShadow: "1px 1px 0 hsl(0 0% 0%), inset 0 0 0 1px hsl(0 0% 0%)",
-        }}>
-          <div className="absolute top-0 left-0" style={{
-            width: "45%", height: "55%",
-            background: "hsl(220 70% 25%)",
-            boxShadow: "inset 0 0 0 1px hsl(0 0% 0%)",
-          }}>
-            <span className="absolute" style={{ top: 2, left: 4, color: "hsl(48 100% 60%)", fontSize: 8, lineHeight: 1 }}>★</span>
-          </div>
-        </div>
+
         {/* pole */}
         <div className="absolute" style={{ top: 0, left: -2, width: 2, height: 26, background: "hsl(0 0% 20%)" }} />
       </div>
