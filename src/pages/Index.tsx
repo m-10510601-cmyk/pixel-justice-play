@@ -5,12 +5,7 @@ import bg from "@/assets/justice-bg.jpg";
 import { useSettings } from "@/game/SettingsContext";
 import AvatarBadge from "@/components/AvatarBadge";
 import { getLastPlayed, type LastPlayed } from "@/lib/progress";
-import {
-  DailyRewardsModal,
-  ShareModal,
-  SaveLoadModal,
-  FeedbackModal,
-} from "@/components/HomeOverlays";
+import { DailyRewardsModal, ShareModal, SaveLoadModal, FeedbackModal } from "@/components/HomeOverlays";
 
 const Index = () => {
   const { t, coins, agreedTerms, dailyAvailableDay } = useSettings();
@@ -46,7 +41,6 @@ const Index = () => {
             <AvatarBadge />
             <div className="pixel text-[10px] text-white pixel-text flex items-center gap-1">
               <span className="coin-spin text-base leading-none">🪙</span>
-              <span>B {coins}</span>
             </div>
             <div className="pixel text-[8px] px-2 py-1 rounded bg-black/40 border-2 border-black text-[hsl(48_100%_75%)] pixel-text">
               LV 1
@@ -61,29 +55,33 @@ const Index = () => {
               style={{ width: 34, height: 34, fontSize: 14 }}
               aria-label="Daily Check-in"
               title="Daily Check-in"
-            >🎁</button>
+            >
+              🎁
+            </button>
             <button
               onClick={() => setOpenSave(true)}
               className="pixel-btn-square"
               style={{ width: 34, height: 34, fontSize: 14 }}
               aria-label="Cloud Save"
               title="Cloud Save"
-            >☁</button>
+            >
+              ☁
+            </button>
             <button
               onClick={() => setOpenFeedback(true)}
               className="pixel-btn-square"
               style={{ width: 34, height: 34, fontSize: 14 }}
               aria-label="Feedback"
               title="Feedback"
-            >✉</button>
+            >
+              ✉
+            </button>
           </div>
         </div>
 
         {/* === TITLE + DESCRIPTION (clear gap below HUD) === */}
         <header className="text-center animate-float space-y-3">
-          <h1 className="pixel text-glow text-2xl sm:text-3xl leading-tight px-2">
-            {t("app.title")}
-          </h1>
+          <h1 className="pixel text-glow text-2xl sm:text-3xl leading-tight px-2">{t("app.title")}</h1>
           <p className="banner-purple text-xs sm:text-sm max-w-[92%] mx-auto leading-snug pixel-text pixel">
             {t("home.tagline")}
           </p>
@@ -98,8 +96,10 @@ const Index = () => {
           >
             <span className="text-2xl leading-none">▶</span>
             <span>{t("btn.start")}</span>
-            <span className="rivet tl" /><span className="rivet tr" />
-            <span className="rivet bl" /><span className="rivet br" />
+            <span className="rivet tl" />
+            <span className="rivet tr" />
+            <span className="rivet bl" />
+            <span className="rivet br" />
           </Link>
           {lastPlayed && (
             <Link
@@ -123,15 +123,30 @@ const Index = () => {
 
         {/* === BOTTOM CIRCLE MENU: aligned, padded, smaller text === */}
         <footer className="flex items-center justify-around gap-3 pt-2">
-          <Link to="/triumph" className="pixel-btn-circle sparkle-host dither-shadow burst-host" aria-label="Triumph" style={{ width: 70, height: 70, fontSize: 8 }}>
+          <Link
+            to="/triumph"
+            className="pixel-btn-circle sparkle-host dither-shadow burst-host"
+            aria-label="Triumph"
+            style={{ width: 70, height: 70, fontSize: 8 }}
+          >
             <span className="text-lg leading-none">🏆</span>
             <span className="mt-1 pixel-text">{t("nav.triumph")}</span>
           </Link>
-          <Link to="/settings" className="pixel-btn-circle dither-shadow burst-host" aria-label="Settings" style={{ width: 70, height: 70, fontSize: 8 }}>
+          <Link
+            to="/settings"
+            className="pixel-btn-circle dither-shadow burst-host"
+            aria-label="Settings"
+            style={{ width: 70, height: 70, fontSize: 8 }}
+          >
             <span className="text-lg leading-none">⚙</span>
             <span className="mt-1 pixel-text">{t("nav.settings")}</span>
           </Link>
-          <Link to="/store" className="pixel-btn-circle sparkle-host dither-shadow burst-host" aria-label="Store" style={{ width: 70, height: 70, fontSize: 8 }}>
+          <Link
+            to="/store"
+            className="pixel-btn-circle sparkle-host dither-shadow burst-host"
+            aria-label="Store"
+            style={{ width: 70, height: 70, fontSize: 8 }}
+          >
             <span className="text-lg leading-none">🏪</span>
             <span className="mt-1 pixel-text">{t("nav.store")}</span>
           </Link>
