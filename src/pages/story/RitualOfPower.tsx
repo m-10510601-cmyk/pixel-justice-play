@@ -98,7 +98,7 @@ const STORY: Step[] = [
     kind: "insight",
     title: "⚖️ Consent and Life — Legal Frame",
     text:
-      "Malaysia · Penal Code §300 defines murder; §302 sets the punishment. Consent under §87–§91 covers acts not intended or known to cause death — it does not cover an act the doer knows is likely to be fatal. A pre-recorded ‘I accept all consequences’ has no legal weight against an intentional lethal act.",
+      "Inspiration: The Mona Fandey murder case (adapted into a fictional story). Malaysia · Penal Code §300 defines murder; §302 sets the punishment. Consent under §87–§91 covers acts not intended or known to cause death — it does not cover an act the doer knows is likely to be fatal. A pre-recorded ‘I accept all consequences’ has no legal weight against an intentional lethal act.",
   },
   {
     kind: "scene",
