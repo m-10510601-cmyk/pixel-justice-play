@@ -469,7 +469,7 @@ const GreenTrade = () => {
   return (
     <GameFrame bgImage={bg}>
       <header className="pt-5 px-5 flex items-center gap-3">
-        <Link to="/quest" className="pixel-btn-square" aria-label="Back">←</Link>
+        {i > 0 ? (<button type="button" onClick={() => { setI(i - 1); setRevealedAt(null); }} className="pixel-btn-square" aria-label="Previous">←</button>) : (<Link to="/quest" className="pixel-btn-square" aria-label="Back">←</Link>)}<Link to="/quest" className="pixel-btn-square" aria-label="Cases" title="Cases">🏠</Link>
         <h1 className="pixel text-glow text-xs sm:text-sm text-primary flex-1 text-center pr-12">
           <T>CHAPTER 2 · THE GREEN TRADE</T>
         </h1>

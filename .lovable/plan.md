@@ -1,8 +1,23 @@
-## Update Chapter 7 Legal Insight
+## 在 chapter 内部支持「返回上一页」
 
-In `src/pages/story/RitualOfPower.tsx` (~line 101), prepend the inspiration line to the first `⚖️ Consent and Life — Legal Frame` insight, matching Chapter 1's format.
+目前每个章节左上角的 `←` 按钮直接跳回 `/quest`，无法回看上一段剧情/选择。
 
-**New text:**
-> Inspiration: The Mona Fandey murder case (adapted into a fictional story). Malaysia · Penal Code §300 defines murder; §302 sets the punishment. Consent under §87–§91 covers acts not intended or known to cause death — it does not cover an act the doer knows is likely to be fatal. A pre-recorded 'I accept all consequences' has no legal weight against an intentional lethal act.
+**改动思路**（应用到全部 9 个 story 页面）：
+- 把 `←` 按钮从单纯的 `<Link to="/quest">` 改为智能按钮：
+  - 若 `i > 0`：点击执行 `setI(i - 1)`（同时清掉 `revealedAt`/`quiz` 等当前步状态），回到上一 step。
+  - 若 `i === 0`：点击 `navigate("/quest")`，回到案件列表。
+- 在按钮右侧再加一个固定的「🏠 案件」小按钮，始终可回 `/quest`，方便用户随时退出。
+- `aria-label` 根据状态动态显示 `Back` / `Cases`。
 
-Title unchanged. The second insight at line 231 stays untouched. Live AI translation handles 华文 / Bahasa Melayu automatically.
+**涉及文件**（同样的 header 结构）：
+- `src/pages/story/SilentFall.tsx`
+- `src/pages/story/GreenTrade.tsx`
+- `src/pages/story/SilentDormitory.tsx`
+- `src/pages/story/TheRunner.tsx`
+- `src/pages/story/SilentRoom.tsx`
+- `src/pages/story/MaskOfAuthority.tsx`
+- `src/pages/story/RitualOfPower.tsx`
+- `src/pages/story/HighPayTrap.tsx`
+- `src/pages/story/DarkNight.tsx`
+
+不改业务逻辑（不动 progress / answers 持久化）。
