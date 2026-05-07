@@ -6,10 +6,6 @@ const PixelProps = () => {
   return (
     <div className="absolute inset-0 z-[3] pointer-events-none" aria-hidden="true">
 
-        {/* pole */}
-        <div className="absolute" style={{ top: 0, left: -2, width: 2, height: 26, background: "hsl(0 0% 20%)" }} />
-      </div>
-
       {/* Brass gavel on silk cushion (top-right) */}
       <div className="absolute" style={{ top: "10%", right: "7%", width: 40, height: 22 }}>
         {/* cushion */}
