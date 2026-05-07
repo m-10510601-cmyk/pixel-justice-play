@@ -7,7 +7,7 @@ import Modal from "@/components/Modal";
 import { FeedbackModal } from "@/components/HomeOverlays";
 
 const Settings = () => {
-  const { theme, setTheme, volume, setVolume, lang, setLang, t, playCue } = useSettings();
+  const { theme, setTheme, volume, setVolume, bgmEnabled, setBgmEnabled, lang, setLang, t, playCue } = useSettings();
   const [showTerms, setShowTerms] = useState(false);
   const [showFb, setShowFb] = useState(false);
 
@@ -55,6 +55,17 @@ const Settings = () => {
             {volume}%
           </div>
           <button onClick={() => bumpVol(+10)} className="pixel-btn-square" aria-label="Increase volume">+</button>
+        </Row>
+
+        <Row label={t("settings.bgm")}>
+          <button
+            onClick={() => { setBgmEnabled(!bgmEnabled); playCue(); }}
+            className={`pixel-btn text-xs px-4 ${bgmEnabled ? "pixel-btn-active" : "pixel-btn-secondary"}`}
+            aria-pressed={bgmEnabled}
+            style={{ minWidth: 96 }}
+          >
+            {bgmEnabled ? t("settings.on") : t("settings.off")}
+          </button>
         </Row>
 
         <div className="flex flex-col gap-2">
