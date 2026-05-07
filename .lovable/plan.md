@@ -1,15 +1,13 @@
-## Replace letter chapter labels with numbers
+## 修改 Chapter 1 的 Legal Insight
 
-Each story page has a header like `CHAPTER X · SILENT FALL`. Replace the letter with the numeric chapter from the Quest list:
+把 `src/pages/story/SilentFall.tsx` 第 123–127 行的 insight 区块文字改为说明本章故事改编自 Zara 事件。
 
-- `src/pages/story/SilentFall.tsx` (line 292): `CHAPTER X` → `CHAPTER 1`
-- `src/pages/story/GreenTrade.tsx` (line 473): `CHAPTER Y` → `CHAPTER 2`
-- `src/pages/story/SilentDormitory.tsx` (line 504): `CHAPTER W` → `CHAPTER 3`
-- `src/pages/story/TheRunner.tsx` (line 558): `CHAPTER Z` → `CHAPTER 4`
-- `src/pages/story/SilentRoom.tsx` (line 477): `CHAPTER W` → `CHAPTER 5`
-- `src/pages/story/MaskOfAuthority.tsx` (line 484): `CHAPTER V` → `CHAPTER 6`
-- `src/pages/story/RitualOfPower.tsx` (line 493): `CHAPTER U` → `CHAPTER 7`
-- `src/pages/story/HighPayTrap.tsx` (line 505): `CHAPTER T` → `CHAPTER 8`
-- `src/pages/story/DarkNight.tsx` (line 490): `CHAPTER S` → `CHAPTER 9`
+**改动位置**：第 1 个 `⚖️ Legal Insight`（紧接 Choice ② 之后）
 
-Cross-references inside narrative text (e.g. "Chapter 4", "Chapter X · Silent Fall", "Chapter Y ‘Green Trade’") will also be normalized to the numeric form for consistency.
+**改动内容**：
+- `title`: 保留 `⚖️ Legal Insight`
+- `text`: 改为 `本章故事剧情改编自真实事件「Zara 事件」。在司法语境中，长期、针对性的情绪伤害可能构成法律案件的一部分，尤其是在有佐证与意图证据时。`
+
+其他两个 insight（`🧠 Core Legal Reasoning`、`🔗 Main Story Connection`）保持不变。
+
+由于站内已有 AI 实时翻译层，新文字会自动被译成华文 / Bahasa Melayu / English。
