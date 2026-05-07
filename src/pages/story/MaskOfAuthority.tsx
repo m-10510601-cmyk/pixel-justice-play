@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import T from "@/components/T";
+import StarReward from "@/components/story/StarReward";
 import { Link } from "react-router-dom";
 import GameFrame from "@/components/GameFrame";
 import bg from "@/assets/story-silent-fall.jpg";
@@ -591,6 +592,8 @@ const MaskOfAuthority = () => {
               <div className="pixel text-sm text-primary mt-1"><T>{ENDINGS[ending].title}</T></div>
               <p className="text-base mt-2 leading-snug"><T>{ENDINGS[ending].body}</T></p>
             </div>
+
+            <StarReward slug="mask-of-authority" story={STORY} answers={answers as Record<string, string>} ending={ending} />
 
             <div className="bg-primary/15 border-2 border-primary p-3">
               <div className="pixel text-[10px] text-primary">📚 What This Teaches</div>

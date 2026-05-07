@@ -13,6 +13,7 @@ import sceneDorm from "@/assets/scenes/scene-dorm.png";
 import sceneTurning from "@/assets/scenes/scene-turning.png";
 import sceneFinal from "@/assets/scenes/scene-final.png";
 import T from "@/components/T";
+import StarReward from "@/components/story/StarReward";
 
 type ChoiceKey = "q1" | "q2" | "q3" | "rRoom" | "rSchool" | "rOnline";
 type Answers = Partial<Record<ChoiceKey, string>>;
@@ -378,6 +379,8 @@ const SilentFall = () => {
               <div className="pixel text-sm text-primary mt-1"><T>{ENDINGS[ending].title}</T></div>
               <p className="text-base mt-2 leading-snug"><T>{ENDINGS[ending].body}</T></p>
             </div>
+
+            <StarReward slug="silent-fall" story={STORY} answers={answers as Record<string, string>} ending={ending} />
 
             <div className="bg-primary/15 border-2 border-primary p-3">
               <div className="pixel text-[10px] text-primary">📚 <T>Post-Chapter Learning</T></div>
