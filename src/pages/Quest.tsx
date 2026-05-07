@@ -5,6 +5,7 @@ import justiceBg from "@/assets/justice-bg.jpg";
 import { useSettings } from "@/game/SettingsContext";
 import { TutorialModal } from "@/components/HomeOverlays";
 import { loadProgress } from "@/lib/progress";
+import T from "@/components/T";
 
 const CASES: { to: string; chapter: string; title: string; tag: string }[] = [
   { to: "/story/silent-fall", chapter: "Chapter 1", title: "Silent Fall", tag: "Real-case inspired · multi-ending" },
@@ -52,15 +53,15 @@ const Quest = () => {
                 aria-hidden="true"
               >!</span>
             )}
-            <div className="text-[10px] opacity-80">★ {c.chapter}</div>
-            <div className="text-base mt-1">{c.title}</div>
-            <div className="text-[10px] opacity-80 mt-1">{c.tag}</div>
+            <div className="text-[10px] opacity-80">★ <T>{c.chapter}</T></div>
+            <div className="text-base mt-1"><T>{c.title}</T></div>
+            <div className="text-[10px] opacity-80 mt-1"><T>{c.tag}</T></div>
             {p && (
               <div className="mt-2">
                 <div className="h-1.5 border border-primary/60 bg-background/60">
                   <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
                 </div>
-                <div className="text-[9px] opacity-80 mt-1">▶ CONTINUE · {pct}%</div>
+                <div className="text-[9px] opacity-80 mt-1">▶ <T>CONTINUE</T> · {pct}%</div>
               </div>
             )}
           </Link>
