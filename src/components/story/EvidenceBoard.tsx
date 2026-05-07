@@ -1,5 +1,7 @@
 import React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSettings } from "@/game/SettingsContext";
+import { translateText, subscribeI18n } from "@/lib/i18nLive";
 
 type EvidenceCommon = {
   id?: string;
@@ -215,6 +217,10 @@ const isHighlighted = (
 };
 
 const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen }: Props) => {
+  const { lang } = useSettings();
+  const [, force] = useState(0);
+  useEffect(() => subscribeI18n(() => force((n) => n + 1)), []);
+  const tr = (s: string) => translateText(s, lang);
   const [revealed, setRevealed] = useState(!!defaultOpen);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [query, setQuery] = useState("");
