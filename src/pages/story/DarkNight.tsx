@@ -487,7 +487,7 @@ const DarkNight = () => {
       <header className="pt-5 px-5 flex items-center gap-3">
         <Link to="/quest" className="pixel-btn-square" aria-label="Back">←</Link>
         <h1 className="pixel text-glow text-xs sm:text-sm text-primary flex-1 text-center pr-12">
-          CHAPTER S · RESPONSIBILITY OF THE DARK NIGHT
+          CHAPTER 9 · RESPONSIBILITY OF THE DARK NIGHT
         </h1>
       </header>
 

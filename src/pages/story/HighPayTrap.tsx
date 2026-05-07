@@ -193,7 +193,7 @@ const STORY: Step[] = [
       { id: "recruit-bonus", type: "chat", from: "A", text: "“Recruit 5 more people and we'll subtract RM2000 from your debt.”", title: "Compound chat broadcast", detail: "Victims are turned into recruiters. Bondage funds itself.", tags: ["pyramid", "debt-bondage"] },
       { id: "money-flow", type: "list", title: "Financial flow", text: "Recruitment agent → ‘security firm’ shell → offshore e-wallet → cash-out via P2P.", detail: "Same laundering shape seen in the Green Trade case. Same plumbing, different inputs.", tags: ["network", "syndicate"] },
       { id: "network-map", type: "note", title: "Network map", text: "Recruiters (the bait) → Transporters (the delivery) → Controllers (the enforcers) → Exploiters (the end users).", detail: "All four roles are required for an ATIPSOM conviction. All four are visible in this case.", tags: ["network"] },
-      { id: "green-trade-link", type: "note", title: "Cross-case link", text: "Two of the wallets receiving the compound's payouts also appear in the Chapter Y ‘Green Trade’ ledger.", detail: "Trafficking supplies the workforce; the e-wallet network supplies the laundering. Same syndicate.", tags: ["syndicate", "network"] },
+      { id: "green-trade-link", type: "note", title: "Cross-case link", text: "Two of the wallets receiving the compound's payouts also appear in the Chapter 2 ‘Green Trade’ ledger.", detail: "Trafficking supplies the workforce; the e-wallet network supplies the laundering. Same syndicate.", tags: ["syndicate", "network"] },
     ],
   },
   {
@@ -502,7 +502,7 @@ const HighPayTrap = () => {
       <header className="pt-5 px-5 flex items-center gap-3">
         <Link to="/quest" className="pixel-btn-square" aria-label="Back">←</Link>
         <h1 className="pixel text-glow text-xs sm:text-sm text-primary flex-1 text-center pr-12">
-          CHAPTER T · THE HIGH-PAY TRAP
+          CHAPTER 8 · THE HIGH-PAY TRAP
         </h1>
       </header>
 
