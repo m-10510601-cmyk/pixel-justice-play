@@ -59,7 +59,7 @@ const Triumph = () => {
           <h1 className="pixel text-glow text-lg text-primary flex-1 text-center pr-12">{t("triumph.title")}</h1>
         </div>
 
-        {/* Progress Section */}
+        {/* Progress */}
         <div className="mt-5">
           <div className="flex items-center justify-between mb-1">
             <span className="pixel text-[10px] text-primary">COMPLETION</span>
@@ -103,13 +103,19 @@ const Triumph = () => {
                   {a.name}
                 </h2>
 
+                {/* Status */}
                 <span
-                  className={`pixel text-[10px] whitespace-nowrap ${a.done ? "text-primary" : "text-muted-foreground"}`}
+                  className={`pixel text-[10px] whitespace-nowrap flex items-center gap-1 ${
+                    a.done ? "text-primary" : "text-muted-foreground"
+                  }`}
                 >
-                  {a.done ? `★ ${t("triumph.done")}` : `✕ ${t("triumph.locked")}`}
+                  <span>{a.done ? "★" : "✕"}</span>
+
+                  <span>{a.done ? t("triumph.done") : t("triumph.locked")}</span>
                 </span>
               </div>
 
+              {/* Description */}
               <p
                 className={`pixel mt-2 text-[9px] leading-relaxed ${
                   a.done ? "text-muted-foreground" : "text-muted-foreground/70"
