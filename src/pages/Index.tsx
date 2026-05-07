@@ -125,7 +125,7 @@ const Index = () => {
         <footer className="flex items-center justify-around gap-3 pt-2">
           <Link
             to="/triumph"
-            className="pixel-btn-circle contrast-100 font-bold"
+            className="pixel-btn-circle sparkle-host dither-shadow burst-host font-bold text-white relative z-10"
             aria-label="Triumph"
             style={{ width: 70, height: 70, fontSize: 8 }}
           >
@@ -134,7 +134,7 @@ const Index = () => {
           </Link>
           <Link
             to="/settings"
-            className="pixel-btn-circle contrast-100 font-bold"
+            className="pixel-btn-circle sparkle-host dither-shadow burst-host font-bold text-white relative z-10"
             aria-label="Settings"
             style={{ width: 70, height: 70, fontSize: 8 }}
           >
@@ -143,7 +143,7 @@ const Index = () => {
           </Link>
           <Link
             to="/store"
-            className="pixel-btn-circle contrast-100 font-bold"
+            className="pixel-btn-circle sparkle-host dither-shadow burst-host font-bold text-white relative z-10""
             aria-label="Store"
             style={{ width: 70, height: 70, fontSize: 8 }}
           >
