@@ -143,7 +143,7 @@ const Index = () => {
           </Link>
           <Link
             to="/store"
-            className="pixel-btn-circle sparkle-host dither-shadow burst-host font-bold text-white relative z-10""
+            className="pixel-btn-circle sparkle-host dither-shadow burst-host font-bold text-white relative z-10"
             aria-label="Store"
             style={{ width: 70, height: 70, fontSize: 8 }}
           >
