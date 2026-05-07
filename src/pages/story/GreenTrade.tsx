@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import T from "@/components/T";
 import { Link } from "react-router-dom";
 import GameFrame from "@/components/GameFrame";
 import bg from "@/assets/story-silent-fall.jpg";
@@ -470,7 +471,7 @@ const GreenTrade = () => {
       <header className="pt-5 px-5 flex items-center gap-3">
         <Link to="/quest" className="pixel-btn-square" aria-label="Back">←</Link>
         <h1 className="pixel text-glow text-xs sm:text-sm text-primary flex-1 text-center pr-12">
-          CHAPTER 2 · THE GREEN TRADE
+          <T>CHAPTER 2 · THE GREEN TRADE</T>
         </h1>
       </header>
 
@@ -506,12 +507,12 @@ const GreenTrade = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent pointer-events-none" />
                   <div className="absolute bottom-2 left-2 bg-card/90 border-2 border-primary px-2 py-1 shadow-[var(--shadow-pixel)]">
-                    <div className="pixel text-[10px] text-primary">{step.title}</div>
+                    <div className="pixel text-[10px] text-primary"><T>{step.title}</T></div>
                   </div>
                 </div>
               ) : (
                 <div className="bg-card/90 border-2 border-primary px-3 py-2 shadow-[var(--shadow-pixel)] inline-block">
-                  <div className="pixel text-[10px] text-primary">{step.title}</div>
+                  <div className="pixel text-[10px] text-primary"><T>{step.title}</T></div>
                 </div>
               );
             })()}
@@ -531,8 +532,8 @@ const GreenTrade = () => {
 
         {step?.kind === "insight" && (
           <div className="bg-primary/15 border-2 border-primary p-3">
-            <div className="pixel text-[10px] text-primary">{step.title}</div>
-            <p className="text-base mt-2">{step.text}</p>
+            <div className="pixel text-[10px] text-primary"><T>{step.title}</T></div>
+            <p className="text-base mt-2"><T>{step.text}</T></p>
           </div>
         )}
 
@@ -555,31 +556,31 @@ const GreenTrade = () => {
             disabled={step?.kind === "choice" && !answers[step.key]}
             className="pixel-btn w-full text-base disabled:opacity-50"
           >
-            {i === total - 1 ? "REVEAL ENDING ▶" : "NEXT ▶"}
+            <T>{i === total - 1 ? "REVEAL ENDING ▶" : "NEXT ▶"}</T>
           </button>
         )}
 
         {done && ending && (
           <>
             <div className="bg-card/95 border-2 border-primary p-3 shadow-[var(--shadow-pixel)]">
-              <div className="pixel text-[10px] text-accent">{ENDINGS[ending].tag}</div>
-              <div className="pixel text-sm text-primary mt-1">{ENDINGS[ending].title}</div>
-              <p className="text-base mt-2 leading-snug">{ENDINGS[ending].body}</p>
+              <div className="pixel text-[10px] text-accent"><T>{ENDINGS[ending].tag}</T></div>
+              <div className="pixel text-sm text-primary mt-1"><T>{ENDINGS[ending].title}</T></div>
+              <p className="text-base mt-2 leading-snug"><T>{ENDINGS[ending].body}</T></p>
             </div>
 
             <div className="bg-primary/15 border-2 border-primary p-3">
-              <div className="pixel text-[10px] text-primary">📚 Post-Chapter Learning</div>
+              <div className="pixel text-[10px] text-primary">📚 <T>Post-Chapter Learning</T></div>
               <p className="text-sm mt-2">
-                A campus distribution ring concealed itself behind ordinary student lives — coded chats, small e-wallet flows, and a single ceiling-panel stash.
+                <T>A campus distribution ring concealed itself behind ordinary student lives — coded chats, small e-wallet flows, and a single ceiling-panel stash.</T>
               </p>
               <p className="text-sm mt-2 italic">
-                “Catching the dealer is not the case. Mapping the chain is.”
+                <T>“Catching the dealer is not the case. Mapping the chain is.”</T>
               </p>
             </div>
 
             <div className="bg-background/80 border-2 border-accent p-3 space-y-2">
-              <div className="pixel text-[10px] text-accent">{QUIZ.title}</div>
-              <p className="text-sm">{QUIZ.prompt}</p>
+              <div className="pixel text-[10px] text-accent"><T>{QUIZ.title}</T></div>
+              <p className="text-sm"><T>{QUIZ.prompt}</T></p>
               {QUIZ.options.map((o) => {
                 const picked = quiz === o.id;
                 const tone = quiz
@@ -596,9 +597,9 @@ const GreenTrade = () => {
                     className={`w-full text-left p-2 border-2 transition-colors ${tone}`}
                   >
                     <span className="pixel text-[10px] text-primary mr-2">{o.id}.</span>
-                    <span className="text-sm">{o.label}</span>
+                    <span className="text-sm"><T>{o.label}</T></span>
                     {quiz && o.best && (
-                      <span className="pixel text-[8px] text-primary ml-2">★ CORRECT</span>
+                      <span className="pixel text-[8px] text-primary ml-2"><T>★ CORRECT</T></span>
                     )}
                   </button>
                 );
@@ -607,10 +608,10 @@ const GreenTrade = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <button onClick={restart} className="pixel-btn pixel-btn-secondary text-sm">
-                RETRY
+                <T>RETRY</T>
               </button>
               <Link to="/quest" className="pixel-btn text-sm text-center">
-                CONTINUE
+                <T>CONTINUE</T>
               </Link>
             </div>
           </>

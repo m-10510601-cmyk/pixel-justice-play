@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import T from "@/components/T";
 
 export type ChoiceOption = {
   id: string;
@@ -76,7 +77,7 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
           >
             DECISION
           </span>
-          <span className="pixel text-[10px] text-primary">{title}</span>
+          <span className="pixel text-[10px] text-primary"><T>{title}</T></span>
         </div>
         <span
           className="pixel text-[8px] text-accent border-2 border-accent px-2 py-0.5"
@@ -89,7 +90,7 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
 
       {/* Prompt */}
       <p className="text-sm leading-snug bg-background/70 border-l-4 border-primary pl-2 py-1">
-        {prompt}
+        <T>{prompt}</T>
       </p>
 
       {/* Toolbar */}
@@ -143,7 +144,7 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm leading-snug">{opt.label}</span>
+                    <span className="text-sm leading-snug"><T>{opt.label}</T></span>
                     {revealed && opt.best && (
                       <span className="pixel text-[8px] text-primary border border-primary px-1">★ BEST</span>
                     )}
@@ -157,12 +158,12 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
 
                   {/* hints only before confirmation; rationales only after reveal */}
                   {!revealed && showHints && opt.hint && (
-                    <p className="text-xs text-foreground/70 italic mt-1">💡 {opt.hint}</p>
+                    <p className="text-xs text-foreground/70 italic mt-1">💡 <T>{opt.hint}</T></p>
                   )}
                   {revealed && opt.rationale && (
                     <p className="text-xs text-foreground/85 mt-1 leading-snug">
                       <span className="pixel text-[8px] text-primary mr-1">→</span>
-                      {opt.rationale}
+                      <T>{opt.rationale}</T>
                     </p>
                   )}
 
@@ -206,11 +207,11 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
               decision in {minutes}:{seconds}
             </span>
           </div>
-          <p className="text-sm mt-1 leading-snug">{verdict.text}</p>
+          <p className="text-sm mt-1 leading-snug"><T>{verdict.text}</T></p>
           {reveal && (
             <p className="text-xs mt-2 text-foreground/85 border-t-2 border-primary/30 pt-2">
               <span className="pixel text-[8px] text-primary mr-1">REVEAL</span>
-              {reveal}
+              <T>{reveal}</T>
             </p>
           )}
         </div>

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import T from "@/components/T";
 import { Link } from "react-router-dom";
 import GameFrame from "@/components/GameFrame";
 import bg from "@/assets/story-silent-fall.jpg";
@@ -474,7 +475,7 @@ const SilentRoom = () => {
       <header className="pt-5 px-5 flex items-center gap-3">
         <Link to="/quest" className="pixel-btn-square" aria-label="Back">←</Link>
         <h1 className="pixel text-glow text-xs sm:text-sm text-primary flex-1 text-center pr-12">
-          CHAPTER 5 · THE SILENT ROOM
+          <T>CHAPTER 5 · THE SILENT ROOM</T>
         </h1>
       </header>
 
@@ -513,12 +514,12 @@ const SilentRoom = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent pointer-events-none" />
                   <div className="absolute bottom-2 left-2 bg-card/90 border-2 border-primary px-2 py-1 shadow-[var(--shadow-pixel)]">
-                    <div className="pixel text-[10px] text-primary">{step.title}</div>
+                    <div className="pixel text-[10px] text-primary"><T>{step.title}</T></div>
                   </div>
                 </div>
               ) : (
                 <div className="bg-card/90 border-2 border-primary px-3 py-2 shadow-[var(--shadow-pixel)] inline-block">
-                  <div className="pixel text-[10px] text-primary">{step.title}</div>
+                  <div className="pixel text-[10px] text-primary"><T>{step.title}</T></div>
                 </div>
               );
             })()}
@@ -538,8 +539,8 @@ const SilentRoom = () => {
 
         {step?.kind === "insight" && (
           <div className="bg-primary/15 border-2 border-primary p-3">
-            <div className="pixel text-[10px] text-primary">{step.title}</div>
-            <p className="text-base mt-2">{step.text}</p>
+            <div className="pixel text-[10px] text-primary"><T>{step.title}</T></div>
+            <p className="text-base mt-2"><T>{step.text}</T></p>
           </div>
         )}
 
@@ -572,22 +573,22 @@ const SilentRoom = () => {
             disabled={step?.kind === "choice" && !answers[step.key]}
             className="pixel-btn w-full text-base disabled:opacity-50"
           >
-            {i === total - 1 ? "REVEAL ENDING ▶" : "NEXT ▶"}
+            <T>{i === total - 1 ? "REVEAL ENDING ▶" : "NEXT ▶"}</T>
           </button>
         )}
 
         {done && ending && (
           <>
             <div className="bg-card/95 border-2 border-primary p-3 shadow-[var(--shadow-pixel)]">
-              <div className="pixel text-[10px] text-accent">{ENDINGS[ending].tag}</div>
-              <div className="pixel text-sm text-primary mt-1">{ENDINGS[ending].title}</div>
-              <p className="text-base mt-2 leading-snug">{ENDINGS[ending].body}</p>
+              <div className="pixel text-[10px] text-accent"><T>{ENDINGS[ending].tag}</T></div>
+              <div className="pixel text-sm text-primary mt-1"><T>{ENDINGS[ending].title}</T></div>
+              <p className="text-base mt-2 leading-snug"><T>{ENDINGS[ending].body}</T></p>
             </div>
 
             <div className="bg-primary/15 border-2 border-primary p-3">
               <div className="pixel text-[10px] text-primary">📚 What This Teaches</div>
               <p className="text-sm mt-2">
-                The Silent Room was never silent because of one villain. The school noticed the bruises and stayed quiet. The neighbours heard the crying and stayed quiet. Four clinics treated the same child and never linked their files.
+                <T>The Silent Room was never silent because of one villain. The school noticed the bruises and stayed quiet. The neighbours heard the crying and stayed quiet. Four clinics treated the same child and never linked their files.</T>
               </p>
               <ul className="text-sm mt-2 space-y-1">
                 <li>✔ A pattern of injuries is the legal frame, not a single event.</li>
@@ -602,7 +603,7 @@ const SilentRoom = () => {
                 REPLAY
               </button>
               <Link to="/quest" className="pixel-btn text-sm text-center">
-                CONTINUE
+                <T>CONTINUE</T>
               </Link>
             </div>
           </>

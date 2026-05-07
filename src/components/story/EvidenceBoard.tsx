@@ -1,5 +1,7 @@
 import React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSettings } from "@/game/SettingsContext";
+import { translateText, subscribeI18n } from "@/lib/i18nLive";
 
 type EvidenceCommon = {
   id?: string;
@@ -215,6 +217,10 @@ const isHighlighted = (
 };
 
 const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen }: Props) => {
+  const { lang } = useSettings();
+  const [, force] = useState(0);
+  useEffect(() => subscribeI18n(() => force((n) => n + 1)), []);
+  const tr = (s: string) => translateText(s, lang);
   const [revealed, setRevealed] = useState(!!defaultOpen);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [query, setQuery] = useState("");
@@ -336,7 +342,7 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
           >
             CASE FILE
           </span>
-          <span className="pixel text-[10px] text-accent">{title}</span>
+          <span className="pixel text-[10px] text-accent">{tr(title)}</span>
         </div>
         <span className="pixel text-[8px] text-destructive flex items-center">
           CLASSIFIED <RedactedBar />
@@ -529,22 +535,22 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
                 let inner: React.ReactNode = null;
                 switch (it.type) {
                   case "cctv":
-                    inner = <CCTVCard label={highlight(it.label, query) as any} status={it.status} />;
+                    inner = <CCTVCard label={highlight(tr(it.label), query) as any} status={it.status} />;
                     break;
                   case "phone":
-                    inner = <PhoneCard label={highlight(it.label, query) as any} status={it.status} />;
+                    inner = <PhoneCard label={highlight(tr(it.label), query) as any} status={it.status} />;
                     break;
                   case "chat":
-                    inner = <ChatBubble from={it.from} text={highlight(it.text, query) as any} />;
+                    inner = <ChatBubble from={it.from} text={highlight(tr(it.text), query) as any} />;
                     break;
                   case "video":
-                    inner = <VideoCard label={highlight(it.label, query) as any} />;
+                    inner = <VideoCard label={highlight(tr(it.label), query) as any} />;
                     break;
                   case "list":
-                    inner = <ListItem text={highlight(it.text, query) as any} />;
+                    inner = <ListItem text={highlight(tr(it.text), query) as any} />;
                     break;
                   case "note":
-                    inner = <StickyNote text={highlight(it.text, query) as any} />;
+                    inner = <StickyNote text={highlight(tr(it.text), query) as any} />;
                     break;
                 }
 
@@ -592,7 +598,7 @@ const EvidenceBoard = ({ title, items, highlightIds, highlightTags, defaultOpen 
                         {isOpen && (
                           <div className="mt-1 border-l-4 border-primary bg-card/70 px-2 py-1 animate-fade-in">
                             <p className="text-xs leading-snug text-foreground/90">
-                              {it.detail}
+                              {tr(it.detail)}
                             </p>
                             {it.tags && it.tags.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-1">
