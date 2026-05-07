@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import DialogueLine from "./DialogueLine";
 import { useSettings } from "@/game/SettingsContext";
-import { translateText } from "@/lib/i18nLive";
+import { translateText, subscribeI18n } from "@/lib/i18nLive";
 
 export interface Line {
   who?: string;
@@ -48,10 +48,8 @@ const SceneDialogue = ({
   // Re-render when translations stream in
   const [, force] = useState(0);
   useEffect(() => {
-    if (lang === "en") return;
-    const id = window.setInterval(() => force((n) => n + 1), 700);
-    return () => window.clearInterval(id);
-  }, [lang, rawLines]);
+    return subscribeI18n(() => force((n) => n + 1));
+  }, []);
   const lines = useMemo(
     () =>
       rawLines.map((l) => ({
