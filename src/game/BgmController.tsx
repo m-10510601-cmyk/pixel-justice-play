@@ -52,7 +52,7 @@ const BgmController = () => {
     const t0 = performance.now();
     const step = (now: number) => {
       const k = Math.min(1, (now - t0) / ms);
-      a.volume = start + (target - start) * k;
+      a.volume = Math.min(1, Math.max(0, start + (target - start) * k));
       if (k < 1) fadeRafRef.current = requestAnimationFrame(step);
       else { fadeRafRef.current = null; onDone?.(); }
     };
