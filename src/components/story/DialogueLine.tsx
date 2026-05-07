@@ -1,4 +1,5 @@
 import CharacterPortrait, { CharacterKey } from "./CharacterPortrait";
+import T from "@/components/T";
 
 interface Props {
   who?: string;
@@ -22,7 +23,7 @@ const DialogueLine = ({ who, text, inner, character }: Props) => {
   if (!who) {
     return (
       <p className="text-sm leading-snug italic text-foreground/85 px-1 py-1">
-        {text}
+        <T>{text}</T>
       </p>
     );
   }
@@ -50,9 +51,9 @@ const DialogueLine = ({ who, text, inner, character }: Props) => {
         }`}
       >
         {inner ? "💭 " : ""}
-        {who.toUpperCase()}
+        <T>{who.toUpperCase()}</T>
       </div>
-      <p className={`text-sm leading-snug ${inner ? "italic" : ""}`}>{text}</p>
+      <p className={`text-sm leading-snug ${inner ? "italic" : ""}`}><T>{text}</T></p>
       {/* tail */}
       <span
         aria-hidden
