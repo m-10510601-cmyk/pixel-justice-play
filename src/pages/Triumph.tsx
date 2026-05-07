@@ -59,8 +59,8 @@ const Triumph = () => {
           <h1 className="pixel text-glow text-lg text-primary flex-1 text-center pr-12">{t("triumph.title")}</h1>
         </div>
 
-        {/* Progress */}
-        <div className="mt-4">
+        {/* Progress Section */}
+        <div className="mt-5">
           <div className="flex items-center justify-between mb-1">
             <span className="pixel text-[10px] text-primary">COMPLETION</span>
 
@@ -69,7 +69,7 @@ const Triumph = () => {
             </span>
           </div>
 
-          <div className="pixel-frame h-4 p-[2px] bg-card/80">
+          <div className="pixel-frame h-4 p-[2px] bg-card/90">
             <div className="h-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
           </div>
         </div>
@@ -90,25 +90,33 @@ const Triumph = () => {
               transition-all
               duration-200
               hover:translate-y-[1px]
-              ${a.done ? "bg-card/90" : "bg-card/50 opacity-70"}
+              ${a.done ? "bg-card/90" : "bg-black/70"}
             `}
           >
             {/* Icon */}
             <div className="text-xl leading-none mt-[2px]">{a.icon}</div>
 
-            {/* Text */}
+            {/* Content */}
             <div className="flex-1">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="pixel text-[11px] text-foreground">{a.name}</h2>
+                <h2 className={`pixel text-[11px] ${a.done ? "text-foreground" : "text-muted-foreground"}`}>
+                  {a.name}
+                </h2>
 
                 <span
                   className={`pixel text-[10px] whitespace-nowrap ${a.done ? "text-primary" : "text-muted-foreground"}`}
                 >
-                  {a.done ? t("triumph.done") : t("triumph.locked")}
+                  {a.done ? `★ ${t("triumph.done")}` : `✕ ${t("triumph.locked")}`}
                 </span>
               </div>
 
-              <p className="pixel mt-2 text-[9px] leading-relaxed text-muted-foreground">{a.description}</p>
+              <p
+                className={`pixel mt-2 text-[9px] leading-relaxed ${
+                  a.done ? "text-muted-foreground" : "text-muted-foreground/70"
+                }`}
+              >
+                {a.description}
+              </p>
             </div>
           </div>
         ))}
