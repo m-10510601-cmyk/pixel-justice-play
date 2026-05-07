@@ -76,15 +76,7 @@ const PixelProps = () => {
       <div className="absolute lamp-flicker" style={{ top: "18%", left: "22%", width: 6, height: 6, borderRadius: "50%", background: "hsl(48 100% 65%)", boxShadow: "0 0 12px hsl(48 100% 60%), inset 0 0 0 1px hsl(0 0% 0%)" }} />
       <div className="absolute lamp-flicker" style={{ top: "18%", right: "22%", width: 6, height: 6, borderRadius: "50%", background: "hsl(48 100% 65%)", boxShadow: "0 0 12px hsl(48 100% 60%), inset 0 0 0 1px hsl(0 0% 0%)", animationDelay: "0.7s" } as React.CSSProperties} />
 
-      {/* Scales of justice (animated balance) - center mid */}
-      <div className="absolute scales-balance" style={{ top: "42%", left: "50%", transform: "translateX(-50%)", width: 40, height: 20 }}>
-        {/* beam */}
-        <div className="absolute top-2 left-0 right-0" style={{ height: 2, background: "hsl(48 100% 55%)", boxShadow: "inset 0 0 0 1px hsl(22 60% 15%)" }} />
-        {/* center post */}
-        <div className="absolute" style={{ top: 0, left: "50%", width: 2, height: 8, background: "hsl(36 70% 35%)", transform: "translateX(-50%)" }} />
-        {/* pans */}
-        <div className="absolute" style={{ top: 6, left: 2, width: 10, height: 4, background: "hsl(48 100% 55%)", borderRadius: "0 0 50% 50%", boxShadow: "inset 0 0 0 1px hsl(22 60% 15%)" }} />
-        <div className="absolute" style={{ top: 6, right: 2, width: 10, height: 4, background: "hsl(48 100% 55%)", borderRadius: "0 0 50% 50%", boxShadow: "inset 0 0 0 1px hsl(22 60% 15%)" }} />
+
       </div>
     </div>
   );
