@@ -329,7 +329,7 @@ const STORY: Step[] = [
         detail: "Account fingerprints match prior intelligence files from other state task forces. This campus is a branch, not the trunk.",
       },
       {
-        type: "list", text: "Encrypted folder · same upload signature as content seen in Chapter X · Silent Fall",
+        type: "list", text: "Encrypted folder · same upload signature as content seen in Chapter 1 · Silent Fall",
         id: "phone-link", title: "Phone · syndicate signature",
         tags: ["chain"],
         detail: "Identical upload signature ties this case to the underground content network from Silent Fall — the same syndicate, two faces.",
@@ -470,7 +470,7 @@ const GreenTrade = () => {
       <header className="pt-5 px-5 flex items-center gap-3">
         <Link to="/quest" className="pixel-btn-square" aria-label="Back">←</Link>
         <h1 className="pixel text-glow text-xs sm:text-sm text-primary flex-1 text-center pr-12">
-          CHAPTER Y · THE GREEN TRADE
+          CHAPTER 2 · THE GREEN TRADE
         </h1>
       </header>
 

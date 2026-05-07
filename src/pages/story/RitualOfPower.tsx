@@ -490,7 +490,7 @@ const RitualOfPower = () => {
       <header className="pt-5 px-5 flex items-center gap-3">
         <Link to="/quest" className="pixel-btn-square" aria-label="Back">←</Link>
         <h1 className="pixel text-glow text-xs sm:text-sm text-primary flex-1 text-center pr-12">
-          CHAPTER U · THE RITUAL OF POWER
+          CHAPTER 7 · THE RITUAL OF POWER
         </h1>
       </header>
 
