@@ -80,10 +80,29 @@ export default {
             height: "0",
           },
         },
+        "star-pop": {
+          "0%": { transform: "scale(0) rotate(-30deg)", opacity: "0" },
+          "60%": { transform: "scale(1.4) rotate(10deg)", opacity: "1" },
+          "100%": { transform: "scale(1) rotate(0)", opacity: "1" },
+        },
+        "star-fly": {
+          "0%": { transform: "translate(0,0) rotate(0) scale(1)", opacity: "1" },
+          "100%": {
+            transform: "translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(.4)",
+            opacity: "0",
+          },
+        },
+        "star-glow": {
+          "0%": { transform: "scale(0)", opacity: "0.85" },
+          "100%": { transform: "scale(2.6)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "star-pop": "star-pop 0.6s cubic-bezier(.2,1.4,.4,1) forwards",
+        "star-fly": "star-fly 1.2s ease-out forwards",
+        "star-glow": "star-glow 1s ease-out forwards",
       },
     },
   },
