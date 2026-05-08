@@ -496,6 +496,8 @@ interface Ctx {
   addXp: (n: number, source?: XpSource) => void;
   resolveQuiz: (passed: boolean) => void;
   xpSources: XpSources;
+  avatarId: AvatarId;
+  setAvatar: (id: AvatarId) => void;
 }
 
 const SettingsCtx = createContext<Ctx | null>(null);
