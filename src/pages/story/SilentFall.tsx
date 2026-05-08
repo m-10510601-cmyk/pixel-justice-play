@@ -42,10 +42,8 @@ const STORY: Step[] = [
     title: "🎬 Scene 1 · School Office", image: sceneOffice,
     lines: [
       { who: "Principal", text: "“Please, have a seat. This is a tragedy, but it appears to be an unfortunate accident.”" },
-      { who: "You", inner: true, text: "He answered before I even asked a question." },
       { who: "Aira's Parent", text: "“No. She was not happy there. Something was wrong for months.”" },
       { who: "Principal", text: "“With respect, students always have minor conflicts. We saw nothing serious.”" },
-      { who: "You", inner: true, text: "‘Saw nothing’ — or chose not to look?" },
       { who: "Aira's Parent", text: "“She stopped calling home. She used to call every night.”" },
       { who: "You", inner: true, text: "Two completely different narratives… one of them is hiding something." },
     ],
@@ -69,7 +67,6 @@ const STORY: Step[] = [
     lines: [
       { text: "You enter the dormitory hallway. The lights flicker once." },
       { who: "You", inner: true, text: "No broken glass. No scuff marks. Too clean." },
-      { text: "Door 3B is freshly polished. The window beside it has a brand-new latch." },
       { who: "You", inner: true, text: "A new latch — installed after the fall, or before it?" },
       { text: "A camera in the corner blinks red. Its housing is dusty, but the lens is spotless." },
       { who: "You", inner: true, text: "Someone wiped that lens recently. Why bother, if it ‘wasn’t working’?" },
@@ -132,9 +129,7 @@ const STORY: Step[] = [
     lines: [
       { text: "Deleted data recovered. A video plays — moments before the fall." },
       { who: "You", inner: true, text: "Three figures in the frame. Aira against the railing." },
-      { text: "Verbal pressure. Laughter. A shoulder bump. A hand reaches out — then the clip cuts." },
       { who: "You", inner: true, text: "The cut is too clean. Someone trimmed exactly the second that mattered." },
-      { text: "❗ No clear push is shown on the surviving footage." },
       { who: "You", inner: true, text: "No single act of violence. But every second leading up to it was violence too." },
       { who: "You", inner: true, text: "This is the moment… but not the full truth." },
     ],

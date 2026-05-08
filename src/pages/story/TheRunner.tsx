@@ -44,12 +44,7 @@ const STORY: Step[] = [
     kind: "scene",
     title: "🎬 Scene 1 · The Call", sceneKey: "call",
     lines: [
-      { text: "(Phone ringing)" },
-      { who: "Mr. Tan", text: "“Hello?”" },
-      { who: "Scammer (telecom)", text: "“This is M1 customer service. You have registered a phone line under your name.”" },
-      { who: "Mr. Tan", text: "“That's impossible. I didn't sign anything.”" },
       { who: "Scammer (telecom)", text: "“This number is linked to a money laundering investigation.”" },
-      { text: "(Pause. The line clicks. Transferred.)" },
       { who: "Fake MAS Officer", text: "“This is the Monetary Authority. You are under investigation.”" },
       { who: "Mr. Tan", text: "“I didn't do anything wrong!”" },
       { who: "Fake MAS Officer", text: "“Then you must prove your innocence.”" },
@@ -83,7 +78,6 @@ const STORY: Step[] = [
     lines: [
       { text: "(A knock at Mr. Tan's door.)" },
       { who: "Suspect", text: "“I'm from the Monetary Authority.”" },
-      { text: "(He shows a printed badge. He is wearing a wig.)" },
       { who: "Mr. Tan", text: "“…Are you really from the government?”" },
       { who: "Suspect", text: "“Please cooperate. This is for your own protection.”" },
       { text: "(Cash. Gold. Valuables. Everything is taken.)" },
@@ -223,11 +217,8 @@ const STORY: Step[] = [
     kind: "scene",
     title: "🎬 Scene 7 · Breaking Point", sceneKey: "interrogation",
     lines: [
-      { text: "You slide the printed badge and a CCTV still across the table." },
-      { who: "You", text: "“You used a fake identity and collected valuables.”" },
       { who: "Suspect", text: "“I didn't know it was illegal…”" },
       { who: "You", text: "“You wore a disguise. Why?”" },
-      { text: "(Pause.)" },
       { who: "Suspect", text: "“…They told me to.”" },
       { who: "You", text: "“You impersonated an officer. That is not a mistake.”" },
       { who: "Suspect", text: "“…I needed money.”" },
