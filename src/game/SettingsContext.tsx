@@ -438,6 +438,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   });
   const [lang, setLangState] = useState<Lang>(initial?.lang ?? "en");
   const [meta, setMeta] = useState<Meta>(() => (typeof window !== "undefined" ? loadMeta() : { ...DEFAULT_META }));
+  const [levelState, setLevelState] = useState<LevelState>(() =>
+    typeof window !== "undefined" ? loadLevel() : { level: 1, xp: 0, pendingQuiz: false },
+  );
 
   // Persist
   useEffect(() => {
@@ -451,6 +454,10 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem(META_LS, JSON.stringify(meta));
     } catch {}
   }, [meta]);
+
+  useEffect(() => {
+    saveLevel(levelState);
+  }, [levelState]);
 
   // Apply theme class to <html>
   useEffect(() => {
@@ -550,6 +557,13 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     return ok;
   }, []);
 
+  const addXp = useCallback((n: number) => {
+    setLevelState((s) => applyXp(s, n));
+  }, []);
+  const resolveQuiz = useCallback((passed: boolean) => {
+    setLevelState((s) => resolveLevelQuiz(s, passed));
+  }, []);
+
   const dailyAvailableDay = (() => {
     if (meta.dailyDate === todayStr()) return 0;
     const idx = meta.dailyClaims.findIndex((c) => !c);
@@ -582,6 +596,13 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       claimDailyDay,
       timeExtensions: meta.timeExtensions,
       buyTimeExtension,
+      level: levelState.level,
+      levelName: LEVEL_NAMES[levelState.level],
+      xp: levelState.xp,
+      xpToNext: xpNeeded(levelState.level),
+      pendingQuiz: levelState.pendingQuiz,
+      addXp,
+      resolveQuiz,
     }),
     [
       theme,
@@ -603,6 +624,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       dailyAvailableDay,
       claimDailyDay,
       buyTimeExtension,
+      levelState,
+      addXp,
+      resolveQuiz,
     ],
   );
 
