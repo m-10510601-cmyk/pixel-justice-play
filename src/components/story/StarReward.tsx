@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import T from "@/components/T";
 import { useSettings } from "@/game/SettingsContext";
 import { claimChapterReward, computeStars, type ClaimResult, type EndingTier } from "@/lib/rewards";
+import StarBurst from "@/components/story/StarBurst";
 
 type AnyStep = { kind: string; key?: string; options?: { id: string; best?: boolean }[] };
 
@@ -13,20 +14,23 @@ type Props = {
 };
 
 const StarReward = ({ slug, story, answers, ending }: Props) => {
-  const { addCoins, addXp } = useSettings();
+  const { addCoins, addXp, playCue } = useSettings();
   const breakdown = computeStars(story, answers, ending);
   const [result, setResult] = useState<ClaimResult | null>(null);
   const xpGain = breakdown.total * 10;
+  const [burst, setBurst] = useState(true);
 
   useEffect(() => {
     setResult(claimChapterReward(slug, breakdown.total, addCoins));
     addXp(xpGain);
+    playCue();
     // claim once per mount of completion screen
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, breakdown.total]);
 
   return (
     <div className="bg-accent/10 border-2 border-accent p-3 space-y-2">
+      {burst && <StarBurst count={breakdown.total} onDone={() => setBurst(false)} />}
       <div className="pixel text-[10px] text-accent">⭐ <T>Stars Earned</T></div>
       <div className="text-sm space-y-1">
         <div>
