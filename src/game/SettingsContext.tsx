@@ -156,6 +156,11 @@ const DICT: Record<Lang, Dict> = {
     "level.statusDone": "Achieved",
     "level.statusLocked": "Locked",
     "level.maxed": "MAX LEVEL",
+    "level.sources.title": "XP SOURCES",
+    "level.sources.chapter": "First clear",
+    "level.sources.replay": "Replay",
+    "level.sources.quiz": "Quiz bonus",
+    "level.sources.total": "Total",
   },
   zh: {
     "evidence.title": "证据分析",
@@ -290,6 +295,11 @@ const DICT: Record<Lang, Dict> = {
     "level.statusDone": "已达成",
     "level.statusLocked": "未解锁",
     "level.maxed": "已满级",
+    "level.sources.title": "XP 来源",
+    "level.sources.chapter": "首次通关",
+    "level.sources.replay": "重玩",
+    "level.sources.quiz": "测验奖励",
+    "level.sources.total": "累计",
   },
   ms: {
     "evidence.title": "ANALISIS BUKTI",
@@ -428,6 +438,11 @@ const DICT: Record<Lang, Dict> = {
     "level.statusDone": "Dicapai",
     "level.statusLocked": "Terkunci",
     "level.maxed": "TAHAP MAKSIMUM",
+    "level.sources.title": "SUMBER EXP",
+    "level.sources.chapter": "Tamat Pertama",
+    "level.sources.replay": "Main Semula",
+    "level.sources.quiz": "Bonus Kuiz",
+    "level.sources.total": "Jumlah",
   },
 };
 
