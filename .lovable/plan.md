@@ -1,77 +1,34 @@
-## 等级详情：XP 来源细分 + 实时一致
+## Chapter 9 法律洞察：改为 Basikal Lajak 案启发 + 深度解释
 
-### 1. 记录 XP 来源
+### 背景
+第 9 章 *Dark Night* 末尾原有一段 "📜 Insight · The Syndicate Hook"（团伙线索），与 Green Trade / High-Pay Trap 串联。用户希望将这段 Insight 改为受 **Basikal Lajak 案**（2017 柔佛 8 少年踏夜骑改装自行车遭撞身亡，司机 Sam Ke Ting 经多审最终于 2023 联邦法院无罪释放）启发，并补充进一步说明。
 
-把累计获得的 XP 拆为三个来源并持久化：
+### 改动
 
-- `chapter`：章节首通带来的 XP
-- `replay`：重玩同章带来的 XP
-- `quiz`：通过升级测验获得的奖励 XP（**新增**：每通过一次升级测验 +20 XP，让"测验"成为真实来源；溢出会按现有 `applyXp` 规则结算）
+1. **替换原 Insight**（位于 `src/pages/story/DarkNight.tsx` 第 297–302 行）
 
-新增 `src/lib/levels.ts`：
-- 类型 `XpSource = "chapter" | "replay" | "quiz"`
-- localStorage key `lawguardian.xpsources.v1`，结构 `{ chapter: number, replay: number, quiz: number }`
-- 工具 `loadXpSources()` / `addXpSource(src, amount)` / `getXpSources()`，纯函数 + 单 effect 持久化
+   新标题：`📜 Insight · Inspired by the Basikal Lajak Case`
 
-`src/game/SettingsContext.tsx`：
-- `addXp(n, source?: XpSource)`：默认 `"chapter"`；同时累加到对应来源
-- 暴露 `xpSources: { chapter, replay, quiz }` 给 UI
-- `resolveQuiz(passed)`：`passed` 时调用 `addXp(20, "quiz")`
+   正文（约 4 段）：
+   - **案件梗概**：2017 年 2 月 18 日凌晨约 3:20，柔佛新山，8 名 13–17 岁少年骑改装无刹车的 "basikal lajak" 在公路上滑行，被一名 22 岁女司机 Sam Ke Ting 驾驶的 Sazuki Vivo 撞上，造成 8 人死亡。事故路段限速 70 km/h，车辆鉴定速度约 44–45 km/h。
+   - **司法历程**：2019 推事庭判无罪 → 2021 高庭推翻改判鲁莽驾驶致死，6 年监禁 + RM6,000 罚款 → 2022 上诉庭维持 → **2023 联邦法院最终撤销定罪，宣告无罪**。理由：控方未能在合理怀疑之外证明被告"鲁莽或危险"驾驶。
+   - **本章映射**：本案的核心张力——少年群体的可责性 vs 驾驶人的注意义务 vs 监管缺位——正是本章选择题（q9a 责任分配、q9b 责任程度、q9c 多方归因）的法理原型。
 
-`src/components/story/StarReward.tsx`：
-- claim 时根据 `result.firstTime` 决定 source：`firstTime ? "chapter" : "replay"`
-- 调用 `addXp(xpGain, source)`
+2. **新增第二段 Insight（深度解释）**：紧接其后插入新的 `kind: "insight"` 项
 
-### 2. 详情弹窗增加"XP 来源"卡片
+   标题：`⚖ Insight · Legal Doctrines Unpacked`
 
-在「Promotion Path」与「How to earn XP」之间插入：
-
-```
-⚡ XP SOURCES (累计)
-🎬 Chapters first clear   1230 XP
-🔁 Replays                  340 XP
-⚖ Quiz bonus                40 XP
-─────────────────────────
-TOTAL                     1610 XP
-```
-
-每行显示图标 + 名称 + 数值；下方一行细横条按比例可视化三段（chapter/replay/quiz 的颜色块）。
-
-### 3. 距下一级 & 百分比 — 实时一致
-
-确保 `LevelDetailsModal` 内 `pct`、`remaining`、`xp/xpToNext` 全部由同一份 `useSettings()` 派生，不缓存任何快照。当前实现已派生但分散在两处计算（`pct = xp/xpToNext`，`remaining = xpToNext - xp`），改成显式计算块并用 `useMemo` 集中，避免未来误改一边导致不同步：
-
-```ts
-const { progress, remaining, pct } = useMemo(() => {
-  const need = xpToNext || 0;
-  const cap = Math.min(xp, need);
-  return {
-    progress: cap,
-    remaining: Math.max(0, need - cap),
-    pct: need ? Math.round((cap / need) * 100) : 100,
-  };
-}, [xp, xpToNext]);
-```
-
-并在底部显示 `{pct}%` 数字，与进度条 width 同源；进度条加 `transition-all duration-300` 让数值变化平滑。`SettingsProvider` 的 `xp` state 一更新，弹窗内所有派生值（含 XP 来源）立即重渲染——天然实时。
-
-### 4. 翻译键（en / zh / ms）
-
-- `level.sources.title`「XP SOURCES / XP 来源 / SUMBER EXP」
-- `level.sources.chapter`「First clear / 首次通关 / Tamat Pertama」
-- `level.sources.replay`「Replay / 重玩 / Main Semula」
-- `level.sources.quiz`「Quiz bonus / 测验奖励 / Bonus Kuiz」
-- `level.sources.total`「Total / 累计 / Jumlah」
+   正文（要点逐条）：
+   - **举证标准（Beyond Reasonable Doubt）**：刑事案件中，控方须将"鲁莽或危险驾驶"证明至排除合理怀疑的程度。Federal Court 认定控方未达此标准，是无罪的核心法律根据。
+   - **Mens Rea（犯罪心态）**：第 41/42 条道路交通法令下的鲁莽驾驶要求被告至少疏忽至 *gross negligence* 程度。"在限速以内 + 路段昏暗 + 受害者非法在道路中央" → 难以推导出 mens rea。
+   - **Contributory Negligence（受害者共同过失）**：受害者本身的不法/危险行为（无照、无灯、改装车、凌晨上路）会大幅削弱驾驶人的因果可责性。这正是本章 q9b "partial liability" 选项的直接对应。
+   - **Multi-Party Responsibility（多方归因）**：父母监管、地方政府执法、道路照明设计、社交媒体推动青少年炫技文化——任何单一指责都不完整。q9c 的 "高分隐藏答案 D" 直接呼应这点。
+   - **教训**：法律不能只回答"谁去坐牢"，更要回答"如何阻止下一次"。Basikal Lajak 后，柔佛与多州陆续禁售改装 lajak、推动校园安全教育与道路照明升级——这是判决之外的真正立法回响。
 
 ### 文件变更
-
-- `src/lib/levels.ts`：新增 source 类型 + 持久化函数
-- `src/game/SettingsContext.tsx`：扩展 `addXp(n, source)`、暴露 `xpSources`、`resolveQuiz` 加 quiz 奖励、补 5 条翻译
-- `src/components/story/StarReward.tsx`：传 source 参数
-- `src/components/LevelDetailsModal.tsx`：新增 XP 来源卡片 + useMemo 统一派生 + 显示 `{pct}%`
+- `src/pages/story/DarkNight.tsx`：替换第 297–302 行的 insight，并在其后追加一个新的 insight step；不动 `gradeEnding`、选项数据、其他章节。
 
 ### 不在范围
-
-- 不改 5 级名称 / 阈值
-- 不改 quiz 题库与通过规则（仍 ≥3）
-- 不为旧存档回填来源（旧总 XP 视为 chapter，零除问题已规避）
+- 不改本章选项 / 计分逻辑
+- 不改其他章节
+- 不做 i18n 翻译（与本章其他英文文本一致，沿用 `<T>` 在运行时翻译）
