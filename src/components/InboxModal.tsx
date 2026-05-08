@@ -31,7 +31,7 @@ export const InboxModal = ({ open, onClose }: { open: boolean; onClose: () => vo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const load = async (pwd: string) => {
+  const load = async (pwd: string): Promise<boolean> => {
     setLoading(true);
     setErr(null);
     const { data, error } = await supabase.functions.invoke("feedback-inbox", {
@@ -42,15 +42,16 @@ export const InboxModal = ({ open, onClose }: { open: boolean; onClose: () => vo
       setErr(t("inbox.wrong"));
       setUnlocked(false);
       sessionStorage.removeItem(SESSION_KEY);
-      return;
+      return false;
     }
     setItems(((data as any).feedbacks ?? []) as FeedbackRow[]);
+    return true;
   };
 
   const tryUnlock = async () => {
     if (!password) return;
-    await load(password);
-    if (!err) {
+    const ok = await load(password);
+    if (ok) {
       sessionStorage.setItem(SESSION_KEY, password);
       setUnlocked(true);
     }
