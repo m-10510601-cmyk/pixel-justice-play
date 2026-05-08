@@ -737,6 +737,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       addXp,
       resolveQuiz,
       xpSources,
+      avatarId,
+      setAvatar,
     }),
     [
       theme,
@@ -762,6 +764,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       addXp,
       resolveQuiz,
       xpSources,
+      avatarId,
+      setAvatar,
     ],
   );
 
