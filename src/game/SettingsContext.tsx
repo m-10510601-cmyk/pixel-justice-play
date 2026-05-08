@@ -1,101 +1,34 @@
+// SettingsContext.tsx
+
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode, useCallback, useRef } from "react";
 
+declare global {
+  interface Window {
+    webkitAudioContext: typeof AudioContext;
+  }
+}
+
 export type Theme = "light" | "dark" | "default";
-export type Lang = "en" | "zh" | "ms";
+export type Lang = "en";
 
 const DICT: Record<string, string> = {
-  "app.title": "LAW GUARDIAN",
-  "home.tagline": "Decide. Investigate. Defend justice.",
-  "btn.start": "START",
-  "btn.next": "NEXT",
-  "nav.triumph": "Triumph",
-  "nav.settings": "Settings",
-  "nav.store": "Store",
-  "quest.title": "CASES",
-  "case.brief": "Brief",
-  "case.statements": "Statements",
-  "evidence.title": "Evidence",
-  "evidence.help": "Tap evidence cards to inspect them.",
-  "evidence.selected": "Selected",
-  "evidence.close": "Close",
-  "legal.title": "Legal",
-  "legal.help": "Pick the legal category that fits.",
-  "verdict.title": "Verdict",
-  "verdict.help": "Choose the verdict and a punishment.",
-  "verdict.guilty": "Guilty",
-  "verdict.notguilty": "Not Guilty",
-  "verdict.assign": "Assign Punishment",
-  "verdict.deliver": "Deliver Verdict",
-  "result.title": "Result",
-  "result.alignsYes": "Aligns with the standard",
-  "result.alignsNo": "Does not align with the standard",
-  "result.compare": "Compare",
-  "result.hide": "Hide",
-  "result.continue": "Continue",
-  "result.retry": "Retry",
-  "result.standard": "Standard of Proof",
-  "result.fairness": "Fairness",
-  "result.impact": "Impact",
-  "result.justice": "Justice",
-  "result.questioned": "Questioned",
-  "result.trust": "Public Trust",
-  "result.upheld": "Upheld",
-  "store.title": "STORE",
-  "store.not_enough": "Not enough coins",
-  "store.owned": "Owned",
-  "store.time_ext": "Time Extension",
-  "triumph.title": "TRIUMPH",
-  "triumph.done": "Done",
-  "triumph.locked": "Locked",
-  "daily.title": "Daily Rewards",
-  "daily.day": "Day",
-  "daily.claimed": "Claimed",
-  "daily.special": "Special",
-  "daily.come_back": "Come back tomorrow for more rewards.",
-  "share.title": "Share",
-  "share.copy": "Copy link",
-  "share.copied": "Link copied — thanks for sharing!",
-  "share.already": "Already claimed",
-  "save.title": "Cloud Save",
-  "save.now": "Save now",
-  "save.load": "Load",
-  "save.saved": "Progress saved.",
-  "save.loaded": "Progress loaded.",
-  "feedback.title": "Feedback",
-  "feedback.placeholder": "Tell us what you think…",
-  "feedback.send": "Send",
-  "feedback.thanks": "Thanks for your feedback!",
-  "tutorial.title": "How to play",
-  "tutorial.body": "Read the brief, examine evidence, pick the legal category, then deliver your verdict.",
-  "tutorial.ok": "Got it",
-  "terms.title": "Terms & Privacy",
-  "terms.agree": "I agree",
-  "terms.tos": "Terms of Service",
-  "terms.tos_body": "Educational content; not legal advice.",
-  "terms.privacy": "Privacy",
-  "terms.privacy_body": "Progress is stored locally on your device.",
-  "terms.ai": "AI Disclosure",
-  "terms.ai_body": "Some text may be machine-translated.",
-  "step.brief": "Brief",
-  "step.evidence": "Evidence",
-  "step.law": "Law",
-  "step.verdict": "Verdict",
-  "step.result": "Result",
+  "settings.title": "SETTINGS",
 };
 
 interface Ctx {
   theme: Theme;
   setTheme: (t: Theme) => void;
 
-  lang: Lang;
-  setLang: (l: Lang) => void;
-  t: (key: string) => string;
-
   volume: number;
   setVolume: (v: number) => void;
 
   bgmEnabled: boolean;
   setBgmEnabled: (b: boolean) => void;
+
+  lang: Lang;
+  setLang: (l: Lang) => void;
+
+  t: (key: string) => string;
 
   playCue: () => void;
 
@@ -182,7 +115,6 @@ const load = () => {
       theme?: Theme;
       volume?: number;
       bgmEnabled?: boolean;
-      lang?: Lang;
     };
   } catch {
     return null;
@@ -200,7 +132,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
   const [bgmEnabled, setBgmEnabledState] = useState<boolean>(initial?.bgmEnabled ?? true);
 
-  const [lang, setLangState] = useState<Lang>(initial?.lang ?? "en");
+  const [lang, setLangState] = useState<Lang>("en");
 
   const [meta, setMeta] = useState<Meta>(() => (typeof window !== "undefined" ? loadMeta() : { ...DEFAULT_META }));
 
@@ -212,11 +144,10 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
           theme,
           volume,
           bgmEnabled,
-          lang,
         }),
       );
     } catch {}
-  }, [theme, volume, bgmEnabled, lang]);
+  }, [theme, volume, bgmEnabled]);
 
   useEffect(() => {
     try {
@@ -241,7 +172,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       if (volume <= 0) return;
 
       if (!audioCtxRef.current) {
-        const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const AC = window.AudioContext || window.webkitAudioContext;
 
         audioCtxRef.current = new AC();
       }
@@ -285,7 +216,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     setLangState(l);
   }, []);
 
-  const t = useCallback((key: string) => DICT[key] ?? key, []);
+  const t = useCallback((key: string) => {
+    return DICT[key] ?? key;
+  }, []);
 
   const addCoins = useCallback((n: number) => {
     setMeta((m) => ({
@@ -395,15 +328,16 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       theme,
       setTheme,
 
-      lang,
-      setLang,
-      t,
-
       volume,
       setVolume,
 
       bgmEnabled,
       setBgmEnabled,
+
+      lang,
+      setLang,
+
+      t,
 
       playCue,
 
@@ -430,15 +364,17 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     [
       theme,
       setTheme,
-      lang,
-      setLang,
-      t,
 
       volume,
       setVolume,
 
       bgmEnabled,
       setBgmEnabled,
+
+      lang,
+      setLang,
+
+      t,
 
       playCue,
 
