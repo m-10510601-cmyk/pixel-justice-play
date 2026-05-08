@@ -1,4 +1,13 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode, useCallback, useRef } from "react";
+import {
+  applyXp,
+  loadLevel,
+  resolveQuiz as resolveLevelQuiz,
+  saveLevel,
+  xpToNext as xpNeeded,
+  LEVEL_NAMES,
+  type LevelState,
+} from "@/lib/levels";
 
 export type Theme = "light" | "dark" | "default";
 export type Lang = "en" | "zh" | "ms";
@@ -352,6 +361,14 @@ interface Ctx {
   claimDailyDay: (day: number) => boolean;
   timeExtensions: number;
   buyTimeExtension: () => boolean;
+  // Level / XP system
+  level: 1 | 2 | 3 | 4 | 5;
+  levelName: string;
+  xp: number;
+  xpToNext: number;
+  pendingQuiz: boolean;
+  addXp: (n: number) => void;
+  resolveQuiz: (passed: boolean) => void;
 }
 
 const SettingsCtx = createContext<Ctx | null>(null);
