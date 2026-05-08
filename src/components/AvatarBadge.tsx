@@ -1,26 +1,31 @@
-/**
- * Tiny pixel guardian portrait with blinking eye animation.
- * Used in the top-left HUD.
- */
-const AvatarBadge = () => {
+import { useSettings } from "@/game/SettingsContext";
+import { getAvatar } from "@/lib/avatars";
+
+type Props = {
+  size?: number;
+  onClick?: () => void;
+};
+
+const AvatarBadge = ({ size = 28, onClick }: Props) => {
+  const { avatarId } = useSettings();
+  const avatar = getAvatar(avatarId);
+  const interactive = !!onClick;
   return (
     <div
-      className="relative shrink-0"
-      style={{
-        width: 28, height: 28,
-        background: "hsl(28 35% 62%)",
-        border: "2px solid hsl(0 0% 0%)",
-        boxShadow: "inset 0 -3px 0 hsl(28 35% 45%), inset 0 3px 0 hsl(28 35% 78%)",
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (interactive && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onClick?.();
+        }
       }}
-      aria-hidden="true"
+      aria-label={interactive ? `Avatar: ${avatar.name}` : undefined}
+      className={interactive ? "cursor-pointer hover:brightness-125 transition focus:outline-none focus:ring-2 focus:ring-accent" : undefined}
+      style={{ display: "inline-block", lineHeight: 0 }}
     >
-      {/* hair / wig */}
-      <div className="absolute" style={{ top: 2, left: 2, right: 2, height: 6, background: "hsl(0 0% 92%)", boxShadow: "inset 0 0 0 1px hsl(0 0% 0%)" }} />
-      {/* eyes */}
-      <div className="absolute avatar-blink-eye" style={{ top: 11, left: 6, width: 3, height: 3, background: "hsl(0 0% 0%)" }} />
-      <div className="absolute avatar-blink-eye" style={{ top: 11, right: 6, width: 3, height: 3, background: "hsl(0 0% 0%)" }} />
-      {/* mouth */}
-      <div className="absolute" style={{ bottom: 4, left: "50%", transform: "translateX(-50%)", width: 6, height: 1, background: "hsl(0 0% 0%)" }} />
+      {avatar.render(size)}
     </div>
   );
 };
