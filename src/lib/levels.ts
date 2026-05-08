@@ -3,11 +3,37 @@
 // Failing the quiz keeps the level but resets the current-level XP to 0.
 
 const KEY = "lawguardian.level.v1";
+const SRC_KEY = "lawguardian.xpsources.v1";
 
 export type LevelState = {
   level: 1 | 2 | 3 | 4 | 5;
   xp: number; // XP accumulated within current level
   pendingQuiz: boolean;
+};
+
+export type XpSource = "chapter" | "replay" | "quiz";
+export type XpSources = { chapter: number; replay: number; quiz: number };
+export const DEFAULT_XP_SOURCES: XpSources = { chapter: 0, replay: 0, quiz: 0 };
+
+export const loadXpSources = (): XpSources => {
+  try {
+    const raw = localStorage.getItem(SRC_KEY);
+    if (!raw) return { ...DEFAULT_XP_SOURCES };
+    const v = JSON.parse(raw) as Partial<XpSources>;
+    return {
+      chapter: Math.max(0, Number(v.chapter) || 0),
+      replay: Math.max(0, Number(v.replay) || 0),
+      quiz: Math.max(0, Number(v.quiz) || 0),
+    };
+  } catch {
+    return { ...DEFAULT_XP_SOURCES };
+  }
+};
+
+export const saveXpSources = (s: XpSources) => {
+  try {
+    localStorage.setItem(SRC_KEY, JSON.stringify(s));
+  } catch {}
 };
 
 export const LEVEL_NAMES: Record<number, string> = {

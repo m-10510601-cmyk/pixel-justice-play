@@ -1,44 +1,77 @@
-## 等级详情面板
+## 等级详情：XP 来源细分 + 实时一致
 
-让首页 HUD 上的 `LevelBadge` 变成可点击按钮，点击后弹出 `LevelDetailsModal` 展示完整等级信息。
+### 1. 记录 XP 来源
 
-### 弹窗内容
+把累计获得的 XP 拆为三个来源并持久化：
 
-1. **当前状态卡**
-   - LV 数字 + 等级徽章名称（突出显示）
-   - XP 进度条（与 HUD 同色），数值 `xp / xpToNext`
-   - 距离下一级还差 `xpToNext - xp` XP
-   - 若 `pendingQuiz=true`：醒目按钮「⚖ 立即挑战升级测验」（关闭详情，触发 quiz 模态——quiz 模态本身就是 pendingQuiz 驱动的，因此只需关闭详情即可看到）
+- `chapter`：章节首通带来的 XP
+- `replay`：重玩同章带来的 XP
+- `quiz`：通过升级测验获得的奖励 XP（**新增**：每通过一次升级测验 +20 XP，让"测验"成为真实来源；溢出会按现有 `applyXp` 规则结算）
 
-2. **升级路线图（5 个等级阶梯）**
-   依次列出 1–5 级，每行显示：
-   - 等级图标（🎓 / 🔍 / ⚖ / 🏛 / 👑）+ LV n + 名称
-   - 升至下一级所需 XP（最后一级显示 MAX）
-   - 状态徽章：✓ 已达成 / ◉ 当前 / 🔒 未解锁
-   - 当前等级行高亮
+新增 `src/lib/levels.ts`：
+- 类型 `XpSource = "chapter" | "replay" | "quiz"`
+- localStorage key `lawguardian.xpsources.v1`，结构 `{ chapter: number, replay: number, quiz: number }`
+- 工具 `loadXpSources()` / `addXpSource(src, amount)` / `getXpSources()`，纯函数 + 单 effect 持久化
 
-3. **如何获得 XP**
-   一段简短说明：「完成任意章节按本次获得 ⭐ × 10 计入经验值，可重复刷取」 + 「升级前需通过 5 题法律 mini quiz（答对 ≥3）」+ 「失败保留等级、当前 XP 清零」。
+`src/game/SettingsContext.tsx`：
+- `addXp(n, source?: XpSource)`：默认 `"chapter"`；同时累加到对应来源
+- 暴露 `xpSources: { chapter, replay, quiz }` 给 UI
+- `resolveQuiz(passed)`：`passed` 时调用 `addXp(20, "quiz")`
+
+`src/components/story/StarReward.tsx`：
+- claim 时根据 `result.firstTime` 决定 source：`firstTime ? "chapter" : "replay"`
+- 调用 `addXp(xpGain, source)`
+
+### 2. 详情弹窗增加"XP 来源"卡片
+
+在「Promotion Path」与「How to earn XP」之间插入：
+
+```
+⚡ XP SOURCES (累计)
+🎬 Chapters first clear   1230 XP
+🔁 Replays                  340 XP
+⚖ Quiz bonus                40 XP
+─────────────────────────
+TOTAL                     1610 XP
+```
+
+每行显示图标 + 名称 + 数值；下方一行细横条按比例可视化三段（chapter/replay/quiz 的颜色块）。
+
+### 3. 距下一级 & 百分比 — 实时一致
+
+确保 `LevelDetailsModal` 内 `pct`、`remaining`、`xp/xpToNext` 全部由同一份 `useSettings()` 派生，不缓存任何快照。当前实现已派生但分散在两处计算（`pct = xp/xpToNext`，`remaining = xpToNext - xp`），改成显式计算块并用 `useMemo` 集中，避免未来误改一边导致不同步：
+
+```ts
+const { progress, remaining, pct } = useMemo(() => {
+  const need = xpToNext || 0;
+  const cap = Math.min(xp, need);
+  return {
+    progress: cap,
+    remaining: Math.max(0, need - cap),
+    pct: need ? Math.round((cap / need) * 100) : 100,
+  };
+}, [xp, xpToNext]);
+```
+
+并在底部显示 `{pct}%` 数字，与进度条 width 同源；进度条加 `transition-all duration-300` 让数值变化平滑。`SettingsProvider` 的 `xp` state 一更新，弹窗内所有派生值（含 XP 来源）立即重渲染——天然实时。
+
+### 4. 翻译键（en / zh / ms）
+
+- `level.sources.title`「XP SOURCES / XP 来源 / SUMBER EXP」
+- `level.sources.chapter`「First clear / 首次通关 / Tamat Pertama」
+- `level.sources.replay`「Replay / 重玩 / Main Semula」
+- `level.sources.quiz`「Quiz bonus / 测验奖励 / Bonus Kuiz」
+- `level.sources.total`「Total / 累计 / Jumlah」
 
 ### 文件变更
 
-- 新增 `src/components/LevelDetailsModal.tsx`：使用现有 `Modal` 组件；props `{ open, onClose }`；内部 `useSettings()` 取 `level / levelName / xp / xpToNext / pendingQuiz`，搭配 `LEVEL_NAMES` 与 `XP_THRESHOLDS`（从 `@/lib/levels` 导入）渲染阶梯。
-- 修改 `src/components/LevelBadge.tsx`：包一层 `<button>`，点击调用本地 `onOpen`。把 `LevelBadge` 的 props 扩展为可选 `onClick`，让父组件控制弹窗 state。
-- 修改 `src/pages/Index.tsx`：新增 `openLevel` state；`<LevelBadge onClick={() => setOpenLevel(true)} />`；挂载 `<LevelDetailsModal open={openLevel} onClose={...} />`。
-- `SettingsContext.tsx` 翻译键补充（en / zh / ms）：
-  - `level.details.title`「LEVEL DETAILS / 等级详情 / BUTIRAN TAHAP」
-  - `level.next`「Next Level / 下一级 / Tahap Seterusnya」
-  - `level.toNext`「XP to next level / 距下一级 / EXP ke tahap seterusnya」
-  - `level.path`「Promotion Path / 晋升路线 / Laluan Naik Pangkat」
-  - `level.howToEarn`「How to earn XP / 如何获得经验 / Cara dapat EXP」
-  - `level.howBody`「Complete chapters: each ⭐ earned = 10 XP. Replays count too. Pass the 5-question quiz at each tier to level up.」(对应 zh / ms)
-  - `level.challengeNow`「Challenge Quiz Now / 立即挑战测验 / Cabar Kuiz Sekarang」
-  - `level.statusCurrent`「Current / 当前 / Semasa」
-  - `level.statusDone`「Achieved / 已达成 / Dicapai」
-  - `level.statusLocked`「Locked / 未解锁 / Terkunci」
-  - `level.maxed`「MAX LEVEL」
+- `src/lib/levels.ts`：新增 source 类型 + 持久化函数
+- `src/game/SettingsContext.tsx`：扩展 `addXp(n, source)`、暴露 `xpSources`、`resolveQuiz` 加 quiz 奖励、补 5 条翻译
+- `src/components/story/StarReward.tsx`：传 source 参数
+- `src/components/LevelDetailsModal.tsx`：新增 XP 来源卡片 + useMemo 统一派生 + 显示 `{pct}%`
 
 ### 不在范围
 
-- 不改 XP 公式 / quiz 内容
-- 不改 Quiz 模态本身（pendingQuiz 已自动触发）
+- 不改 5 级名称 / 阈值
+- 不改 quiz 题库与通过规则（仍 ≥3）
+- 不为旧存档回填来源（旧总 XP 视为 chapter，零除问题已规避）

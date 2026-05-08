@@ -28,8 +28,9 @@ const StarReward = ({ slug, story, answers, ending }: Props) => {
   const [displayXp, setDisplayXp] = useState(startXp);
 
   useEffect(() => {
-    setResult(claimChapterReward(slug, breakdown.total, addCoins));
-    addXp(xpGain);
+    const r = claimChapterReward(slug, breakdown.total, addCoins);
+    setResult(r);
+    addXp(xpGain, r.firstTime ? "chapter" : "replay");
     playCue();
     // claim once per mount of completion screen
     // eslint-disable-next-line react-hooks/exhaustive-deps

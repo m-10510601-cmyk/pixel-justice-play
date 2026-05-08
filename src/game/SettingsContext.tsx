@@ -7,6 +7,11 @@ import {
   xpToNext as xpNeeded,
   LEVEL_NAMES,
   type LevelState,
+  loadXpSources,
+  saveXpSources,
+  DEFAULT_XP_SOURCES,
+  type XpSource,
+  type XpSources,
 } from "@/lib/levels";
 
 export type Theme = "light" | "dark" | "default";
@@ -151,6 +156,11 @@ const DICT: Record<Lang, Dict> = {
     "level.statusDone": "Achieved",
     "level.statusLocked": "Locked",
     "level.maxed": "MAX LEVEL",
+    "level.sources.title": "XP SOURCES",
+    "level.sources.chapter": "First clear",
+    "level.sources.replay": "Replay",
+    "level.sources.quiz": "Quiz bonus",
+    "level.sources.total": "Total",
   },
   zh: {
     "evidence.title": "证据分析",
@@ -285,6 +295,11 @@ const DICT: Record<Lang, Dict> = {
     "level.statusDone": "已达成",
     "level.statusLocked": "未解锁",
     "level.maxed": "已满级",
+    "level.sources.title": "XP 来源",
+    "level.sources.chapter": "首次通关",
+    "level.sources.replay": "重玩",
+    "level.sources.quiz": "测验奖励",
+    "level.sources.total": "累计",
   },
   ms: {
     "evidence.title": "ANALISIS BUKTI",
@@ -423,6 +438,11 @@ const DICT: Record<Lang, Dict> = {
     "level.statusDone": "Dicapai",
     "level.statusLocked": "Terkunci",
     "level.maxed": "TAHAP MAKSIMUM",
+    "level.sources.title": "SUMBER EXP",
+    "level.sources.chapter": "Tamat Pertama",
+    "level.sources.replay": "Main Semula",
+    "level.sources.quiz": "Bonus Kuiz",
+    "level.sources.total": "Jumlah",
   },
 };
 
@@ -457,8 +477,9 @@ interface Ctx {
   xp: number;
   xpToNext: number;
   pendingQuiz: boolean;
-  addXp: (n: number) => void;
+  addXp: (n: number, source?: XpSource) => void;
   resolveQuiz: (passed: boolean) => void;
+  xpSources: XpSources;
 }
 
 const SettingsCtx = createContext<Ctx | null>(null);
@@ -531,6 +552,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [levelState, setLevelState] = useState<LevelState>(() =>
     typeof window !== "undefined" ? loadLevel() : { level: 1, xp: 0, pendingQuiz: false },
   );
+  const [xpSources, setXpSources] = useState<XpSources>(() =>
+    typeof window !== "undefined" ? loadXpSources() : { ...DEFAULT_XP_SOURCES },
+  );
 
   // Persist
   useEffect(() => {
@@ -548,6 +572,10 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     saveLevel(levelState);
   }, [levelState]);
+
+  useEffect(() => {
+    saveXpSources(xpSources);
+  }, [xpSources]);
 
   // Apply theme class to <html>
   useEffect(() => {
@@ -647,11 +675,18 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     return ok;
   }, []);
 
-  const addXp = useCallback((n: number) => {
+  const addXp = useCallback((n: number, source: XpSource = "chapter") => {
+    if (n <= 0) return;
     setLevelState((s) => applyXp(s, n));
+    setXpSources((s) => ({ ...s, [source]: s[source] + n }));
   }, []);
   const resolveQuiz = useCallback((passed: boolean) => {
     setLevelState((s) => resolveLevelQuiz(s, passed));
+    if (passed) {
+      // Quiz pass bonus — recorded as quiz source.
+      setLevelState((s) => applyXp(s, 20));
+      setXpSources((s) => ({ ...s, quiz: s.quiz + 20 }));
+    }
   }, []);
 
   const dailyAvailableDay = (() => {
@@ -693,6 +728,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       pendingQuiz: levelState.pendingQuiz,
       addXp,
       resolveQuiz,
+      xpSources,
     }),
     [
       theme,
@@ -717,6 +753,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       levelState,
       addXp,
       resolveQuiz,
+      xpSources,
     ],
   );
 
