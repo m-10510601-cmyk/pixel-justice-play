@@ -1,4 +1,13 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode, useCallback, useRef } from "react";
+import {
+  applyXp,
+  loadLevel,
+  resolveQuiz as resolveLevelQuiz,
+  saveLevel,
+  xpToNext as xpNeeded,
+  LEVEL_NAMES,
+  type LevelState,
+} from "@/lib/levels";
 
 export type Theme = "light" | "dark" | "default";
 export type Lang = "en" | "zh" | "ms";
@@ -112,6 +121,22 @@ const DICT: Record<Lang, Dict> = {
     "terms.ai_body":
       "AI enhances interactivity to support critical thinking. We acknowledge AI limitations and commit to safe, ethical educational content.",
     "terms.agree": "I AGREE",
+    "quiz.title": "LEVEL-UP QUIZ",
+    "quiz.promotionTo": "Promotion to",
+    "quiz.intro": "Answer 5 legal questions. Score 3 or more to level up. Fail and your current-level XP is reset.",
+    "quiz.rule1": "5 questions, single choice.",
+    "quiz.rule2": "Pass = 3 correct or more.",
+    "quiz.rule3": "Fail keeps your level but resets XP to 0.",
+    "quiz.begin": "BEGIN",
+    "quiz.question": "Q",
+    "quiz.next": "NEXT",
+    "quiz.submit": "SUBMIT",
+    "quiz.passed": "PASSED — LEVEL UP!",
+    "quiz.failed": "FAILED — XP RESET",
+    "quiz.score": "Score",
+    "quiz.promotedTo": "Promoted to",
+    "quiz.xpReset": "Try clearing chapters again to retry.",
+    "quiz.done": "CONTINUE",
   },
   zh: {
     "evidence.title": "证据分析",
@@ -216,6 +241,22 @@ const DICT: Record<Lang, Dict> = {
     "terms.ai": "AI 伦理",
     "terms.ai_body": "AI 提升互动以支持批判性思考。我们承认 AI 的局限，并承诺提供安全、合乎伦理的教育内容。",
     "terms.agree": "我同意",
+    "quiz.title": "升级测验",
+    "quiz.promotionTo": "晋升至",
+    "quiz.intro": "回答 5 题法律题。答对 3 题或以上即可升级，否则当前等级经验清零。",
+    "quiz.rule1": "5 题单选。",
+    "quiz.rule2": "通过条件：答对 ≥ 3 题。",
+    "quiz.rule3": "未通过则保留等级，当前 XP 清零。",
+    "quiz.begin": "开始",
+    "quiz.question": "第",
+    "quiz.next": "下一题",
+    "quiz.submit": "提交",
+    "quiz.passed": "通过 — 等级提升！",
+    "quiz.failed": "未通过 — 经验清零",
+    "quiz.score": "得分",
+    "quiz.promotedTo": "已晋升至",
+    "quiz.xpReset": "再去刷章节重新挑战吧。",
+    "quiz.done": "继续",
   },
   ms: {
     "evidence.title": "ANALISIS BUKTI",
@@ -324,6 +365,22 @@ const DICT: Record<Lang, Dict> = {
     "terms.ai_body":
       "AI menambah interaktiviti untuk menyokong pemikiran kritis. Kami mengakui had AI dan komited kepada kandungan pendidikan yang selamat dan beretika.",
     "terms.agree": "SAYA BERSETUJU",
+    "quiz.title": "KUIZ NAIK PANGKAT",
+    "quiz.promotionTo": "Naik pangkat ke",
+    "quiz.intro": "Jawab 5 soalan undang-undang. Jawab betul 3 atau lebih untuk naik pangkat. Gagal akan reset XP tahap semasa.",
+    "quiz.rule1": "5 soalan, pilih satu.",
+    "quiz.rule2": "Lulus = 3 jawapan betul atau lebih.",
+    "quiz.rule3": "Gagal mengekalkan tahap tetapi reset XP.",
+    "quiz.begin": "MULA",
+    "quiz.question": "Soalan",
+    "quiz.next": "SETERUSNYA",
+    "quiz.submit": "HANTAR",
+    "quiz.passed": "LULUS — NAIK TAHAP!",
+    "quiz.failed": "GAGAL — XP DIRESET",
+    "quiz.score": "Markah",
+    "quiz.promotedTo": "Dinaikkan ke",
+    "quiz.xpReset": "Cuba selesaikan bab semula untuk mencuba lagi.",
+    "quiz.done": "TERUSKAN",
   },
 };
 
@@ -352,6 +409,14 @@ interface Ctx {
   claimDailyDay: (day: number) => boolean;
   timeExtensions: number;
   buyTimeExtension: () => boolean;
+  // Level / XP system
+  level: 1 | 2 | 3 | 4 | 5;
+  levelName: string;
+  xp: number;
+  xpToNext: number;
+  pendingQuiz: boolean;
+  addXp: (n: number) => void;
+  resolveQuiz: (passed: boolean) => void;
 }
 
 const SettingsCtx = createContext<Ctx | null>(null);
@@ -421,6 +486,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   });
   const [lang, setLangState] = useState<Lang>(initial?.lang ?? "en");
   const [meta, setMeta] = useState<Meta>(() => (typeof window !== "undefined" ? loadMeta() : { ...DEFAULT_META }));
+  const [levelState, setLevelState] = useState<LevelState>(() =>
+    typeof window !== "undefined" ? loadLevel() : { level: 1, xp: 0, pendingQuiz: false },
+  );
 
   // Persist
   useEffect(() => {
@@ -434,6 +502,10 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem(META_LS, JSON.stringify(meta));
     } catch {}
   }, [meta]);
+
+  useEffect(() => {
+    saveLevel(levelState);
+  }, [levelState]);
 
   // Apply theme class to <html>
   useEffect(() => {
@@ -533,6 +605,13 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     return ok;
   }, []);
 
+  const addXp = useCallback((n: number) => {
+    setLevelState((s) => applyXp(s, n));
+  }, []);
+  const resolveQuiz = useCallback((passed: boolean) => {
+    setLevelState((s) => resolveLevelQuiz(s, passed));
+  }, []);
+
   const dailyAvailableDay = (() => {
     if (meta.dailyDate === todayStr()) return 0;
     const idx = meta.dailyClaims.findIndex((c) => !c);
@@ -565,6 +644,13 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       claimDailyDay,
       timeExtensions: meta.timeExtensions,
       buyTimeExtension,
+      level: levelState.level,
+      levelName: LEVEL_NAMES[levelState.level],
+      xp: levelState.xp,
+      xpToNext: xpNeeded(levelState.level),
+      pendingQuiz: levelState.pendingQuiz,
+      addXp,
+      resolveQuiz,
     }),
     [
       theme,
@@ -586,6 +672,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       dailyAvailableDay,
       claimDailyDay,
       buyTimeExtension,
+      levelState,
+      addXp,
+      resolveQuiz,
     ],
   );
 

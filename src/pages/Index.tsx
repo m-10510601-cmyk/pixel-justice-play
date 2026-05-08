@@ -6,6 +6,8 @@ import { useSettings } from "@/game/SettingsContext";
 import AvatarBadge from "@/components/AvatarBadge";
 import { getLastPlayed, type LastPlayed } from "@/lib/progress";
 import { DailyRewardsModal, ShareModal, SaveLoadModal, FeedbackModal } from "@/components/HomeOverlays";
+import LevelBadge from "@/components/LevelBadge";
+import LevelUpQuizModal from "@/components/LevelUpQuizModal";
 
 const Index = () => {
   const { t, coins, agreedTerms, dailyAvailableDay } = useSettings();
@@ -42,9 +44,7 @@ const Index = () => {
             <div className="pixel text-[10px] text-white pixel-text flex items-center gap-1">
               <span className="coin-spin text-base leading-none">🪙</span>
             </div>
-            <div className="pixel text-[8px] px-2 py-1 rounded bg-black/40 border-2 border-black text-[hsl(48_100%_75%)] pixel-text">
-              LV 1
-            </div>
+            <LevelBadge />
           </div>
 
           {/* Top-right: three square icons */}
@@ -157,6 +157,7 @@ const Index = () => {
       <ShareModal open={openShare} onClose={() => setOpenShare(false)} />
       <SaveLoadModal open={openSave} onClose={() => setOpenSave(false)} />
       <FeedbackModal open={openFeedback} onClose={() => setOpenFeedback(false)} />
+      <LevelUpQuizModal />
     </GameFrame>
   );
 };
