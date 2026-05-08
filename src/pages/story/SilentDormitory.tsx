@@ -48,6 +48,7 @@ const STORY: Step[] = [
       { who: "Student B", text: "“He was the only one in the room while we were out.”" },
       { who: "Victim", text: "“I… I didn't take it. I swear.”" },
       { who: "Student A", text: "“Then explain why you were here.”" },
+      { who: "You", inner: true, text: "Four voices. One target. No proof yet — only momentum." },
     ],
   },
   {
