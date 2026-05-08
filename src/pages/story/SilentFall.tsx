@@ -31,7 +31,11 @@ const STORY: Step[] = [
     title: "📖 Case Brief", image: sceneBrief,
     lines: [
       { text: "Time: 2026 — A boarding school in Malaysia." },
-      { text: "Aira (15) was found severely injured after falling from a dormitory building." },
+      { who: "You", inner: true, text: "A fall from a dorm window… in 2026, with cameras everywhere?" },
+      { text: "The school calls it an accident. Her family insists she was a victim of long-term bullying." },
+      { who: "You", inner: true, text: "Two stories. Only one of them can hold up under evidence." },
+    
+      { text: "Time: 2026 — A boarding school in Malaysia." },
       { who: "You", inner: true, text: "A fall from a dorm window… in 2026, with cameras everywhere?" },
       { text: "The school calls it an accident. Her family insists she was a victim of long-term bullying." },
       { who: "You", inner: true, text: "Two stories. Only one of them can hold up under evidence." },
@@ -41,7 +45,6 @@ const STORY: Step[] = [
     kind: "scene",
     title: "🎬 Scene 1 · School Office", image: sceneOffice,
     lines: [
-      { who: "Principal", text: "“Please, have a seat. This is a tragedy, but it appears to be an unfortunate accident.”" },
       { who: "Aira's Parent", text: "“No. She was not happy there. Something was wrong for months.”" },
       { who: "Principal", text: "“With respect, students always have minor conflicts. We saw nothing serious.”" },
       { who: "Aira's Parent", text: "“She stopped calling home. She used to call every night.”" },
@@ -68,7 +71,6 @@ const STORY: Step[] = [
       { text: "You enter the dormitory hallway. The lights flicker once." },
       { who: "You", inner: true, text: "No broken glass. No scuff marks. Too clean." },
       { who: "You", inner: true, text: "A new latch — installed after the fall, or before it?" },
-      { text: "A camera in the corner blinks red. Its housing is dusty, but the lens is spotless." },
       { who: "You", inner: true, text: "Someone wiped that lens recently. Why bother, if it ‘wasn’t working’?" },
     ],
   },
@@ -127,7 +129,6 @@ const STORY: Step[] = [
     kind: "scene",
     title: "🎬 Scene 4 · The Turning Point", image: sceneTurning,
     lines: [
-      { text: "Deleted data recovered. A video plays — moments before the fall." },
       { who: "You", inner: true, text: "Three figures in the frame. Aira against the railing." },
       { who: "You", inner: true, text: "The cut is too clean. Someone trimmed exactly the second that mattered." },
       { who: "You", inner: true, text: "No single act of violence. But every second leading up to it was violence too." },
@@ -200,7 +201,6 @@ const STORY: Step[] = [
     kind: "scene",
     title: "🎬 Final Reflection", image: sceneFinal,
     lines: [
-      { text: "The courtroom is empty. Moonlight rests on the scales." },
       { who: "You", inner: true, text: "If harm has no single author, does that mean it has none at all?" },
       { who: "You", text: "“No one pushed her…”" },
       { who: "You", text: "“But no one stopped it either.”" },

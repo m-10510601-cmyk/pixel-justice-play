@@ -34,7 +34,11 @@ const STORY: Step[] = [
     kind: "scene",
     title: "📖 Act I · The Tip-off", sceneKey: "tipoff",
     lines: [
-      { text: "Location: District Police Station. 23:40." },
+      { who: "Officer Tan", text: "“Recent intelligence suggests a drug trafficking operation has emerged at a local university — and the scale is significant.”" },
+      { who: "You", inner: true, text: "Significant means structure. Structure means a chain." },
+      { who: "Officer Tan", text: "“This isn't just a substance abuse problem. It's a supply chain problem.”" },
+      { who: "You", inner: true, text: "Then I don't chase a user. I follow the money — or the messages." },
+    
       { who: "Officer Tan", text: "“Recent intelligence suggests a drug trafficking operation has emerged at a local university — and the scale is significant.”" },
       { who: "You", inner: true, text: "Significant means structure. Structure means a chain." },
       { who: "Officer Tan", text: "“This isn't just a substance abuse problem. It's a supply chain problem.”" },
