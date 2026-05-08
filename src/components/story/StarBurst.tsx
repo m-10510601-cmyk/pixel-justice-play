@@ -11,17 +11,17 @@ type Props = {
  */
 const StarBurst = ({ count, onDone }: Props) => {
   const particles = useMemo(() => {
-    const n = Math.min(24, Math.max(6, count * 4));
+    const n = Math.max(1, count);
     return Array.from({ length: n }, (_, i) => {
-      const angle = (i / n) * Math.PI * 2 + Math.random() * 0.4;
-      const dist = 140 + Math.random() * 180;
+      const angle = (i / n) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+      const dist = 160 + Math.random() * 140;
       return {
         id: i,
         tx: `${Math.cos(angle) * dist}px`,
         ty: `${Math.sin(angle) * dist}px`,
         rot: `${(Math.random() * 720 - 360).toFixed(0)}deg`,
         delay: `${(Math.random() * 0.15).toFixed(2)}s`,
-        size: 14 + Math.round(Math.random() * 14),
+        size: 28 + Math.round(Math.random() * 16),
       };
     });
   }, [count]);
