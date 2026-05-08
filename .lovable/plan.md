@@ -1,66 +1,70 @@
-# 优化对话系统 · 精简剧情对话
+# 剧情精简后审计报告 + 钩子修复
 
-## 目标
+## 审计结果总览
 
-当前 9 个 chapter 每个 scene 平均有 6–8 行对话，玩家阅读体验偏长。本次优化只动**剧情对话文本本身**，保留：
-- 案件关键线索（证物、时间、人物动机）
-- 主角内心独白中点出"调查方向"的那一句
-- 每个 scene 的转折/钩子
+通过解析全部 9 章共 **64 个 scene**，对每个 scene 统计 NPC 台词、内心独白、旁白数量，并检查最后一行是否为内心独白钩子。
 
-不改：选项 (Choice)、证据板 (Evidence)、Insight 段、奖励系统、对话播放器组件 (`SceneDialogue`)、翻译系统。
+| 文件 | scene 总数 | 以 inner 结尾 | 以 NPC 结尾 | 以旁白结尾 |
+|---|---|---|---|---|
+| SilentFall | 6 | 6 | 0 | 0 |
+| GreenTrade | 7 | 6 | **1** | 0 |
+| HighPayTrap | 10 | 9 | **1** | 0 |
+| MaskOfAuthority | 9 | 9 | 0 | 0 |
+| RitualOfPower | 9 | 9 | 0 | 0 |
+| SilentDormitory | 10 | 9 | **1** | 0 |
+| SilentRoom | 7 | 6 | 0 | **1** |
+| TheRunner | 10 | 6 | **4** | 0 |
+| DarkNight | 10 | 10 | 0 | 0 |
 
-## 精简规则
+✅ **NPC 关键台词** 全部保留 — 每章每个 scene 都至少有 NPC/inner/narr 中应有的角色，没有出现"NPC 全被删光"的情况。
+✅ **大多数 scene** 仍以内心独白收尾 (ending hook)。
 
-1. **每个 scene 控制在 3–5 行**（目前常 6–8 行），优先合并意思相近的句子。
-2. **删除装饰性旁白**（环境氛围句，如 "灯闪了一下"），除非它本身就是线索。
-3. **内心独白**每个 scene 最多保留 2 条，挑最能推动调查的那两句。
-4. **NPC 台词**保留含信息量的句子，删除纯情绪铺垫；长句拆短，去掉客套话。
-5. **不删除 scene 本身**，节奏和场景数保持不变，只压缩每段长度。
-6. **保持英文原文**（翻译走 i18n live 系统，不用动）。
+## 待补"内心钩子"的弱点 scene
+
+下列 7 个 scene 当前以 NPC 台词或旁白结尾，缺少主角内心反思的"调查方向钩子"。建议在末尾追加 **1 行** `{ who: "You", inner: true, ... }`，不动现有内容。
+
+### 1. `GreenTrade.tsx` · Act VIII · Final Reflection
+当前以 `You: "We didn't catch a dealer. We found a doorway."` 结尾。这本身已是有力收束，可不改。**建议：不动**。
+
+### 2. `HighPayTrap.tsx` · Act I · The Opportunity
+3 行全是 Friend / Mei 对话。
+**追加：** `{ who: "Mei", inner: true, text: "Six months' pay in one month… too good to be real?" }`
+
+### 3. `SilentDormitory.tsx` · Act I · The Seed of Suspicion (Day 1)
+4 行全是学生指控。受害者沉默后无主角视角。
+**追加：** `{ who: "You", inner: true, text: "Four voices. One target. No proof yet — only momentum." }`
+
+### 4. `SilentRoom.tsx` · Act IV · Hidden Records
+末行是数据陈述，钩子在中间。
+**调整：** 把已有内心独白移到末尾，或末尾追加 `{ who: "You", inner: true, text: "Seven 'accidents'. None of them was." }`
+
+### 5. `TheRunner.tsx` · Scene 3 · The Collection
+对话即"作案现场"，可保留戏剧性 NPC 收尾。**建议：不动**。
+
+### 6. `TheRunner.tsx` · Scene 4 · Suspicion
+当前以 Mr. Tan 自述结尾。
+**追加：** `{ who: "You", inner: true, text: "He's not the suspect. He's the proof." }`
+
+### 7. `TheRunner.tsx` · Scene 7 · Breaking Point
+审讯收尾在嫌犯"我需要钱"。可作为戏剧停顿。
+**追加：** `{ who: "You", inner: true, text: "Need is not a defence — but it tells me who recruited him." }`
+
+### 8. `TheRunner.tsx` · Ending · Reflection
+全 NPC 三连。叙述者+你的双台词已经是反思结构。**建议：不动**。
 
 ## 范围
 
-只编辑 9 个 story 文件中的 `STORY` 数组里 `kind: "scene"` 段的 `lines` 数组：
+只在 4 个 scene 末尾追加 1 行 inner 独白：
+- `HighPayTrap.tsx` Act I
+- `SilentDormitory.tsx` Act I
+- `SilentRoom.tsx` Act IV（追加 1 行）
+- `TheRunner.tsx` Scene 4
+- `TheRunner.tsx` Scene 7
 
-- `src/pages/story/SilentFall.tsx`
-- `src/pages/story/GreenTrade.tsx`
-- `src/pages/story/HighPayTrap.tsx`
-- `src/pages/story/MaskOfAuthority.tsx`
-- `src/pages/story/RitualOfPower.tsx`
-- `src/pages/story/SilentDormitory.tsx`
-- `src/pages/story/SilentRoom.tsx`
-- `src/pages/story/TheRunner.tsx`
-- `src/pages/story/DarkNight.tsx`
-
-预期每个文件减少约 30–40% 的 dialogue 行数。
-
-## 示例（SilentFall · Scene 1）
-
-```text
-Before (7 行):
-  Principal: "Please, have a seat. This is a tragedy, but it appears to be an unfortunate accident."
-  You (inner): "He answered before I even asked a question."
-  Parent: "No. She was not happy there. Something was wrong for months."
-  Principal: "With respect, students always have minor conflicts. We saw nothing serious."
-  You (inner): "'Saw nothing' — or chose not to look?"
-  Parent: "She stopped calling home. She used to call every night."
-  You (inner): "Two completely different narratives… one of them is hiding something."
-
-After (4 行):
-  Principal: "An unfortunate accident. Please, have a seat."
-  You (inner): "He answered before I asked."
-  Parent: "She stopped calling home. Something was wrong for months."
-  You (inner): "Two narratives. One is hiding something."
-```
-
-## 验证
-
-- `bun run build` 通过，无引用错误
-- 抽 1–2 个 chapter 在预览中跑一遍，确认 scene 仍能讲通故事
+总共新增 **5 行**对话，不删除任何现有内容，不动选项/证据/Insight。
 
 ## 不在本次范围
 
-- 不调整 `SceneDialogue` 的打字速度 / auto pause（如需可下次再做）
-- 不改选项文案、证据内容、Insight 文案
-- 不改奖励逻辑
+- 不再次精简对话
+- 不修改奖励/翻译/对话播放器
 

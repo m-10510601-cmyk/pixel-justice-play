@@ -48,6 +48,7 @@ const STORY: Step[] = [
       { who: "Friend", text: "“I know an agent. He says overseas jobs can pay you in one month what you earn here in six.”" },
       { who: "Mei", text: "“Is it really that good? What's the catch?”" },
       { who: "Friend", text: "“He showed me the ad. It looks legit.”" },
+      { who: "Mei", inner: true, text: "Six months' pay in one month… too good to be real?" },
     ],
   },
   {
