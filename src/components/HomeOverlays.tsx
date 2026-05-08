@@ -1,6 +1,12 @@
 import { useState } from "react";
 import Modal from "./Modal";
 import { useSettings } from "@/game/SettingsContext";
+import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+const feedbackSchema = z.object({
+  message: z.string().trim().min(1).max(1000),
+});
 
 export const DailyRewardsModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   const { t, dailyClaims, dailyAvailableDay, claimDailyDay, playCue } = useSettings();
@@ -105,30 +111,52 @@ export const SaveLoadModal = ({ open, onClose }: { open: boolean; onClose: () =>
 };
 
 export const FeedbackModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
-  const { t, playCue } = useSettings();
+  const { t, playCue, lang } = useSettings();
   const [text, setText] = useState("");
   const [sent, setSent] = useState(false);
-  const send = () => {
-    if (!text.trim()) return;
-    try {
-      const all = JSON.parse(localStorage.getItem("lawguardian.feedback.v1") || "[]");
-      all.push({ text, ts: Date.now() });
-      localStorage.setItem("lawguardian.feedback.v1", JSON.stringify(all));
-    } catch {}
+  const [sending, setSending] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const send = async () => {
+    setErr(null);
+    const parsed = feedbackSchema.safeParse({ message: text });
+    if (!parsed.success) {
+      setErr(parsed.error.issues[0]?.message ?? "Invalid input");
+      return;
+    }
+    setSending(true);
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 500) : null;
+    const { error } = await supabase.from("feedbacks").insert({
+      message: parsed.data.message,
+      lang,
+      user_agent: ua,
+    });
+    setSending(false);
+    if (error) {
+      // Offline fallback: keep locally so it's not lost.
+      try {
+        const all = JSON.parse(localStorage.getItem("lawguardian.feedback.v1") || "[]");
+        all.push({ text: parsed.data.message, ts: Date.now() });
+        localStorage.setItem("lawguardian.feedback.v1", JSON.stringify(all));
+      } catch {}
+    }
     setSent(true);
     setText("");
     playCue();
   };
   return (
-    <Modal open={open} onClose={() => { setSent(false); onClose(); }} title={t("feedback.title")}>
+    <Modal open={open} onClose={() => { setSent(false); setErr(null); onClose(); }} title={t("feedback.title")}>
       <div className="flex flex-col gap-3">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={t("feedback.placeholder")}
+          maxLength={1000}
           className="pixel-frame p-2 text-sm bg-input text-foreground min-h-[100px] outline-none"
         />
-        <button onClick={send} className="pixel-btn text-[10px]">✉ {t("feedback.send")}</button>
+        <button onClick={send} disabled={sending} className="pixel-btn text-[10px] disabled:opacity-60">
+          ✉ {sending ? "…" : t("feedback.send")}
+        </button>
+        {err && <p className="pixel text-[9px] text-center text-destructive">{err}</p>}
         {sent && <p className="pixel text-[9px] text-center text-accent">{t("feedback.thanks")}</p>}
       </div>
     </Modal>

@@ -5,11 +5,13 @@ import bg from "@/assets/justice-bg.jpg";
 import { useSettings, Lang } from "@/game/SettingsContext";
 import Modal from "@/components/Modal";
 import { FeedbackModal } from "@/components/HomeOverlays";
+import InboxModal from "@/components/InboxModal";
 
 const Settings = () => {
   const { theme, setTheme, volume, setVolume, bgmEnabled, setBgmEnabled, lang, setLang, t, playCue } = useSettings();
   const [showTerms, setShowTerms] = useState(false);
   const [showFb, setShowFb] = useState(false);
+  const [showInbox, setShowInbox] = useState(false);
 
   const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div className="flex items-stretch gap-2">
@@ -115,6 +117,14 @@ const Settings = () => {
         <button onClick={() => setShowFb(true)} className="pixel-btn pixel-btn-secondary text-[10px]">
           {t("settings.feedback")}
         </button>
+        <button
+          onClick={() => setShowInbox(true)}
+          className="pixel-btn pixel-btn-secondary text-[10px] opacity-60"
+          aria-label={t("inbox.title")}
+          title={t("inbox.title")}
+        >
+          📥
+        </button>
       </footer>
 
       <Modal open={showTerms} onClose={() => setShowTerms(false)} title={t("terms.title")}>
@@ -134,6 +144,7 @@ const Settings = () => {
         </div>
       </Modal>
       <FeedbackModal open={showFb} onClose={() => setShowFb(false)} />
+      <InboxModal open={showInbox} onClose={() => setShowInbox(false)} />
     </GameFrame>
   );
 };

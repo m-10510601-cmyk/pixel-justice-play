@@ -1,56 +1,57 @@
 ## Goal
-让玩家可以从多个像素头像中选择一个作为 HUD 显示的头像，按等级解锁。点击主页 HUD 左上角头像即可打开选择器。
+把反馈系统从「仅本地保存」升级为「集中式意见箱」：玩家提交后写入云端表，只有创作者输入密码 `2054` 才能查看。
 
-## 头像目录（8 款，混合像素小人 + 职业角色）
+## 数据层（Lovable Cloud）
+新建表 `public.feedbacks`：
+- `id uuid pk default gen_random_uuid()`
+- `message text not null` (限长 1000，trigger 校验)
+- `lang text`
+- `user_agent text`
+- `created_at timestamptz default now()`
 
-| # | ID | 风格 | 解锁等级 |
-|---|----|------|----------|
-| 1 | rookie | 默认像素小人（当前 AvatarBadge） | Lv 1 |
-| 2 | scholar | 学生（眼镜 + 校服色） | Lv 1 |
-| 3 | officer | 警察（蓝帽 + 徽章像素） | Lv 2 |
-| 4 | advocate | 律师（黑袍 + 白领） | Lv 3 |
-| 5 | detective | 侦探（风衣 + 帽檐） | Lv 3 |
-| 6 | judge | 法官（白假发 + 黑袍） | Lv 4 |
-| 7 | guardian | 守护者（金冠像素小人） | Lv 5 |
-| 8 | shadow | 神秘人（兜帽剪影） | Lv 5 |
+RLS：
+- 启用 RLS。
+- `INSERT`：允许任何人（`to public using (true) with check (length(message) between 1 and 1000)`）。
+- `SELECT`：保持关闭（即默认拒绝）。意见箱通过 **edge function** 鉴权读取，避免暴露给浏览器端任意用户。
 
-全部用纯 CSS/div 像素绘制（与现有 `AvatarBadge` 同风格），不引入图片资源。
+## 后端：edge function `feedback-inbox`
+- `POST { password }` → 验证 `password === Deno.env.get("FEEDBACK_INBOX_PASSWORD")`（默认值 `2054`，作为 secret 添加）。
+- 通过 `SUPABASE_SERVICE_ROLE_KEY` 读取 `feedbacks` 表，按 `created_at desc` 返回最近 200 条。
+- 失败返回 401。
+- `verify_jwt = false`（公开调用，靠密码鉴权）。
 
-## 改动
+> 注：将 `FEEDBACK_INBOX_PASSWORD` 加为 secret，方便日后修改而不动代码。
 
-### 1. 新建 `src/lib/avatars.ts`
-- 定义 `AvatarId` 联合类型与 `AVATARS: { id, name, unlockLevel, render(size) }` 列表。
-- `render` 返回 JSX，参数化 `size`（HUD 用 28，选择器卡片用 56）。
-- localStorage key: `lawguardian.avatar.v1`，存当前选中的 id（默认 `rookie`）。
-- 导出 `loadAvatar()` / `saveAvatar(id)` / `isAvatarUnlocked(id, level)`。
+## 前端
 
-### 2. `src/game/SettingsContext.tsx`
-- 新增 state：`avatarId`、`setAvatar(id)`，初始读 `loadAvatar()`，变更时写 localStorage。
-- 通过 context 暴露给 HUD / 选择器。
+### 1. `src/components/HomeOverlays.tsx` — `FeedbackModal`
+- 用 zod 校验 `message`：trim、1–1000 字符。
+- 调用 `supabase.from('feedbacks').insert({ message, lang, user_agent })`。
+- 失败时回退写 localStorage（兼容离线）。
+- 提交成功显示「谢谢」。
 
-### 3. 重写 `src/components/AvatarBadge.tsx`
-- 从 settings 读取当前 `avatarId`，调用对应 `render(28)`。
-- 接收可选 `onClick` prop；当传入时加 `cursor-pointer` + hover 高亮 + 键盘可达（`role="button"`、`tabIndex=0`、Enter/Space 触发）。
+### 2. 新组件 `src/components/InboxModal.tsx`
+- 第一步：密码输入框（type="password"），错误时本地提示「密码错误」。
+- 第二步：调用 edge function 拉取列表，`sessionStorage` 记住「已解锁」状态本会话内免输。
+- 列表：显示时间戳 + 完整反馈文本 + 语言；空态文案。
+- 按钮：刷新、关闭。
 
-### 4. 新建 `src/components/AvatarPickerModal.tsx`
-- 使用现有 GameFrame 风格（pixel-btn + 黑边）。
-- 网格 4 列，列出全部头像；每张卡片显示像素预览 + 名称 + 解锁状态。
-- 当前选中 → 高亮边框 + "✓ EQUIPPED"。
-- 已解锁未选 → 点击切换。
-- 未解锁 → 灰阶 + 🔒 + "Lv X 解锁" 文案，不可点击。
-- 顶部显示当前等级，方便对照。
+### 3. 入口位置
+- **不放在主页 HUD**，避免普通玩家发现。
+- 放在 `Settings` 页底部加一个不起眼的小按钮 `📥 INBOX`（或 emoji 信箱），点击打开 `InboxModal`。
+- 同步加 i18n key：
+  - `inbox.title` = INBOX / 意见箱 / PETI MASUK
+  - `inbox.password` = ENTER PASSWORD / 输入密码 / KATA LALUAN
+  - `inbox.unlock` = UNLOCK / 解锁 / BUKA
+  - `inbox.wrong` = Wrong password / 密码错误 / Kata laluan salah
+  - `inbox.empty` = No feedback yet / 暂无反馈 / Tiada maklum balas
+  - `settings.inbox` = INBOX / 意见箱 / PETI MASUK
 
-### 5. `src/pages/Index.tsx`
-- 引入 `useState` 控制 modal 打开。
-- 给 `<AvatarBadge>` 加 `onClick={() => setOpen(true)}`，渲染 `<AvatarPickerModal open onClose />`。
+## 安全要点
+- 密码校验在 edge function 服务端进行；前端只是表单。
+- 客户端**无法**直接 select `feedbacks`（RLS 拒绝）。
+- 输入用 zod 严格 trim + 长度限制，防止滥用与超长写入。
+- 不在前端日志里输出反馈内容或密码。
 
-## 文案（en/zh/ms）
-- `avatar.title` = CHOOSE AVATAR / 选择头像 / PILIH AVATAR
-- `avatar.equipped` = EQUIPPED / 已装备 / DIPAKAI
-- `avatar.locked` = Reach Lv {n} to unlock / 升至 Lv {n} 解锁 / Capai Lv {n}
-- 加入 `SettingsContext` 的 DICT 中。
-
-## 注意
-- 全部纯前端 + localStorage，无后端改动。
-- 不破坏现有 HUD 布局；尺寸保持 28×28。
-- 头像渲染统一在 `avatars.ts`，方便后续新增。
+## 不改的东西
+- 现有反馈 UI 入口（HUD 的 ✉、Settings 的 FEEDBACK）保持原状，只是后端改为云端写入。
