@@ -1,0 +1,78 @@
+import { useSettings } from "@/game/SettingsContext";
+import { AVATARS, isAvatarUnlocked } from "@/lib/avatars";
+import T from "@/components/T";
+
+type Props = {
+  open: boolean;
+  onClose: () => void;
+};
+
+const AvatarPickerModal = ({ open, onClose }: Props) => {
+  const { t, avatarId, setAvatar, level } = useSettings();
+  if (!open) return null;
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="pixel-btn border-accent bg-background max-w-md w-full p-4 max-h-[85vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="pixel text-sm text-primary">{t("avatar.title")}</h2>
+          <span className="text-[10px] opacity-80">
+            {t("avatar.current")}: <span className="text-accent">Lv {level}</span>
+          </span>
+        </div>
+
+        <div className="grid grid-cols-4 gap-2">
+          {AVATARS.map((a) => {
+            const unlocked = isAvatarUnlocked(a.id, level);
+            const equipped = a.id === avatarId;
+            return (
+              <button
+                key={a.id}
+                disabled={!unlocked}
+                onClick={() => unlocked && setAvatar(a.id)}
+                className={[
+                  "pixel-btn-square flex flex-col items-center justify-center gap-1 p-2 h-auto",
+                  equipped ? "border-accent ring-2 ring-accent" : "",
+                  !unlocked ? "opacity-40 cursor-not-allowed grayscale" : "cursor-pointer",
+                ].join(" ")}
+                style={{ width: "100%" }}
+                aria-label={a.name}
+              >
+                <div className="flex items-center justify-center" style={{ minHeight: 48 }}>
+                  {a.render(44)}
+                </div>
+                <div className="text-[9px] pixel text-center leading-tight">
+                  <T>{a.name}</T>
+                </div>
+                {equipped ? (
+                  <div className="text-[8px] text-accent">✓ <T>{t("avatar.equipped")}</T></div>
+                ) : !unlocked ? (
+                  <div className="text-[8px] opacity-80">
+                    🔒 <T>{t("avatar.locked").replace("{n}", String(a.unlockLevel))}</T>
+                  </div>
+                ) : (
+                  <div className="text-[8px] opacity-60">Lv {a.unlockLevel}</div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <button onClick={onClose} className="pixel-btn text-xs">
+            {t("avatar.close")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AvatarPickerModal;
