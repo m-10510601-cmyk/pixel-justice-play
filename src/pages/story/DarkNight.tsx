@@ -40,7 +40,11 @@ const STORY: Step[] = [
     lines: [
       { text: "Time: just past midnight. Location: a quiet stretch of trunk road outside the city." },
       { who: "Driver", inner: true, text: "“Almost home…”" },
-      { text: "🚨 Screeching brakes. A dull, sickening thud." },
+      { who: "Driver", text: "“What happened?! What did I hit?!”" },
+      { who: "You", inner: true, text: "Figures lie scattered across the lane. Bicycle frames bent at angles bicycles aren't supposed to bend at." },
+    
+      { text: "Time: just past midnight. Location: a quiet stretch of trunk road outside the city." },
+      { who: "Driver", inner: true, text: "“Almost home…”" },
       { who: "Driver", text: "“What happened?! What did I hit?!”" },
       { who: "You", inner: true, text: "Figures lie scattered across the lane. Bicycle frames bent at angles bicycles aren't supposed to bend at." },
     ],

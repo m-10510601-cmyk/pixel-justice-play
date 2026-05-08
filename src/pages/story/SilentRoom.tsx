@@ -161,7 +161,6 @@ const STORY: Step[] = [
     title: "🎬 Act V · Interrogation", sceneKey: "interrogation",
     lines: [
       { who: "Guardian", text: "“I tried my best! You have no idea how hard it is to raise a child like him!”" },
-      { who: "You", inner: true, text: "Sympathy is a door. The question is who walks through it." },
       { who: "You", text: "“The medical report shows these injuries happened weeks apart. How did he 'fall' every Tuesday for a month?”" },
       { who: "Guardian", text: "(quietly) “He was so naughty… I was just disciplining him.”" },
       { who: "You", inner: true, text: "There it is. The line between discipline and abuse just spoke." },
