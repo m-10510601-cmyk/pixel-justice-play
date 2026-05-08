@@ -13,12 +13,14 @@ type Props = {
 };
 
 const StarReward = ({ slug, story, answers, ending }: Props) => {
-  const { addCoins } = useSettings();
+  const { addCoins, addXp } = useSettings();
   const breakdown = computeStars(story, answers, ending);
   const [result, setResult] = useState<ClaimResult | null>(null);
+  const xpGain = breakdown.total * 10;
 
   useEffect(() => {
     setResult(claimChapterReward(slug, breakdown.total, addCoins));
+    addXp(xpGain);
     // claim once per mount of completion screen
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, breakdown.total]);
@@ -40,6 +42,9 @@ const StarReward = ({ slug, story, answers, ending }: Props) => {
         )}
         <div className="pixel text-xs text-primary mt-2">
           <T>Total this run</T>: ⭐ {breakdown.total}
+        </div>
+        <div className="pixel text-[10px] text-accent">
+          +{xpGain} XP
         </div>
       </div>
       {result && (
