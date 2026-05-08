@@ -79,6 +79,28 @@ const Quest = () => {
             <div className="text-[10px] opacity-80">★ <T>{c.chapter}</T></div>
             <div className="text-base mt-1"><T>{c.title}</T></div>
             <div className="text-[10px] opacity-80 mt-1"><T>{c.tag}</T></div>
+            {(() => {
+              const have = getChapterBest(c.slug);
+              const max = computeMaxStars(c.story);
+              const starPct = max > 0 ? Math.round((have / max) * 100) : 0;
+              const full = have >= max && max > 0;
+              return (
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 border border-primary/60 bg-background/60">
+                    <div
+                      className="h-full"
+                      style={{
+                        width: `${starPct}%`,
+                        background: full ? "hsl(48 100% 60%)" : "hsl(var(--accent))",
+                      }}
+                    />
+                  </div>
+                  <div className={`text-[10px] pixel whitespace-nowrap ${full ? "text-accent" : "opacity-90"}`}>
+                    {full && "✨ "}{have}★ / {max}★
+                  </div>
+                </div>
+              );
+            })()}
             {p && (
               <div className="mt-2">
                 <div className="h-1.5 border border-primary/60 bg-background/60">
