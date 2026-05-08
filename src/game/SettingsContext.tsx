@@ -13,6 +13,7 @@ import {
   type XpSource,
   type XpSources,
 } from "@/lib/levels";
+import { loadAvatar, saveAvatar, type AvatarId } from "@/lib/avatars";
 
 export type Theme = "light" | "dark" | "default";
 export type Lang = "en" | "zh" | "ms";
@@ -64,6 +65,11 @@ const DICT: Record<Lang, Dict> = {
     "chapter.society.blurb": "Confront grey areas — fraud, negligence, public disputes — where impact is broader.",
     "chapter.case": "CASE",
     "settings.title": "SETTINGS",
+    "avatar.title": "CHOOSE AVATAR",
+    "avatar.equipped": "EQUIPPED",
+    "avatar.locked": "Reach Lv {n} to unlock",
+    "avatar.current": "Current Lv",
+    "avatar.close": "CLOSE",
     "settings.brightness": "BRIGHTNESS",
     "settings.sound": "SOUND",
     "settings.bgm": "MUSIC",
@@ -206,6 +212,11 @@ const DICT: Record<Lang, Dict> = {
     "chapter.society.blurb": "面对欺诈、过失与公共纠纷等灰色地带，影响更为广泛。",
     "chapter.case": "案件",
     "settings.title": "设置",
+    "avatar.title": "选择头像",
+    "avatar.equipped": "已装备",
+    "avatar.locked": "升至 Lv {n} 解锁",
+    "avatar.current": "当前等级",
+    "avatar.close": "关闭",
     "settings.brightness": "亮度",
     "settings.sound": "音量",
     "settings.bgm": "背景音乐",
@@ -346,6 +357,11 @@ const DICT: Record<Lang, Dict> = {
     "chapter.society.blurb": "Hadapi kawasan kelabu — penipuan, kecuaian, pertikaian awam — dengan impak lebih luas.",
     "chapter.case": "KES",
     "settings.title": "TETAPAN",
+    "avatar.title": "PILIH AVATAR",
+    "avatar.equipped": "DIPAKAI",
+    "avatar.locked": "Capai Lv {n} untuk buka",
+    "avatar.current": "Tahap Semasa",
+    "avatar.close": "TUTUP",
     "settings.brightness": "KECERAHAN",
     "settings.sound": "BUNYI",
     "settings.bgm": "MUZIK",
@@ -480,6 +496,8 @@ interface Ctx {
   addXp: (n: number, source?: XpSource) => void;
   resolveQuiz: (passed: boolean) => void;
   xpSources: XpSources;
+  avatarId: AvatarId;
+  setAvatar: (id: AvatarId) => void;
 }
 
 const SettingsCtx = createContext<Ctx | null>(null);
@@ -555,6 +573,13 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [xpSources, setXpSources] = useState<XpSources>(() =>
     typeof window !== "undefined" ? loadXpSources() : { ...DEFAULT_XP_SOURCES },
   );
+  const [avatarId, setAvatarIdState] = useState<AvatarId>(() =>
+    typeof window !== "undefined" ? loadAvatar() : "rookie",
+  );
+  const setAvatar = useCallback((id: AvatarId) => {
+    setAvatarIdState(id);
+    saveAvatar(id);
+  }, []);
 
   // Persist
   useEffect(() => {
@@ -729,6 +754,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       addXp,
       resolveQuiz,
       xpSources,
+      avatarId,
+      setAvatar,
     }),
     [
       theme,
@@ -754,6 +781,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       addXp,
       resolveQuiz,
       xpSources,
+      avatarId,
+      setAvatar,
     ],
   );
 

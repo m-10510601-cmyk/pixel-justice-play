@@ -9,6 +9,7 @@ import { DailyRewardsModal, ShareModal, SaveLoadModal, FeedbackModal } from "@/c
 import LevelBadge from "@/components/LevelBadge";
 import LevelUpQuizModal from "@/components/LevelUpQuizModal";
 import LevelDetailsModal from "@/components/LevelDetailsModal";
+import AvatarPickerModal from "@/components/AvatarPickerModal";
 
 const Index = () => {
   const { t, coins, agreedTerms, dailyAvailableDay } = useSettings();
@@ -17,6 +18,7 @@ const Index = () => {
   const [openSave, setOpenSave] = useState(false);
   const [openFeedback, setOpenFeedback] = useState(false);
   const [openLevel, setOpenLevel] = useState(false);
+  const [openAvatar, setOpenAvatar] = useState(false);
   const [lastPlayed, setLast] = useState<LastPlayed | null>(null);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ const Index = () => {
         <div className="flex items-start justify-between gap-3 mb-5">
           {/* Top-left: avatar + coins + level */}
           <div className="hud-bar-purple rounded-sm px-3 py-1.5 flex items-center gap-2 shrink-0">
-            <AvatarBadge />
+            <AvatarBadge onClick={() => setOpenAvatar(true)} />
             <div className="pixel text-[10px] text-white pixel-text flex items-center gap-1">
               <span className="coin-spin text-base leading-none">🪙</span>
             </div>
@@ -161,6 +163,7 @@ const Index = () => {
       <FeedbackModal open={openFeedback} onClose={() => setOpenFeedback(false)} />
       <LevelUpQuizModal />
       <LevelDetailsModal open={openLevel} onClose={() => setOpenLevel(false)} />
+      <AvatarPickerModal open={openAvatar} onClose={() => setOpenAvatar(false)} />
     </GameFrame>
   );
 };
