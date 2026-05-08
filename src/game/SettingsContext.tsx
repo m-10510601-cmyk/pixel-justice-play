@@ -13,6 +13,7 @@ import {
   type XpSource,
   type XpSources,
 } from "@/lib/levels";
+import { loadAvatar, saveAvatar, type AvatarId } from "@/lib/avatars";
 
 export type Theme = "light" | "dark" | "default";
 export type Lang = "en" | "zh" | "ms";
