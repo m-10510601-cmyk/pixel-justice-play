@@ -8,6 +8,7 @@ import { getLastPlayed, type LastPlayed } from "@/lib/progress";
 import { DailyRewardsModal, ShareModal, SaveLoadModal, FeedbackModal } from "@/components/HomeOverlays";
 import LevelBadge from "@/components/LevelBadge";
 import LevelUpQuizModal from "@/components/LevelUpQuizModal";
+import LevelDetailsModal from "@/components/LevelDetailsModal";
 
 const Index = () => {
   const { t, coins, agreedTerms, dailyAvailableDay } = useSettings();
@@ -15,6 +16,7 @@ const Index = () => {
   const [openShare, setOpenShare] = useState(false);
   const [openSave, setOpenSave] = useState(false);
   const [openFeedback, setOpenFeedback] = useState(false);
+  const [openLevel, setOpenLevel] = useState(false);
   const [lastPlayed, setLast] = useState<LastPlayed | null>(null);
 
   useEffect(() => {
@@ -44,7 +46,7 @@ const Index = () => {
             <div className="pixel text-[10px] text-white pixel-text flex items-center gap-1">
               <span className="coin-spin text-base leading-none">🪙</span>
             </div>
-            <LevelBadge />
+            <LevelBadge onClick={() => setOpenLevel(true)} />
           </div>
 
           {/* Top-right: three square icons */}
@@ -158,6 +160,7 @@ const Index = () => {
       <SaveLoadModal open={openSave} onClose={() => setOpenSave(false)} />
       <FeedbackModal open={openFeedback} onClose={() => setOpenFeedback(false)} />
       <LevelUpQuizModal />
+      <LevelDetailsModal open={openLevel} onClose={() => setOpenLevel(false)} />
     </GameFrame>
   );
 };

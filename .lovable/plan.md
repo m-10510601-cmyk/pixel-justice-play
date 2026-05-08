@@ -1,41 +1,44 @@
-## 优化星星动画与 XP 结算面板
+## 等级详情面板
 
-### 1. 星星粒子数 = 实际获得星数
+让首页 HUD 上的 `LevelBadge` 变成可点击按钮，点击后弹出 `LevelDetailsModal` 展示完整等级信息。
 
-`StarBurst` 当前用 `count*4`（最多 24 颗）。改为粒子数严格等于本次获得星数 `breakdown.total`：
+### 弹窗内容
 
-- 1 颗时仍只飞 1 颗星，配合中央大星已足够明显。
-- 大星依旧弹出（视为「主奖杯」，不计入散射数）。
-- 粒子分布角度按等分圆周（`(i/n)*2π + 小随机抖动`），无论是 1 颗还是 7 颗都好看。
-- 粒子尺寸略放大（28–44px），数量少时单颗更突出。
+1. **当前状态卡**
+   - LV 数字 + 等级徽章名称（突出显示）
+   - XP 进度条（与 HUD 同色），数值 `xp / xpToNext`
+   - 距离下一级还差 `xpToNext - xp` XP
+   - 若 `pendingQuiz=true`：醒目按钮「⚖ 立即挑战升级测验」（关闭详情，触发 quiz 模态——quiz 模态本身就是 pendingQuiz 驱动的，因此只需关闭详情即可看到）
 
-### 2. 结算面板加 XP 动画与等级条
+2. **升级路线图（5 个等级阶梯）**
+   依次列出 1–5 级，每行显示：
+   - 等级图标（🎓 / 🔍 / ⚖ / 🏛 / 👑）+ LV n + 名称
+   - 升至下一级所需 XP（最后一级显示 MAX）
+   - 状态徽章：✓ 已达成 / ◉ 当前 / 🔒 未解锁
+   - 当前等级行高亮
 
-在 `StarReward` 内的「+XP」一行下方新增一个 XP 结算块：
-
-- 显示当前等级名 + LV 数字。
-- 一条 XP 进度条，从「结算前 XP」开始动画填充到「结算后 XP」（≈ 1.2s 缓动）。
-- 若本次直接打满本等级（触发 pendingQuiz），进度条满格闪烁，并显示提示文案 `quiz.ready`「★ 升级测验已就绪 — 回主页应战！」。
-- XP 数字也用 tween 从旧值滚动到新值。
-
-实现要点：
-- 在 `StarReward` 调用 `addXp` 之前，先快照 `level`、`xp`、`xpToNext`，作为动画起点。
-- 新增局部 hook 用 `requestAnimationFrame` 做线性插值；或简化为 CSS transition + state 触发宽度变化。
-- 升级跨级情况（XP 溢出）罕见，简化为：进度条动画到 100%，再短暂停顿后归零并继续到溢出值；超出本计划范围则只动画到 100%。
-
-新增翻译键（en/zh/ms）：
-- `reward.xpGained`：「Experience gained / 获得经验 / EXP Diperoleh」
-- `reward.levelProgress`：「Level Progress / 等级进度 / Kemajuan Tahap」
-- `quiz.ready`：「★ Level-up quiz unlocked — return home!」/「★ 升级测验已就绪 — 回主页应战！」/「★ Kuiz naik tahap dibuka — pulang!」
+3. **如何获得 XP**
+   一段简短说明：「完成任意章节按本次获得 ⭐ × 10 计入经验值，可重复刷取」 + 「升级前需通过 5 题法律 mini quiz（答对 ≥3）」+ 「失败保留等级、当前 XP 清零」。
 
 ### 文件变更
 
-- `src/components/story/StarBurst.tsx`：粒子数公式 `Math.max(1, count)`，去掉 ×4 与 24 上限；调整尺寸/分布。
-- `src/components/story/StarReward.tsx`：插入 XP 进度条 UI + 动画逻辑，从快照值过渡到当前值。
-- `src/game/SettingsContext.tsx`：补 3 条翻译键。
+- 新增 `src/components/LevelDetailsModal.tsx`：使用现有 `Modal` 组件；props `{ open, onClose }`；内部 `useSettings()` 取 `level / levelName / xp / xpToNext / pendingQuiz`，搭配 `LEVEL_NAMES` 与 `XP_THRESHOLDS`（从 `@/lib/levels` 导入）渲染阶梯。
+- 修改 `src/components/LevelBadge.tsx`：包一层 `<button>`，点击调用本地 `onOpen`。把 `LevelBadge` 的 props 扩展为可选 `onClick`，让父组件控制弹窗 state。
+- 修改 `src/pages/Index.tsx`：新增 `openLevel` state；`<LevelBadge onClick={() => setOpenLevel(true)} />`；挂载 `<LevelDetailsModal open={openLevel} onClose={...} />`。
+- `SettingsContext.tsx` 翻译键补充（en / zh / ms）：
+  - `level.details.title`「LEVEL DETAILS / 等级详情 / BUTIRAN TAHAP」
+  - `level.next`「Next Level / 下一级 / Tahap Seterusnya」
+  - `level.toNext`「XP to next level / 距下一级 / EXP ke tahap seterusnya」
+  - `level.path`「Promotion Path / 晋升路线 / Laluan Naik Pangkat」
+  - `level.howToEarn`「How to earn XP / 如何获得经验 / Cara dapat EXP」
+  - `level.howBody`「Complete chapters: each ⭐ earned = 10 XP. Replays count too. Pass the 5-question quiz at each tier to level up.」(对应 zh / ms)
+  - `level.challengeNow`「Challenge Quiz Now / 立即挑战测验 / Cabar Kuiz Sekarang」
+  - `level.statusCurrent`「Current / 当前 / Semasa」
+  - `level.statusDone`「Achieved / 已达成 / Dicapai」
+  - `level.statusLocked`「Locked / 未解锁 / Terkunci」
+  - `level.maxed`「MAX LEVEL」
 
 ### 不在范围
 
-- 不改星星 / XP 数值规则
-- 不改首页等级显示
-- 不重写 quiz 模态
+- 不改 XP 公式 / quiz 内容
+- 不改 Quiz 模态本身（pendingQuiz 已自动触发）
