@@ -556,6 +556,13 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [xpSources, setXpSources] = useState<XpSources>(() =>
     typeof window !== "undefined" ? loadXpSources() : { ...DEFAULT_XP_SOURCES },
   );
+  const [avatarId, setAvatarIdState] = useState<AvatarId>(() =>
+    typeof window !== "undefined" ? loadAvatar() : "rookie",
+  );
+  const setAvatar = useCallback((id: AvatarId) => {
+    setAvatarIdState(id);
+    saveAvatar(id);
+  }, []);
 
   // Persist
   useEffect(() => {
