@@ -581,7 +581,7 @@ const SilentDormitory = () => {
               options={step.options}
               reveal={step.reveal}
               selected={answers[step.key]}
-              revealed={revealedAt === i}
+              revealed={!!answers[step.key]}
               resetKey={`${i}-${step.key}`}
               onSelect={(id) => choose(step.key, id)}
             />
