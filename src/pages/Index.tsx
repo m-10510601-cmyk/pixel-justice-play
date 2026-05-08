@@ -163,6 +163,7 @@ const Index = () => {
       <FeedbackModal open={openFeedback} onClose={() => setOpenFeedback(false)} />
       <LevelUpQuizModal />
       <LevelDetailsModal open={openLevel} onClose={() => setOpenLevel(false)} />
+      <AvatarPickerModal open={openAvatar} onClose={() => setOpenAvatar(false)} />
     </GameFrame>
   );
 };
