@@ -542,7 +542,7 @@ const DarkNight = () => {
 
         {step?.kind === "choice" && (
           <>
-            <ChoicePanel title={step.title} prompt={step.prompt} options={step.options} reveal={step.reveal} selected={answers[step.key]} revealed={revealedAt === i} resetKey={`${i}-${step.key}`} onSelect={(id) => choose(step.key, id)} />
+            <ChoicePanel title={step.title} prompt={step.prompt} options={step.options} reveal={step.reveal} selected={answers[step.key]} revealed={!!answers[step.key]} resetKey={`${i}-${step.key}`} onSelect={(id) => choose(step.key, id)} />
             {lateRecap && (
               <RecapPanel evTitle={lateRecap.ev.title} items={lateRecap.ev.items} highlights={activeHighlights} source={highlightSource} />
             )}
