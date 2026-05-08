@@ -7,6 +7,7 @@ import { TutorialModal } from "@/components/HomeOverlays";
 import { loadProgress } from "@/lib/progress";
 import T from "@/components/T";
 import { CHAPTERS, isChapterUnlocked, computeMaxStars } from "@/lib/chapters";
+import { getChapterBest } from "@/lib/rewards";
 
 const Quest = () => {
   const { t, tutorialSeen, markTutorialSeen } = useSettings();
@@ -32,6 +33,9 @@ const Quest = () => {
           const prev = i > 0 ? CHAPTERS[i - 1] : null;
           const needStars = prev ? Math.floor(computeMaxStars(prev.story) / 2) + 1 : 0;
           if (!unlocked) {
+            const haveStars = prev ? getChapterBest(prev.slug) : 0;
+            const prevMax = prev ? computeMaxStars(prev.story) : 0;
+            const progressPct = needStars > 0 ? Math.min(100, Math.round((haveStars / needStars) * 100)) : 0;
             return (
               <div
                 key={c.to}
@@ -42,7 +46,18 @@ const Quest = () => {
                 <div className="text-[10px] opacity-80">🔒 <T>{c.chapter}</T></div>
                 <div className="text-base mt-1"><T>{c.title}</T></div>
                 <div className="text-[10px] opacity-80 mt-1">
-                  <T>{`Earn at least ${needStars}★ in ${prev?.chapter} to unlock`}</T>
+                  <T>{`Unlock: earn ${needStars}★ in ${prev?.chapter}`}</T>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 border border-primary/60 bg-background/60">
+                    <div className="h-full bg-accent" style={{ width: `${progressPct}%` }} />
+                  </div>
+                  <div className="text-[10px] pixel text-accent whitespace-nowrap">
+                    {haveStars}★ / {needStars}★
+                  </div>
+                </div>
+                <div className="text-[9px] opacity-70 mt-1">
+                  <T>{`(max ${prevMax}★ in ${prev?.chapter})`}</T>
                 </div>
               </div>
             );
