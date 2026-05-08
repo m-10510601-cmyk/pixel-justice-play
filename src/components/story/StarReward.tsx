@@ -14,19 +14,15 @@ type Props = {
 };
 
 const StarReward = ({ slug, story, answers, ending }: Props) => {
-  const { addCoins, addXp, playCue, t, level, levelName, xpToNext, pendingQuiz } = useSettings();
+  const { addCoins, addXp, playCue, t, level, levelName, xp, xpToNext, pendingQuiz } = useSettings();
   const breakdown = computeStars(story, answers, ending);
   const [result, setResult] = useState<ClaimResult | null>(null);
   const xpGain = breakdown.total * 10;
   const [burst, setBurst] = useState(true);
 
   // Snapshot pre-claim XP so we can animate from old → new on this completion screen.
-  const startXpRef = useRef<number | null>(null);
-  if (startXpRef.current === null) {
-    // capture once, before the post-mount addXp runs
-    startXpRef.current = useSettings().xp;
-  }
-  const startXp = startXpRef.current ?? 0;
+  const startXpRef = useRef<number>(xp);
+  const startXp = startXpRef.current;
   const need = xpToNext || 1;
   const targetXp = Math.min(need, startXp + xpGain);
   const [displayXp, setDisplayXp] = useState(startXp);
