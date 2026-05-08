@@ -75,3 +75,13 @@ export const claimChapterReward = (
 };
 
 export const getChapterBest = (slug: string): number => readStore()[slug] ?? 0;
+
+export const computeMaxStars = (story: AnyStep[]): number => {
+  const totalChoices = story.filter((s) => s.kind === "choice" && s.options && s.key).length;
+  // 3 (green base) + totalChoices (best picks) + 2 (perfect bonus)
+  return 5 + totalChoices;
+};
+
+export const isChapterUnlockEarned = (slug: string, story: AnyStep[]): boolean => {
+  return getChapterBest(slug) > computeMaxStars(story) / 2;
+};
