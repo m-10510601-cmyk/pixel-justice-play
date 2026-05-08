@@ -6,18 +6,7 @@ import { useSettings } from "@/game/SettingsContext";
 import { TutorialModal } from "@/components/HomeOverlays";
 import { loadProgress } from "@/lib/progress";
 import T from "@/components/T";
-
-const CASES: { to: string; chapter: string; title: string; tag: string }[] = [
-  { to: "/story/silent-fall", chapter: "Chapter 1", title: "Silent Fall", tag: "Real-case inspired · multi-ending" },
-  { to: "/story/green-trade", chapter: "Chapter 2", title: "The Green Trade", tag: "Campus drug trafficking · syndicate hook" },
-  { to: "/story/silent-dormitory", chapter: "Chapter 3", title: "The Silent Dormitory", tag: "Mob mentality · §302 vs §304" },
-  { to: "/story/the-runner", chapter: "Chapter 4", title: "The Runner", tag: "Cross-border impersonation scam" },
-  { to: "/story/silent-room", chapter: "Chapter 5", title: "The Silent Room", tag: "Child protection · systemic failure" },
-  { to: "/story/mask-of-authority", chapter: "Chapter 6", title: "The Mask of Authority", tag: "Impersonation scam · syndicate hook" },
-  { to: "/story/ritual-of-power", chapter: "Chapter 7", title: "The Ritual of Power", tag: "Cult manipulation · consent vs legality" },
-  { to: "/story/high-pay-trap", chapter: "Chapter 8", title: "The High-Pay Trap", tag: "Trafficking by deception · ATIPSOM 2007" },
-  { to: "/story/dark-night", chapter: "Chapter 9", title: "Responsibility of the Dark Night", tag: "Negligence vs. unforeseeability · public bias" },
-];
+import { CHAPTERS, isChapterUnlocked, computeMaxStars } from "@/lib/chapters";
 
 const Quest = () => {
   const { t, tutorialSeen, markTutorialSeen } = useSettings();
@@ -35,10 +24,29 @@ const Quest = () => {
       </header>
 
       <main className="flex-1 flex flex-col gap-3 px-6 py-4 overflow-y-auto">
-        {CASES.map((c, i) => (
+        {CHAPTERS.map((c, i) => (
           (() => {
           const p = progressFor(c.to);
           const pct = p ? Math.round((p.i / Math.max(1, p.total)) * 100) : 0;
+          const unlocked = isChapterUnlocked(i);
+          const prev = i > 0 ? CHAPTERS[i - 1] : null;
+          const needStars = prev ? Math.floor(computeMaxStars(prev.story) / 2) + 1 : 0;
+          if (!unlocked) {
+            return (
+              <div
+                key={c.to}
+                className="pixel-btn text-left text-sm border-accent relative opacity-50 cursor-not-allowed"
+                style={{ display: "block" }}
+                aria-disabled="true"
+              >
+                <div className="text-[10px] opacity-80">🔒 <T>{c.chapter}</T></div>
+                <div className="text-base mt-1"><T>{c.title}</T></div>
+                <div className="text-[10px] opacity-80 mt-1">
+                  <T>{`Earn at least ${needStars}★ in ${prev?.chapter} to unlock`}</T>
+                </div>
+              </div>
+            );
+          }
           return (
           <Link
             key={c.to}

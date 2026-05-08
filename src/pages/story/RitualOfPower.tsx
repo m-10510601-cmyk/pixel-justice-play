@@ -30,7 +30,7 @@ type Step =
   | { kind: "choice"; key: ChoiceKey; title: string; prompt: string; options: Choice[]; reveal?: string }
   | { kind: "insight"; title: string; text: string };
 
-const STORY: Step[] = [
+export const STORY: Step[] = [
   {
     kind: "scene",
     title: "📖 Case Brief", sceneKey: "disappearance",
