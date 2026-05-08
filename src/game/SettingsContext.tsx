@@ -137,6 +137,9 @@ const DICT: Record<Lang, Dict> = {
     "quiz.promotedTo": "Promoted to",
     "quiz.xpReset": "Try clearing chapters again to retry.",
     "quiz.done": "CONTINUE",
+    "reward.xpGained": "Experience gained",
+    "reward.levelProgress": "Level Progress",
+    "quiz.ready": "★ Level-up quiz unlocked — return home!",
   },
   zh: {
     "evidence.title": "证据分析",
@@ -257,6 +260,9 @@ const DICT: Record<Lang, Dict> = {
     "quiz.promotedTo": "已晋升至",
     "quiz.xpReset": "再去刷章节重新挑战吧。",
     "quiz.done": "继续",
+    "reward.xpGained": "获得经验",
+    "reward.levelProgress": "等级进度",
+    "quiz.ready": "★ 升级测验已就绪 — 回主页应战！",
   },
   ms: {
     "evidence.title": "ANALISIS BUKTI",
@@ -381,6 +387,9 @@ const DICT: Record<Lang, Dict> = {
     "quiz.promotedTo": "Dinaikkan ke",
     "quiz.xpReset": "Cuba selesaikan bab semula untuk mencuba lagi.",
     "quiz.done": "TERUSKAN",
+    "reward.xpGained": "EXP Diperoleh",
+    "reward.levelProgress": "Kemajuan Tahap",
+    "quiz.ready": "★ Kuiz naik tahap dibuka — pulang!",
   },
 };
 
