@@ -536,7 +536,7 @@ const DarkNight = () => {
         {step?.kind === "insight" && (
           <div className="bg-primary/15 border-2 border-primary p-3">
             <div className="pixel text-[10px] text-primary"><T>{step.title}</T></div>
-            <p className="text-base mt-2"><T>{step.text}</T></p>
+            <p className="text-sm mt-2 whitespace-pre-line leading-relaxed"><T>{step.text}</T></p>
           </div>
         )}
 
