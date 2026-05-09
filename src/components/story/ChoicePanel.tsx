@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import T from "@/components/T";
+import BackpackButton from "@/components/BackpackButton";
 
 export type ChoiceOption = {
   id: string;
@@ -33,6 +35,10 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
   const [pending, setPending] = useState<string | null>(null);
   const [thinkSec, setThinkSec] = useState(0);
   const [showHints, setShowHints] = useState(true);
+  const location = useLocation();
+  const caseSlug = location.pathname.startsWith("/story/")
+    ? location.pathname.replace("/story/", "").split("/")[0]
+    : undefined;
 
   // Reset deliberation state when question changes
   useEffect(() => {
@@ -79,13 +85,16 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
           </span>
           <span className="pixel text-[10px] text-primary"><T>{title}</T></span>
         </div>
-        <span
-          className="pixel text-[8px] text-accent border-2 border-accent px-2 py-0.5"
-          aria-label="Deliberation timer"
-          title="Time spent deliberating"
-        >
-          ⏱ {minutes}:{seconds}
-        </span>
+        <div className="flex items-center gap-2">
+          <span
+            className="pixel text-[8px] text-accent border-2 border-accent px-2 py-0.5"
+            aria-label="Deliberation timer"
+            title="Time spent deliberating"
+          >
+            ⏱ {minutes}:{seconds}
+          </span>
+          <BackpackButton caseSlug={caseSlug} />
+        </div>
       </div>
 
       {/* Prompt */}
