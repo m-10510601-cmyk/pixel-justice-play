@@ -82,7 +82,7 @@ const Store = () => {
           </div>
 
           <button onClick={buyExt} className="pixel-btn text-[10px]" style={{ padding: "0.5rem 0.75rem" }}>
-            ⭐ {TIME_EXTENSION_PRICE}
+            ⭐ 150
           </button>
         </div>
 
