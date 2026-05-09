@@ -16,11 +16,10 @@ import {
 import { loadAvatar, saveAvatar, type AvatarId } from "@/lib/avatars";
 
 export type Theme = "light" | "dark" | "default";
-export type Lang = "en" | "zh" | "ms";
+export type Lang = "en";
 
 type Dict = Record<string, string>;
-const DICT: Record<Lang, Dict> = {
-  en: {
+const DICT: Dict = {
     "evidence.title": "EVIDENCE ANALYSIS",
     "evidence.help": "Tap to mark evidence as RELIABLE. Long-press for details.",
     "evidence.selected": "✓ SELECTED",
