@@ -16,7 +16,7 @@ import {
 import { loadAvatar, saveAvatar, type AvatarId } from "@/lib/avatars";
 
 export type Theme = "light" | "dark" | "default";
-export type Lang = "en";
+export type Lang = "en" | "zh" | "ms";
 
 type Dict = Record<string, string>;
 const DICT: Dict = {
