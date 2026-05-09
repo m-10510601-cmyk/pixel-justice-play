@@ -18,7 +18,22 @@ const StarReward = ({ slug, story, answers, ending }: Props) => {
   const baseBreakdown = computeStars(story, answers, ending);
   const armedRef = useRef(getArmedItem(slug));
   const gavelBonus = armedRef.current === "gavel" ? 1 : 0;
-  const breakdown = { ...baseBreakdown, total: baseBreakdown.total + gavelBonus };
+  // BADGE: forgive one wrong answer (cap at totalChoices); restore perfect bonus if it now applies.
+  const badgeActive = armedRef.current === "badge";
+  const forgivenBest = badgeActive
+    ? Math.min(baseBreakdown.totalChoices, baseBreakdown.bestCount + 1)
+    : baseBreakdown.bestCount;
+  const newPerfectBonus =
+    baseBreakdown.totalChoices > 0 && forgivenBest === baseBreakdown.totalChoices ? 2 : 0;
+  const badgeBonus = badgeActive
+    ? (forgivenBest - baseBreakdown.bestCount) + (newPerfectBonus - baseBreakdown.perfectBonus)
+    : 0;
+  const breakdown = {
+    ...baseBreakdown,
+    bestCount: forgivenBest,
+    perfectBonus: newPerfectBonus,
+    total: baseBreakdown.base + forgivenBest + newPerfectBonus + gavelBonus,
+  };
   const [result, setResult] = useState<ClaimResult | null>(null);
   const baseXp = breakdown.total * 10;
   const multRef = useRef(getXpMultiplierForCase(slug));
@@ -74,6 +89,11 @@ const StarReward = ({ slug, story, answers, ending }: Props) => {
         {breakdown.perfectBonus > 0 && (
           <div>
             🏆 <T>Perfect run bonus</T>: <span className="pixel text-primary">⭐ {breakdown.perfectBonus}</span>
+          </div>
+        )}
+        {badgeBonus > 0 && (
+          <div>
+            🛡 <T>Badge forgive</T>: <span className="pixel text-primary">⭐ +{badgeBonus}</span>
           </div>
         )}
         {gavelBonus > 0 && (

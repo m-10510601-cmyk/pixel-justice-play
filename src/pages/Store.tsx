@@ -15,7 +15,7 @@ type Item = {
 const items: Item[] = [
   { id: "gavel", name: "STAR +1", price: 20, icon: "⭐", desc: "Adds +1 ⭐ to this chapter's reward" },
   { id: "book", name: "LAW BOOK", price: 50, icon: "📕", desc: "Hides one wrong option in every decision this chapter" },
-  { id: "badge", name: "BADGE", price: 60, icon: "🛡", desc: "(coming soon)" },
+  { id: "badge", name: "BADGE", price: 60, icon: "🛡", desc: "Forgives one wrong answer this chapter — its ⭐ is kept" },
   { id: "scroll", name: "TIME FREEZE", price: 40, icon: "❄", desc: "Freezes the decision timer this chapter — no time penalty" },
   { id: "scales", name: "XP BOOST +50%", price: 100, icon: "⚖", desc: "This chapter XP ×1.5 (rounded)" },
   { id: "robe", name: "XP BOOST +100%", price: 180, icon: "👘", desc: "This chapter XP ×2 (rounded)" },
