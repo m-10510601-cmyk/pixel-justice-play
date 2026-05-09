@@ -430,7 +430,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       if (m.dailyDate === today) return m;
       const newClaims = [...m.dailyClaims];
       newClaims[idx] = true;
-      const reward = day === 7 ? 0 : 50 * day; // day 7 = special tool
+      const reward = day === 7 ? 0 : Math.round(25 * day); // -50% from previous; day 7 = special tool
       const extras = day === 7 ? 1 : 0;
       ok = true;
       // If all 7 claimed, cycle resets next day
