@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import GameFrame from "@/components/GameFrame";
 import justiceBg from "@/assets/justice-bg.jpg";
 import { useSettings } from "@/game/SettingsContext";
@@ -9,84 +8,23 @@ import { loadProgress } from "@/lib/progress";
 import T from "@/components/T";
 import { CHAPTERS, isChapterUnlocked, computeMaxStars } from "@/lib/chapters";
 import { getChapterBest } from "@/lib/rewards";
-
-const TOOL_META: Record<string, { icon: string; name: string; special?: boolean }> = {
-  gavel: { icon: "⭐", name: "STAR +1" },
-  book: { icon: "📕", name: "LAW BOOK" },
-  badge: { icon: "🛡", name: "BADGE" },
-  scroll: { icon: "📜", name: "SCROLL" },
-  scales: { icon: "⚖", name: "XP +50%" },
-  robe: { icon: "👘", name: "XP +100%" },
-};
+import BackpackButton from "@/components/BackpackButton";
 
 const Quest = () => {
-  const { t, tutorialSeen, markTutorialSeen, inventory, playCue, usedItemsByCase, armItemForCase, getArmedItem } = useSettings();
+  const { t, tutorialSeen, markTutorialSeen, getUsedItemsForCase } = useSettings();
   const [showTut, setShowTut] = useState(false);
-  const [pendingItem, setPendingItem] = useState<keyof typeof TOOL_META | null>(null);
   useEffect(() => { if (!tutorialSeen) setShowTut(true); }, [tutorialSeen]);
   const slugFromRoute = (r: string) => r.replace("/story/", "");
   const progressFor = (route: string) => loadProgress(slugFromRoute(route));
-  const ownedTools = (Object.keys(TOOL_META) as Array<keyof typeof TOOL_META>).filter(
-    (id) => (inventory[id as keyof typeof inventory] ?? 0) > 0,
-  );
-  const hasArmedAny = Object.keys(usedItemsByCase).length > 0;
-  const handleArm = (slug: string) => {
-    if (!pendingItem) return;
-    const meta = TOOL_META[pendingItem];
-    if (armItemForCase(slug, pendingItem as any)) {
-      playCue();
-      toast(`✓ USED ${meta.name}`);
-      setPendingItem(null);
-    } else {
-      toast("CANNOT USE — already armed this play");
-    }
-  };
   return (
     <GameFrame bgImage={justiceBg}>
       <header className="pt-6 px-6 flex items-center gap-3">
         <Link to="/" className="pixel-btn-square" aria-label="Back">←</Link>
-        <h1 className="pixel text-glow text-lg sm:text-xl text-primary flex-1 text-center pr-12">
+        <h1 className="pixel text-glow text-lg sm:text-xl text-primary flex-1 text-center">
           {t("quest.title")}
         </h1>
+        <BackpackButton />
       </header>
-
-      {ownedTools.length > 0 && (
-        <div className="px-6 pt-3">
-          <div className="text-[10px] pixel text-primary mb-1 flex items-center justify-between">
-            <span>🎒 BACKPACK</span>
-            {pendingItem && (
-              <span className="text-[9px] text-accent">SELECT A CHAPTER ↓</span>
-            )}
-            {!pendingItem && hasArmedAny && (
-              <span className="text-[9px] opacity-80">ITEM ARMED — only one per play</span>
-            )}
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {ownedTools.map((id) => {
-              const m = TOOL_META[id];
-              const count = inventory[id as keyof typeof inventory];
-              const selected = pendingItem === id;
-              return (
-                <button
-                  key={id}
-                  onClick={() => {
-                    if (hasArmedAny) {
-                      toast("Already armed an item this play");
-                      return;
-                    }
-                    setPendingItem(selected ? null : id);
-                  }}
-                  className={`pixel-btn relative text-[10px] px-2 py-1 flex items-center gap-1 ${selected ? "ring-2 ring-accent" : ""} ${hasArmedAny ? "opacity-60" : ""}`}
-                  title={m.name}
-                >
-                  <span className="text-base leading-none">{m.icon}</span>
-                  <span className="pixel">x{count}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       <main className="flex-1 flex flex-col gap-3 px-6 py-4 overflow-y-auto">
         {CHAPTERS.map((c, i) => (
@@ -130,13 +68,7 @@ const Quest = () => {
           <Link
             key={c.to}
             to={c.to}
-            onClick={(e) => {
-              if (pendingItem) {
-                e.preventDefault();
-                handleArm(c.slug);
-              }
-            }}
-            className={`pixel-btn text-left text-sm border-accent relative ${pendingItem ? "ring-2 ring-accent" : ""}`}
+            className="pixel-btn text-left text-sm border-accent relative"
             style={{ display: "block" }}
           >
             {!tutorialSeen && i === 0 && (
@@ -146,14 +78,9 @@ const Quest = () => {
                 aria-hidden="true"
               >!</span>
             )}
-            {getArmedItem(c.slug) && (
+            {getUsedItemsForCase(c.slug).length > 0 && (
               <span className="absolute top-1 right-1 pixel text-[8px] bg-accent text-accent-foreground px-1">
-                🎒 {TOOL_META[getArmedItem(c.slug) as string]?.icon} ARMED
-              </span>
-            )}
-            {pendingItem && !getArmedItem(c.slug) && (
-              <span className="absolute top-1 right-1 pixel text-[8px] bg-primary text-primary-foreground px-1">
-                USE HERE
+                🎒 USED
               </span>
             )}
             <div className="text-[10px] opacity-80">★ <T>{c.chapter}</T></div>

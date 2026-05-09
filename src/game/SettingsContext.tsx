@@ -205,10 +205,13 @@ interface Ctx {
   inventory: Record<ItemId, number>;
   addItem: (id: ItemId, n?: number) => void;
   useItem: (id: ItemId) => boolean;
-  // Session-only: one item armed per case, one item per play.
-  usedItemsByCase: Record<string, ItemId>;
+  // Session-only: items used per case (slug -> ItemId[]). Per-chapter rules:
+  // - one item per chapter total (others auto-locked once any is used)
+  // - same item only once per chapter
+  usedItemsByCase: Record<string, ItemId[]>;
   armItemForCase: (slug: string, id: ItemId) => boolean;
   getArmedItem: (slug: string) => ItemId | null;
+  getUsedItemsForCase: (slug: string) => ItemId[];
   // Level / XP system
   level: 1 | 2 | 3 | 4 | 5;
   levelName: string;
@@ -303,12 +306,12 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   );
   // Session-only: which item has been armed for which case (slug -> ItemId).
   // Not persisted by design: "one item per case, one item per play".
-  const [usedItemsByCase, setUsedItemsByCase] = useState<Record<string, ItemId>>({});
+  const [usedItemsByCase, setUsedItemsByCase] = useState<Record<string, ItemId[]>>({});
   const armItemForCase = useCallback(
     (slug: string, id: ItemId) => {
-      if (usedItemsByCase[slug]) return false; // already armed for this case
-      // one per play: any other case already armed -> deny
-      if (Object.keys(usedItemsByCase).length > 0) return false;
+      const usedHere = usedItemsByCase[slug] ?? [];
+      // one item per chapter total; same item only once per chapter
+      if (usedHere.length > 0) return false;
       let ok = false;
       setMeta((m) => {
         if (id === "timeExt") {
@@ -323,13 +326,17 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         inv[id] = cur - 1;
         return { ...m, inventory: inv };
       });
-      if (ok) setUsedItemsByCase((u) => ({ ...u, [slug]: id }));
+      if (ok) setUsedItemsByCase((u) => ({ ...u, [slug]: [...(u[slug] ?? []), id] }));
       return ok;
     },
     [usedItemsByCase],
   );
   const getArmedItem = useCallback(
-    (slug: string) => usedItemsByCase[slug] ?? null,
+    (slug: string) => usedItemsByCase[slug]?.[0] ?? null,
+    [usedItemsByCase],
+  );
+  const getUsedItemsForCase = useCallback(
+    (slug: string) => usedItemsByCase[slug] ?? [],
     [usedItemsByCase],
   );
   const setAvatar = useCallback((id: AvatarId) => {
@@ -557,6 +564,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       usedItemsByCase,
       armItemForCase,
       getArmedItem,
+      getUsedItemsForCase,
       level: levelState.level,
       levelName: LEVEL_NAMES[levelState.level],
       xp: levelState.xp,
@@ -594,6 +602,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       usedItemsByCase,
       armItemForCase,
       getArmedItem,
+      getUsedItemsForCase,
       levelState,
       addXp,
       resolveQuiz,
