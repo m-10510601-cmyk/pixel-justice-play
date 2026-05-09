@@ -14,8 +14,11 @@ type Props = {
 };
 
 const StarReward = ({ slug, story, answers, ending }: Props) => {
-  const { addCoins, addXp, playCue, t, level, levelName, xp, xpToNext, pendingQuiz, getXpMultiplierForCase } = useSettings();
-  const breakdown = computeStars(story, answers, ending);
+  const { addCoins, addXp, playCue, t, level, levelName, xp, xpToNext, pendingQuiz, getXpMultiplierForCase, getArmedItem } = useSettings();
+  const baseBreakdown = computeStars(story, answers, ending);
+  const armedRef = useRef(getArmedItem(slug));
+  const gavelBonus = armedRef.current === "gavel" ? 1 : 0;
+  const breakdown = { ...baseBreakdown, total: baseBreakdown.total + gavelBonus };
   const [result, setResult] = useState<ClaimResult | null>(null);
   const baseXp = breakdown.total * 10;
   const multRef = useRef(getXpMultiplierForCase(slug));
@@ -71,6 +74,11 @@ const StarReward = ({ slug, story, answers, ending }: Props) => {
         {breakdown.perfectBonus > 0 && (
           <div>
             🏆 <T>Perfect run bonus</T>: <span className="pixel text-primary">⭐ {breakdown.perfectBonus}</span>
+          </div>
+        )}
+        {gavelBonus > 0 && (
+          <div>
+            🎁 <T>Gavel bonus</T>: <span className="pixel text-primary">⭐ {gavelBonus}</span>
           </div>
         )}
         <div className="pixel text-xs text-primary mt-2">

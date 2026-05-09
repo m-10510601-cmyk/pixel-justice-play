@@ -41,7 +41,27 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
     ? location.pathname.replace("/story/", "").split("/")[0]
     : undefined;
   const { recordDecisionTime, getArmedItem } = useSettings();
-  const frozen = caseSlug ? getArmedItem(caseSlug) === "scroll" : false;
+  const armed = caseSlug ? getArmedItem(caseSlug) : null;
+  const frozen = armed === "scroll";
+  const bookActive = armed === "book";
+
+  // If LAW BOOK is armed, hide the first wrong option deterministically.
+  const visibleOptions = useMemo(() => {
+    if (!bookActive) return options;
+    const firstWrongIdx = options.findIndex((o) => !o.best && !o.ok);
+    if (firstWrongIdx < 0) return options;
+    return options.filter((_, i) => i !== firstWrongIdx);
+  }, [options, bookActive]);
+
+  const ARMED_META: Record<string, { icon: string; label: string }> = {
+    gavel: { icon: "⭐", label: "STAR +1" },
+    book: { icon: "📕", label: "LAW BOOK · −1 OPT" },
+    scroll: { icon: "❄", label: "TIME FREEZE" },
+    scales: { icon: "⚖", label: "XP +50%" },
+    robe: { icon: "👘", label: "XP +100%" },
+    badge: { icon: "🛡", label: "BADGE" },
+  };
+  const armedMeta = armed ? ARMED_META[armed] : null;
 
   // Reset deliberation state when question changes
   useEffect(() => {
@@ -100,6 +120,16 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
           <BackpackButton caseSlug={caseSlug} />
         </div>
       </div>
+      {armedMeta && (
+        <div className="flex items-center justify-end">
+          <span
+            className="pixel text-[8px] text-accent border-2 border-accent px-2 py-0.5"
+            title="Active item"
+          >
+            {armedMeta.icon} {armedMeta.label} ACTIVE
+          </span>
+        </div>
+      )}
 
       {/* Prompt */}
       <p className="text-sm leading-snug bg-background/70 border-l-4 border-primary pl-2 py-1">
@@ -121,7 +151,7 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
 
       {/* Options */}
       <div className="space-y-2">
-        {options.map((opt, idx) => {
+        {visibleOptions.map((opt, idx) => {
           const isPicked = selected === opt.id;
           const isPending = pending === opt.id && !selected;
           const tone = revealed
