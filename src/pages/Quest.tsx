@@ -52,25 +52,35 @@ const Quest = () => {
 
       {ownedTools.length > 0 && (
         <div className="px-6 pt-3">
-          <div className="text-[10px] pixel text-primary mb-1">TOOL BELT</div>
+          <div className="text-[10px] pixel text-primary mb-1 flex items-center justify-between">
+            <span>🎒 BACKPACK</span>
+            {pendingItem && (
+              <span className="text-[9px] text-accent">SELECT A CHAPTER ↓</span>
+            )}
+            {!pendingItem && hasArmedAny && (
+              <span className="text-[9px] opacity-80">ITEM ARMED — only one per play</span>
+            )}
+          </div>
           <div className="flex gap-2 flex-wrap">
             {ownedTools.map((id) => {
               const m = TOOL_META[id];
               const count = inventory[id as keyof typeof inventory];
+              const selected = pendingItem === id;
               return (
                 <button
                   key={id}
-                  onClick={() => handleUse(id)}
-                  className="pixel-btn relative text-[10px] px-2 py-1 flex items-center gap-1"
+                  onClick={() => {
+                    if (hasArmedAny) {
+                      toast("Already armed an item this play");
+                      return;
+                    }
+                    setPendingItem(selected ? null : id);
+                  }}
+                  className={`pixel-btn relative text-[10px] px-2 py-1 flex items-center gap-1 ${selected ? "ring-2 ring-accent" : ""} ${hasArmedAny ? "opacity-60" : ""}`}
                   title={m.name}
                 >
                   <span className="text-base leading-none">{m.icon}</span>
                   <span className="pixel">x{count}</span>
-                  {m.special && (
-                    <span className="absolute -top-2 -right-2 pixel text-[7px] bg-accent text-accent-foreground px-1">
-                      SPECIAL
-                    </span>
-                  )}
                 </button>
               );
             })}
@@ -120,7 +130,13 @@ const Quest = () => {
           <Link
             key={c.to}
             to={c.to}
-            className="pixel-btn text-left text-sm border-accent relative"
+            onClick={(e) => {
+              if (pendingItem) {
+                e.preventDefault();
+                handleArm(c.slug);
+              }
+            }}
+            className={`pixel-btn text-left text-sm border-accent relative ${pendingItem ? "ring-2 ring-accent" : ""}`}
             style={{ display: "block" }}
           >
             {!tutorialSeen && i === 0 && (
@@ -129,6 +145,16 @@ const Quest = () => {
                 style={{ color: "hsl(48 100% 65%)" }}
                 aria-hidden="true"
               >!</span>
+            )}
+            {getArmedItem(c.slug) && (
+              <span className="absolute top-1 right-1 pixel text-[8px] bg-accent text-accent-foreground px-1">
+                🎒 {TOOL_META[getArmedItem(c.slug) as string]?.icon} ARMED
+              </span>
+            )}
+            {pendingItem && !getArmedItem(c.slug) && (
+              <span className="absolute top-1 right-1 pixel text-[8px] bg-primary text-primary-foreground px-1">
+                USE HERE
+              </span>
             )}
             <div className="text-[10px] opacity-80">★ <T>{c.chapter}</T></div>
             <div className="text-base mt-1"><T>{c.title}</T></div>
