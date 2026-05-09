@@ -14,10 +14,13 @@ type Props = {
 };
 
 const StarReward = ({ slug, story, answers, ending }: Props) => {
-  const { addCoins, addXp, playCue, t, level, levelName, xp, xpToNext, pendingQuiz } = useSettings();
+  const { addCoins, addXp, playCue, t, level, levelName, xp, xpToNext, pendingQuiz, getXpMultiplierForCase } = useSettings();
   const breakdown = computeStars(story, answers, ending);
   const [result, setResult] = useState<ClaimResult | null>(null);
-  const xpGain = breakdown.total * 10;
+  const baseXp = breakdown.total * 10;
+  const multRef = useRef(getXpMultiplierForCase(slug));
+  const mult = multRef.current;
+  const xpGain = Math.round(baseXp * mult.total);
   const [burst, setBurst] = useState(true);
 
   // Snapshot pre-claim XP so we can animate from old → new on this completion screen.
@@ -81,6 +84,13 @@ const StarReward = ({ slug, story, answers, ending }: Props) => {
           <span className="text-accent">⚡ {t("reward.xpGained")}</span>
           <span className="text-primary">+{xpGain} XP</span>
         </div>
+        {(mult.time < 1 || mult.item > 1) && (
+          <div className="flex items-center justify-end gap-2 pixel text-[8px] text-muted-foreground">
+            <span>base {baseXp}</span>
+            {mult.time < 1 && <span className="text-destructive">⏱ ×{mult.time.toFixed(2)}</span>}
+            {mult.item > 1 && <span className="text-accent">⚖ ×{mult.item.toFixed(1)}</span>}
+          </div>
+        )}
         <div className="flex items-center justify-between text-[10px]">
           <span className="pixel text-primary">LV {level} · {levelName}</span>
           <span className="pixel text-muted-foreground">{displayXp} / {need}</span>

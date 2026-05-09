@@ -1,51 +1,62 @@
-## Plan — Always-visible Backpack + In-chapter usage
+## Goals
 
-### Goal
-- Backpack icon visible **always** (even with empty inventory) at top-right of Quest page AND inside chapter answering pages.
-- Opens a panel listing all owned items + counts.
-- Using an item consumes 1 immediately, locks all OTHER items for that chapter, and prevents re-using the same item again in that chapter.
+1. XP boost items (XP +50% / XP +100%) apply to the **current chapter** the player is inside, not "next chapter".
+2. Add a **decision-time XP penalty**: the longer a player takes to decide on a question, the less XP that chapter awards (max −20%). Penalty starts after **45s**, reaches max at **120s**, and is capped beyond that.
+3. Replace the **SCROLL** store item: instead of "hidden hints", it becomes **TIME FREEZE** — when used in a chapter, the deliberation timer is frozen so no time penalty applies that chapter.
 
-### 1) `src/game/SettingsContext.tsx` — adjust rules
-Current `usedItemsByCase: Record<slug, ItemId>` enforces "one item per play across all chapters". Change semantics to **per-chapter**:
-- Keep shape `Record<slug, ItemId[]>` (array of items used in this chapter, session-only).
-- `armItemForCase(slug, id)` rules:
-  - If `usedItemsByCase[slug]` already contains any item → only allow if id matches (same item reuse) — but block since "same item only once per chapter".
-  - So: if array exists and length ≥ 1 → reject (locks other items + same item again).
-  - Else: push id, decrement inventory by 1.
-- Add helper `getUsedItemsForCase(slug): ItemId[]`.
-- Remove the global "one per play" restriction (now per-chapter).
-- Reset `usedItemsByCase` on new play / when leaving (session-only stays).
+## Behaviour details
 
-### 2) New component `src/components/BackpackButton.tsx`
-- Floating/inline button: 🎒 icon + small badge showing total item count (or "0").
-- Always renders (even when empty).
-- On click → opens `BackpackModal`.
+### Decision-time penalty (per chapter)
+- ChoicePanel already runs a per-question deliberation timer (`thinkSec`). We will record the final deliberation seconds for each answered question into a per-chapter store on the Settings context.
+- At chapter end, compute the **average per-question deliberation time** and map to a multiplier:
+  - `t ≤ 45s` → `1.0` (no penalty)
+  - `45s < t < 120s` → linear from `1.0` down to `0.8`
+  - `t ≥ 120s` → `0.8` (capped)
+- Final XP = `round( baseXp × timeMultiplier × itemBoostMultiplier )`.
+- The Star/XP reward panel will display the time multiplier as a small note (e.g. `⏱ ×0.92`) when it is < 1.0.
 
-### 3) New component `src/components/BackpackModal.tsx`
-Props: `caseSlug?: string` (when inside a chapter), `onClose`.
-- Lists all known items (gavel/book/badge/scroll/scales/robe) with icon, name, owned count.
-- If `caseSlug` given:
-  - Determine `usedHere = getUsedItemsForCase(slug)`.
-  - If `usedHere.length > 0` → all items disabled, show "ITEM ALREADY USED THIS CHAPTER".
-  - Else → each owned item shows "USE" button. Clicking → `armItemForCase(slug, id)` → toast `✓ USED <name>` → close modal.
-- If no `caseSlug` (Quest page) → items show count only, no USE button + helper text "Open inside a chapter to use items".
-- Empty state: "Backpack is empty — visit the Store."
+### Item boost (current chapter)
+- When `scales` (XP +50%) or `robe` (XP +100%) is the armed item for the current chapter slug, multiply XP by 1.5 / 2.0 respectively, then `Math.round`.
+- Update item descriptions in Store and Backpack from "Next chapter" to "This chapter".
 
-### 4) `src/pages/Quest.tsx`
-- Replace current backpack strip with a top-right `<BackpackButton />` in the header (next to title, opposite back button).
-- Remove `pendingItem` arming flow (no longer needed — usage happens inside chapter via modal).
-- Remove "USE HERE" / per-chapter arm badge logic on chapter cards (or keep a small "🎒 USED" indicator if `getUsedItemsForCase(slug).length > 0`).
+### Time freeze (scroll)
+- Store entry `scroll` becomes `TIME FREEZE` (icon ❄, desc "Freezes the decision timer this chapter — no time penalty"). Price unchanged (80).
+- When `scroll` is the armed item for the current chapter, the per-question timer in `ChoicePanel` is frozen at `00:00` (display only) and the recorded deliberation time is forced to `0`, so `timeMultiplier` is always `1.0`.
 
-### 5) Chapter answering page — add backpack
-The answering UI lives in `src/components/story/ChoicePanel.tsx` (used by all `src/pages/story/*.tsx`). Story pages render via `useStoryProgress` and a wrapper. Best insertion: in each story page's frame header — but to avoid touching 9 files, add it to `ChoicePanel`'s top-right corner OR to the shared frame.
-- Option chosen: add `<BackpackButton caseSlug={slug} />` inside `ChoicePanel` header strip (top-right next to the timer chip). Slug derived from `useLocation().pathname.replace("/story/","")`.
+## Files
 
-### 6) Out of scope (future)
-- Actual gameplay effects of items (STAR+1, remove option, XP×1.5/×2). This plan only wires UI + consumption + locking. Effects added later by reading `getUsedItemsForCase(slug)` in StarReward / ChoicePanel.
-
-### Files
 - `src/game/SettingsContext.tsx`
-- `src/components/BackpackButton.tsx` (new)
-- `src/components/BackpackModal.tsx` (new)
-- `src/pages/Quest.tsx`
+  - Add session-only state: `decisionTimesByCase: Record<slug, number[]>` and helpers `recordDecisionTime(slug, seconds)`, `getAvgDecisionTime(slug)`, `clearDecisionTimes(slug)`.
+  - Add helper `getXpMultiplierForCase(slug)` that combines time penalty + armed item boost (treats `scroll` as freeze, `scales` as ×1.5, `robe` as ×2.0).
+  - Reset `decisionTimesByCase` when a new play of a chapter begins (same lifecycle as `usedItemsByCase`).
+
 - `src/components/story/ChoicePanel.tsx`
+  - On confirm (`onSelect`), call `recordDecisionTime(caseSlug, thinkSec)`.
+  - If the armed item for `caseSlug` is `scroll`, freeze the timer (skip the `setInterval` increment) and show a small `❄ FROZEN` chip in place of the live `mm:ss`.
+
+- `src/components/story/StarReward.tsx`
+  - Replace `const xpGain = breakdown.total * 10;` with:
+    - `const baseXp = breakdown.total * 10;`
+    - `const mult = getXpMultiplierForCase(slug);` (returns `{ time, item, total }`)
+    - `const xpGain = Math.round(baseXp * mult.total);`
+  - Show a small breakdown line under the XP row when any multiplier ≠ 1.0:
+    - e.g. `⏱ ×0.92  ·  ⚖ ×1.5  →  +27 XP`.
+  - Pass through to `addXp` as before.
+
+- `src/components/BackpackModal.tsx`
+  - Update `scroll` meta to `{ icon: "❄", name: "TIME FREEZE", desc: "Freezes the decision timer this chapter" }`.
+  - Update `scales` desc → `"This chapter XP +50%"`.
+  - Update `robe` desc → `"This chapter XP +100%"`.
+
+- `src/pages/Store.tsx`
+  - `scroll` row: name `TIME FREEZE`, icon `❄`, desc `"Freezes the decision timer this chapter — no time penalty"`.
+  - `scales` desc → `"This chapter XP +50% (rounded)"`.
+  - `robe` desc → `"This chapter XP +100% (rounded)"`.
+
+## Out of scope
+
+- No changes to the gavel (STAR +1) or law-book (remove option) effects.
+- No changes to per-chapter "one item only" locking rules — already in place.
+- No persistence of decision times across sessions (session-only, like armed items).
+
+summary: Apply XP boosts to the current chapter, add a decision-time XP penalty (max −20% between 45s–120s), and replace SCROLL with a TIME FREEZE item that disables the penalty.

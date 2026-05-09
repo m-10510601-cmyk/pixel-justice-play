@@ -16,9 +16,9 @@ const items: Item[] = [
   { id: "gavel", name: "STAR +1", price: 50, icon: "⭐", desc: "Earn one extra ★ in your next chapter" },
   { id: "book", name: "LAW BOOK", price: 120, icon: "📕", desc: "Removes one wrong option in next chapter" },
   { id: "badge", name: "BADGE", price: 200, icon: "🛡", desc: "Improves defense score" },
-  { id: "scroll", name: "SCROLL", price: 80, icon: "📜", desc: "Unlocks hidden hints" },
-  { id: "scales", name: "XP BOOST +50%", price: 350, icon: "⚖", desc: "Next chapter XP +50% (rounded)" },
-  { id: "robe", name: "XP BOOST +100%", price: 500, icon: "👘", desc: "Next chapter XP +100% (rounded)" },
+  { id: "scroll", name: "TIME FREEZE", price: 80, icon: "❄", desc: "Freezes the decision timer this chapter — no time penalty" },
+  { id: "scales", name: "XP BOOST +50%", price: 350, icon: "⚖", desc: "This chapter XP +50% (rounded)" },
+  { id: "robe", name: "XP BOOST +100%", price: 500, icon: "👘", desc: "This chapter XP +100% (rounded)" },
 ];
 
 const Store = () => {
