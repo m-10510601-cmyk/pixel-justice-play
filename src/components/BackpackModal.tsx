@@ -6,9 +6,9 @@ const ITEM_META: Record<Exclude<ItemId, "timeExt">, { icon: string; name: string
   gavel: { icon: "⭐", name: "STAR +1", desc: "+1 ★ in this chapter" },
   book: { icon: "📕", name: "LAW BOOK", desc: "Removes one wrong option" },
   badge: { icon: "🛡", name: "BADGE", desc: "Improves defense" },
-  scroll: { icon: "📜", name: "SCROLL", desc: "Reveals a hidden hint" },
-  scales: { icon: "⚖", name: "XP +50%", desc: "Next chapter XP +50%" },
-  robe: { icon: "👘", name: "XP +100%", desc: "Next chapter XP +100%" },
+  scroll: { icon: "❄", name: "TIME FREEZE", desc: "Freezes the decision timer this chapter" },
+  scales: { icon: "⚖", name: "XP +50%", desc: "This chapter XP +50%" },
+  robe: { icon: "👘", name: "XP +100%", desc: "This chapter XP +100%" },
 };
 
 const ORDER: Array<keyof typeof ITEM_META> = ["gavel", "book", "scales", "robe", "badge", "scroll"];
