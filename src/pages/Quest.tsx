@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import GameFrame from "@/components/GameFrame";
 import justiceBg from "@/assets/justice-bg.jpg";
 import { useSettings } from "@/game/SettingsContext";
@@ -9,12 +10,32 @@ import T from "@/components/T";
 import { CHAPTERS, isChapterUnlocked, computeMaxStars } from "@/lib/chapters";
 import { getChapterBest } from "@/lib/rewards";
 
+const TOOL_META: Record<string, { icon: string; name: string; special?: boolean }> = {
+  gavel: { icon: "🔨", name: "GAVEL" },
+  book: { icon: "📕", name: "LAW BOOK" },
+  badge: { icon: "🛡", name: "BADGE" },
+  scroll: { icon: "📜", name: "SCROLL" },
+  scales: { icon: "⚖", name: "SCALES" },
+  robe: { icon: "👘", name: "ROBE" },
+  timeExt: { icon: "⏱", name: "TIME EXT", special: true },
+};
+
 const Quest = () => {
-  const { t, tutorialSeen, markTutorialSeen } = useSettings();
+  const { t, tutorialSeen, markTutorialSeen, inventory, useItem, playCue } = useSettings();
   const [showTut, setShowTut] = useState(false);
   useEffect(() => { if (!tutorialSeen) setShowTut(true); }, [tutorialSeen]);
   const slugFromRoute = (r: string) => r.replace("/story/", "");
   const progressFor = (route: string) => loadProgress(slugFromRoute(route));
+  const ownedTools = (Object.keys(TOOL_META) as Array<keyof typeof TOOL_META>).filter(
+    (id) => (inventory[id as keyof typeof inventory] ?? 0) > 0
+  );
+  const handleUse = (id: string) => {
+    const meta = TOOL_META[id];
+    if (useItem(id as any)) {
+      playCue();
+      toast(`✓ USED ${meta.name}`);
+    }
+  };
   return (
     <GameFrame bgImage={justiceBg}>
       <header className="pt-6 px-6 flex items-center gap-3">
@@ -23,6 +44,34 @@ const Quest = () => {
           {t("quest.title")}
         </h1>
       </header>
+
+      {ownedTools.length > 0 && (
+        <div className="px-6 pt-3">
+          <div className="text-[10px] pixel text-primary mb-1">TOOL BELT</div>
+          <div className="flex gap-2 flex-wrap">
+            {ownedTools.map((id) => {
+              const m = TOOL_META[id];
+              const count = inventory[id as keyof typeof inventory];
+              return (
+                <button
+                  key={id}
+                  onClick={() => handleUse(id)}
+                  className="pixel-btn relative text-[10px] px-2 py-1 flex items-center gap-1"
+                  title={m.name}
+                >
+                  <span className="text-base leading-none">{m.icon}</span>
+                  <span className="pixel">x{count}</span>
+                  {m.special && (
+                    <span className="absolute -top-2 -right-2 pixel text-[7px] bg-accent text-accent-foreground px-1">
+                      SPECIAL
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <main className="flex-1 flex flex-col gap-3 px-6 py-4 overflow-y-auto">
         {CHAPTERS.map((c, i) => (

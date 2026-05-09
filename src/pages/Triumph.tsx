@@ -19,13 +19,6 @@ const achievements = [
     icon: "🏫",
   },
   {
-    id: 3,
-    name: "TRUTH SEEKER",
-    description: "Discover hidden evidence during an investigation.",
-    done: false,
-    icon: "🔍",
-  },
-  {
     id: 4,
     name: "CITY DEFENDER",
     description: "Win a major case that changes the city’s future.",

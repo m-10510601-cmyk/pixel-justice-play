@@ -3,6 +3,7 @@ import Modal from "./Modal";
 import { useSettings } from "@/game/SettingsContext";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { loadAutoSave, restoreAutoSave } from "@/lib/autoSave";
 
 const feedbackSchema = z.object({
   message: z.string().trim().min(1).max(1000),
@@ -99,11 +100,21 @@ export const SaveLoadModal = ({ open, onClose }: { open: boolean; onClose: () =>
       setTimeout(() => window.location.reload(), 600);
     } catch {}
   };
+  const restoreAuto = () => {
+    const s = loadAutoSave();
+    if (!s) { setMsg("NO AUTO-SAVE"); return; }
+    if (restoreAutoSave()) {
+      setMsg("AUTO-SAVE RESTORED");
+      playCue();
+      setTimeout(() => window.location.reload(), 600);
+    }
+  };
   return (
     <Modal open={open} onClose={onClose} title={t("save.title")}>
       <div className="flex flex-col gap-3">
         <button onClick={save} className="pixel-btn text-[10px]">☁ {t("save.now")}</button>
         <button onClick={loadFn} className="pixel-btn pixel-btn-secondary text-[10px]">⤓ {t("save.load")}</button>
+        <button onClick={restoreAuto} className="pixel-btn pixel-btn-secondary text-[10px]">↻ RESTORE AUTO-SAVE</button>
         {msg && <p className="pixel text-[9px] text-center text-accent">{msg}</p>}
       </div>
     </Modal>
