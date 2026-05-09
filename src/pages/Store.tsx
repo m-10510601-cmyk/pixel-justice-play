@@ -21,10 +21,8 @@ const items: Item[] = [
   { id: "robe", name: "ROBE", price: 500, icon: "👘", desc: "Max authority boost" },
 ];
 
-const TIME_EXTENSION_PRICE = 150;
-
 const Store = () => {
-  const { t, coins, spendCoins, timeExtensions, buyTimeExtension, playCue, addItem } = useSettings();
+  const { t, coins, spendCoins, timeExtensions, buyTimeExtension, playCue } = useSettings();
   const [msg, setMsg] = useState<string>("");
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -40,7 +38,6 @@ const Store = () => {
     const success = spendCoins(it.price);
 
     if (success) {
-      addItem(it.id as any, 1);
       showMsg(`✓ ${it.name}`);
       playCue();
     } else {
