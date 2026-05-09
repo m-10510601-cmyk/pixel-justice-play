@@ -10,11 +10,38 @@ interface Props {
 const inferCharacter = (who?: string): CharacterKey => {
   if (!who) return "narrator";
   const w = who.toLowerCase();
+  // Order matters: more-specific names first.
+  if (w === "you") return "you";
   if (w.includes("principal")) return "principal";
-  if (w.includes("parent") || w.includes("aira's parent")) return "parent";
+  if (w.includes("aira's parent") || w.includes("parent")) return "parent";
   if (w.includes("aira")) return "aira";
-  if (w === "you" || w.includes("guardian")) return "you";
-  return "narrator";
+  if (w.includes("madam")) return "civilian_f";
+  if (w.includes("fake")) return "voice";
+  if (w.includes("caller")) return "voice";
+  if (w.includes("narrator")) return "voice";
+  if (w.includes("officer") || w.includes("police")) return "officer";
+  if (w.includes("profiler") || w.includes("investigator") || w.includes("forensic") || w.includes("detective")) return "detective";
+  if (w.includes("prosecution") || w.includes("defence") || w.includes("defense") || w.includes("mentor") || w.includes("lawyer") || w.includes("advocate")) return "lawyer";
+  if (w.includes("doctor")) return "doctor";
+  if (w.includes("journalist") || w.includes("tv") || w.includes("reporter")) return "journalist";
+  if (w.includes("expert")) return "expert";
+  if (w.includes("suspect") || w.includes("driver")) return "suspect";
+  if (w.includes("student") || w.includes("teen")) {
+    // alternate male/female by trailing letter
+    const m = w.match(/[a-z]\s*$/);
+    if (m && (m[0] === "b" || m[0] === "d" || m[0] === "f")) return "student_f";
+    return "student_m";
+  }
+  if (w.includes("lina") || w.includes("mei")) return "student_f";
+  if (w.includes("guardian")) return "you";
+  if (w.includes("victim")) return "civilian_f";
+  if (
+    w.includes("friend") || w.includes("agent") || w.includes("manager") ||
+    w.includes("supervisor") || w.includes("liaison") || w.includes("tech") ||
+    w.includes("neighbour") || w.includes("neighbor") || w.includes("bystander") ||
+    w.includes("mr.") || w.includes("mr ") || w.includes("tan")
+  ) return "civilian_m";
+  return "civilian_m";
 };
 
 const DialogueLine = ({ who, text, inner, character }: Props) => {
