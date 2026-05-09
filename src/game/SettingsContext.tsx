@@ -205,6 +205,10 @@ interface Ctx {
   inventory: Record<ItemId, number>;
   addItem: (id: ItemId, n?: number) => void;
   useItem: (id: ItemId) => boolean;
+  // Session-only: one item armed per case, one item per play.
+  usedItemsByCase: Record<string, ItemId>;
+  armItemForCase: (slug: string, id: ItemId) => boolean;
+  getArmedItem: (slug: string) => ItemId | null;
   // Level / XP system
   level: 1 | 2 | 3 | 4 | 5;
   levelName: string;
