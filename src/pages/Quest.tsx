@@ -11,29 +11,34 @@ import { CHAPTERS, isChapterUnlocked, computeMaxStars } from "@/lib/chapters";
 import { getChapterBest } from "@/lib/rewards";
 
 const TOOL_META: Record<string, { icon: string; name: string; special?: boolean }> = {
-  gavel: { icon: "🔨", name: "GAVEL" },
+  gavel: { icon: "⭐", name: "STAR +1" },
   book: { icon: "📕", name: "LAW BOOK" },
   badge: { icon: "🛡", name: "BADGE" },
   scroll: { icon: "📜", name: "SCROLL" },
-  scales: { icon: "⚖", name: "SCALES" },
-  robe: { icon: "👘", name: "ROBE" },
-  timeExt: { icon: "⏱", name: "TIME EXT", special: true },
+  scales: { icon: "⚖", name: "XP +50%" },
+  robe: { icon: "👘", name: "XP +100%" },
 };
 
 const Quest = () => {
-  const { t, tutorialSeen, markTutorialSeen, inventory, useItem, playCue } = useSettings();
+  const { t, tutorialSeen, markTutorialSeen, inventory, playCue, usedItemsByCase, armItemForCase, getArmedItem } = useSettings();
   const [showTut, setShowTut] = useState(false);
+  const [pendingItem, setPendingItem] = useState<keyof typeof TOOL_META | null>(null);
   useEffect(() => { if (!tutorialSeen) setShowTut(true); }, [tutorialSeen]);
   const slugFromRoute = (r: string) => r.replace("/story/", "");
   const progressFor = (route: string) => loadProgress(slugFromRoute(route));
   const ownedTools = (Object.keys(TOOL_META) as Array<keyof typeof TOOL_META>).filter(
-    (id) => (inventory[id as keyof typeof inventory] ?? 0) > 0
+    (id) => (inventory[id as keyof typeof inventory] ?? 0) > 0,
   );
-  const handleUse = (id: string) => {
-    const meta = TOOL_META[id];
-    if (useItem(id as any)) {
+  const hasArmedAny = Object.keys(usedItemsByCase).length > 0;
+  const handleArm = (slug: string) => {
+    if (!pendingItem) return;
+    const meta = TOOL_META[pendingItem];
+    if (armItemForCase(slug, pendingItem as any)) {
       playCue();
       toast(`✓ USED ${meta.name}`);
+      setPendingItem(null);
+    } else {
+      toast("CANNOT USE — already armed this play");
     }
   };
   return (
