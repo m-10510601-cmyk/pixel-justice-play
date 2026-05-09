@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import T from "@/components/T";
 import BackpackButton from "@/components/BackpackButton";
+import { useSettings } from "@/game/SettingsContext";
 
 export type ChoiceOption = {
   id: string;
@@ -39,6 +40,8 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
   const caseSlug = location.pathname.startsWith("/story/")
     ? location.pathname.replace("/story/", "").split("/")[0]
     : undefined;
+  const { recordDecisionTime, getArmedItem } = useSettings();
+  const frozen = caseSlug ? getArmedItem(caseSlug) === "scroll" : false;
 
   // Reset deliberation state when question changes
   useEffect(() => {
@@ -48,10 +51,10 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
 
   // Deliberation timer (only counts while undecided)
   useEffect(() => {
-    if (selected) return;
+    if (selected || frozen) return;
     const t = window.setInterval(() => setThinkSec((s) => s + 1), 1000);
     return () => window.clearInterval(t);
-  }, [selected, resetKey]);
+  }, [selected, resetKey, frozen]);
 
   const selectedOpt = useMemo(
     () => options.find((o) => o.id === selected),
@@ -62,6 +65,7 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
   const handleClick = (id: string) => {
     if (selected) return; // locked
     if (pending === id) {
+      if (caseSlug) recordDecisionTime(caseSlug, frozen ? 0 : thinkSec);
       onSelect(id);
       setPending(null);
     } else {
@@ -91,7 +95,7 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
             aria-label="Deliberation timer"
             title="Time spent deliberating"
           >
-            ⏱ {minutes}:{seconds}
+            {frozen ? "❄ FROZEN" : `⏱ ${minutes}:${seconds}`}
           </span>
           <BackpackButton caseSlug={caseSlug} />
         </div>
