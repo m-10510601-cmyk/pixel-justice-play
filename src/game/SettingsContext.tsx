@@ -310,6 +310,32 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   // Session-only: which item has been armed for which case (slug -> ItemId).
   // Not persisted by design: "one item per case, one item per play".
   const [usedItemsByCase, setUsedItemsByCase] = useState<Record<string, ItemId[]>>({});
+  const [decisionTimesByCase, setDecisionTimesByCase] = useState<Record<string, number[]>>({});
+  const recordDecisionTime = useCallback((slug: string, seconds: number) => {
+    setDecisionTimesByCase((d) => ({ ...d, [slug]: [...(d[slug] ?? []), Math.max(0, seconds)] }));
+  }, []);
+  const getXpMultiplierForCase = useCallback(
+    (slug: string) => {
+      const armed = usedItemsByCase[slug]?.[0] ?? null;
+      // Item boost
+      let item = 1;
+      if (armed === "scales") item = 1.5;
+      else if (armed === "robe") item = 2;
+      // Time penalty (frozen by scroll)
+      let time = 1;
+      if (armed !== "scroll") {
+        const times = decisionTimesByCase[slug] ?? [];
+        if (times.length > 0) {
+          const avg = times.reduce((a, b) => a + b, 0) / times.length;
+          if (avg <= 45) time = 1;
+          else if (avg >= 120) time = 0.8;
+          else time = 1 - 0.2 * ((avg - 45) / (120 - 45));
+        }
+      }
+      return { time, item, total: time * item };
+    },
+    [usedItemsByCase, decisionTimesByCase],
+  );
   const armItemForCase = useCallback(
     (slug: string, id: ItemId) => {
       const usedHere = usedItemsByCase[slug] ?? [];
