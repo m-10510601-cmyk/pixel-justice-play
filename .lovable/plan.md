@@ -1,58 +1,70 @@
-# Show portraits for all dialogue speakers (Ch.2–9)
+# Polish dialogue: smarter speaker mapping + richer line UI
 
-## Problem
+## Part A — Robust speaker → portrait mapping
 
-In `DialogueLine.tsx`, the speaker name is mapped to a `CharacterKey` via `inferCharacter()`. Today only 5 portraits exist: `principal | parent | you | aira | narrator`. Every speaker in chapters 2–9 (Officer Tan, Profiler, Suspect A/B, Doctor, Student A–E, Driver, Teen A/B, Journalist, Expert, Prosecution, Defence, Bystander, Mei, Agent, Manager, Supervisor, Friend, Caller, Madam Tan, Bank Liaison, Tech, Forensics, Investigator, Lina, Mentor, Mr. Tan, Officer Lim, Fake MAS Officer, Suspect, Neighbour A/B, Guardian, Victim, Narrator, …) falls through to `narrator` (a faceless silhouette) — so only the player's judge portrait shows.
+Replace the long `if/else` chain in `inferCharacter()` with a normalized, prioritized table-driven matcher in `src/components/story/DialogueLine.tsx`:
 
-## Fix (frontend only)
+1. **Normalize** `who`: lowercase, strip parenthetical asides like `"(whispering)"` / `"(calmly)"`, collapse whitespace, trim trailing punctuation. So `"Mei (whispering)"` and `"Suspect (calmly)"` resolve cleanly.
+2. **Ordered rule list** (first match wins; long/specific keywords before short ones):
+   - exact `you` → `you`
+   - keywords containing `aira's parent`, `parent`, `mother`, `father`, `mom`, `dad`, `mr.`, `mrs.`, `madam`, `auntie`, `uncle` → `parent` / `civilian_m` / `civilian_f`
+   - `principal`, `headmaster`, `headmistress`, `teacher`, `dean` → `principal`
+   - `aira` (exact-name) → `aira`
+   - `fake`, `caller`, `voice`, `narrator`, `dispatcher`, `radio`, `pa system` → `voice`
+   - `officer`, `inspector`, `constable`, `police`, `cop`, `sergeant` → `officer`
+   - `profiler`, `investigator`, `analyst`, `forensic`, `detective`, `csi` → `detective`
+   - `prosecution`, `prosecutor`, `defence`, `defense`, `mentor`, `lawyer`, `advocate`, `counsel`, `barrister`, `judge` (when not "YOU") → `lawyer`
+   - `doctor`, `dr.`, `nurse`, `medic`, `paramedic` → `doctor`
+   - `journalist`, `tv`, `reporter`, `press`, `news` → `journalist`
+   - `expert`, `scientist`, `professor`, `prof.`, `consultant`, `auditor` → `expert`
+   - `suspect`, `driver`, `runner`, `accused`, `defendant`, `convict`, `gang`, `dealer` → `suspect`
+   - `student`, `teen`, `pupil`, `classmate`, `kid`, `boy`, `girl` → alternate `student_m` / `student_f` based on a stable hash of the full name (so `Student A`, `Student C`, `Student E` stay consistent across replays — not by trailing letter, which currently miscategorizes `Teen B` as female arbitrarily)
+   - first-name allowlist for `student_f`: `lina`, `mei`, `aira` (already), `siti`, `priya`, `chloe`, `anya`
+   - first-name allowlist for `student_m`: `arif`, `daniel`, `hafiz`, `ravi`, `wei`, `kai`
+   - `victim`, `widow` → `civilian_f`
+   - `bystander`, `neighbour`, `neighbor`, `friend`, `agent`, `manager`, `supervisor`, `liaison`, `tech`, `bank`, `clerk`, `cashier`, `stranger`, `witness` → `civilian_m` (default)
+3. **Final fallback**: instead of always `civilian_m`, use a stable hash of the name to pick between `civilian_m` and `civilian_f`, so unknown speakers still feel varied rather than identical.
+4. **Dev-only logging**: when `import.meta.env.DEV` and a name hits only the final fallback, `console.warn` once per unique name so future chapters surface unmapped speakers.
+5. **Unit-style guard**: extract `inferCharacter` to module scope (already is) and export it so we can add a quick Vitest covering every speaker name found in `src/pages/story/*.tsx`.
 
-### 1. `src/components/story/CharacterPortrait.tsx`
+## Part B — Make dialogue lines more engaging
 
-Extend `CharacterKey` and add new 16×16 pixel-art portraits, all built with the same `block(x,y,w,h,color)` helper + `Face` base already in the file. New keys (each gets a distinct silhouette via hat/hair/uniform/skin tone so the player can tell them apart at a glance):
+Visual / behavioral upgrades inside `DialogueLine.tsx` and `SceneDialogue.tsx`. All design tokens already exist (`--primary`, `--accent`, `--card`, `--gold`, `--shadow-pixel-sm`, `speak-bob` keyframe).
 
-- `officer` — police cap + badge, navy uniform collar
-- `detective` — fedora + trench collar (used for Profiler / Investigator / Forensics)
-- `lawyer` — barrister wig + black robe + white tab (used for Prosecution / Defence / Mentor)
-- `doctor` — surgical cap + mask + scrubs collar
-- `student_m`, `student_f` — school uniform, two hair variants (covers Student A–E, Teen A/B, Lina, Mei, Aira already exists)
-- `suspect` — hoodie up, shadowed eyes (Suspect, Suspect A/B, Driver)
-- `civilian_m`, `civilian_f` — plain shirt/blouse, neutral hair (Mr. Tan, Madam Tan, Friend, Neighbour, Bystander, Guardian, Victim, Agent, Manager, Supervisor, Bank Liaison, Tech, Caller)
-- `journalist` — TV-mic foreground + blazer collar
-- `expert` — glasses + lab coat collar
-- `voice` — silhouette + speech-wave overlay (Caller / Fake MAS Officer / Narrator-as-VO)
+1. **Active-speaker emphasis**
+   - Pass `speaking` to `CharacterPortrait` based on whether this line is the most recent one (`isCurrent` from `SceneDialogue`). Past lines render dimmed (already supported via `speaking={false}` → opacity 0.55 + grayscale).
+   - Add a subtle `speak-bob` only on the active portrait (already wired via the same prop).
+   - Active bubble gets a soft glow ring (`shadow-glow` token, reduced intensity) and a 1px brighter border; past bubbles drop to `bg-card/70` and lose the tail glow.
 
-Reuse existing `Face` skin tones; vary hair/hat colors. No new assets — pure CSS blocks, matches current 16-bit aesthetic.
+2. **Bubble-in animation**
+   - Add a `dialogue-pop` keyframe in `index.css`: `transform: translateY(6px) scale(0.97); opacity: 0` → settled. Apply on each new line (key change triggers re-mount of the most recent line wrapper).
+   - Inner-thought lines use a separate `thought-fade` keyframe (slower, slight blur-in) to feel mental rather than spoken.
 
-### 2. `src/components/story/DialogueLine.tsx` — `inferCharacter()`
+3. **Typewriter polish**
+   - Replace plain `▌` cursor with a blinking block via CSS class `caret-blink` so it doesn't jitter the layout when the text grows.
+   - When the typewriter is active for a non-`you` speaker, render a small "···" typing indicator above the bubble tail; for `you` inner thoughts, use "💭" pulse instead.
+   - Punctuation pacing: in the typewriter loop, multiply `charDelay` by 4 after `.`, `?`, `!`, and by 2 after `,`, `;`, `:` for natural cadence. Configurable via prop, default on.
 
-Expand the lookup to a name→key map covering every speaker found in `src/pages/story/*.tsx`:
+4. **Color-coded name plates**
+   - Map each `CharacterKey` to a name-plate color (e.g. officer = justice-blue, suspect = destructive, lawyer = gold, civilian = muted, voice = accent). Apply to the small uppercase name label so the speaker is identifiable at a glance even before the portrait registers.
 
-```text
-you / guardian            → you
-principal                 → principal
-parent                    → parent
-aira                      → aira
-officer / officer tan/lim → officer
-profiler/investigator/forensics → detective
-prosecution/defence/mentor → lawyer
-doctor                    → doctor
-student a/b/c/d/e         → student_m / student_f (alternate by letter)
-teen a/b                  → student_m / student_f
-lina / mei                → student_f
-suspect / suspect a/b / driver → suspect
-journalist                → journalist
-expert                    → expert
-caller / fake mas officer / narrator (when spoken) → voice
-mr. tan / friend / agent / manager / supervisor / bank liaison / tech / neighbour a/b / bystander / guardian (chapter 5) / victim → civilian_m
-madam tan                 → civilian_f
-```
+5. **Layout / readability**
+   - Bump body text from `text-sm` to `text-base` for spoken lines, keep `text-sm italic` for inner thoughts.
+   - Add `max-w-[85%]` to the bubble so very long lines wrap into a tighter, more comic-style block instead of stretching edge-to-edge.
+   - Add a faint 1px dotted divider above each new speaker change (not between same-speaker consecutive lines) to chunk the conversation visually.
 
-Matching is lower-cased substring, with longer/more-specific names checked first (e.g. `madam tan` before `tan`, `fake mas officer` before `officer`).
+6. **Sound-less haptic cue (optional, behind a setting we already have)**
+   - On manual advance in MANUAL mode, briefly flash the bubble border (`animate-pulse` 1 cycle) so taps feel responsive. Skip in AUTO mode.
 
-### 3. No other files change
+## Files to change
 
-`SceneDialogue` already calls `DialogueLine`, so once `inferCharacter` resolves a real key the portrait renders automatically. Story data files (`src/pages/story/*.tsx`) are untouched — speakers stay as written.
+- `src/components/story/DialogueLine.tsx` — rewrite `inferCharacter`, add name-plate color map, active/past styling, animation classes, max-width, divider logic (needs to know previous speaker; accept optional `prevWho` prop).
+- `src/components/story/SceneDialogue.tsx` — pass `isCurrent` (→ `speaking`) and `prevWho` to each `DialogueLine`; add punctuation-aware typewriter delay.
+- `src/index.css` — add `@keyframes dialogue-pop`, `thought-fade`, `caret-blink`, and `.caret-blink` / `.dialogue-pop` / `.thought-fade` utility classes.
+- `src/test/dialogueLine.test.ts` (new) — assert `inferCharacter` returns a non-`narrator`, non-default key for every distinct `who:` value found across `src/pages/story/*.tsx`.
 
-## QA
+## Out of scope
 
-Walk one beat from each chapter 2–9 in the preview and confirm a non-`you` speaker now shows a portrait that visually matches their role (cop = cap, lawyer = wig, student = uniform, suspect = hoodie, etc.).
+- No story-data edits; speaker names in `src/pages/story/*.tsx` stay as written.
+- No new portrait art (we already added 12 portraits in the previous pass).
+- No audio.
