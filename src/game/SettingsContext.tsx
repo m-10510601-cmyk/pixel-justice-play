@@ -277,7 +277,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       return true;
     }
   });
-  const [lang, setLangState] = useState<Lang>(initial?.lang ?? "en");
+  const lang: Lang = "en";
+  const setLangState = (_l: Lang) => {};
   const [meta, setMeta] = useState<Meta>(() => (typeof window !== "undefined" ? loadMeta() : { ...DEFAULT_META }));
   const [levelState, setLevelState] = useState<LevelState>(() =>
     typeof window !== "undefined" ? loadLevel() : { level: 1, xp: 0, pendingQuiz: false },
@@ -347,9 +348,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const setTheme = useCallback((t: Theme) => setThemeState(t), []);
   const setVolume = useCallback((v: number) => setVolumeState(Math.min(100, Math.max(0, v))), []);
   const setBgmEnabled = useCallback((b: boolean) => setBgmEnabledState(b), []);
-  const setLang = useCallback((l: Lang) => setLangState(l), []);
+  const setLang = useCallback((_l: Lang) => {}, []);
 
-  const t = useCallback((key: string) => DICT[lang][key] ?? DICT.en[key] ?? key, [lang]);
+  const t = useCallback((key: string) => DICT[key] ?? key, []);
 
   const addCoins = useCallback((n: number) => {
     setMeta((m) => ({ ...m, coins: Math.max(0, m.coins + n) }));
