@@ -5,7 +5,7 @@ import Modal from "@/components/Modal";
 const ITEM_META: Record<Exclude<ItemId, "timeExt">, { icon: string; name: string; desc: string }> = {
   gavel: { icon: "⭐", name: "STAR +1", desc: "Adds +1 ⭐ at chapter end" },
   book: { icon: "📕", name: "LAW BOOK", desc: "Hides one wrong option per decision" },
-  badge: { icon: "🛡", name: "BADGE", desc: "Coming soon" },
+  badge: { icon: "🛡", name: "BADGE", desc: "Forgives one wrong answer this chapter" },
   scroll: { icon: "❄", name: "TIME FREEZE", desc: "Freezes decision timer — no time penalty" },
   scales: { icon: "⚖", name: "XP +50%", desc: "This chapter XP ×1.5" },
   robe: { icon: "👘", name: "XP +100%", desc: "This chapter XP ×2" },

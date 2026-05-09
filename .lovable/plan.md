@@ -1,34 +1,17 @@
-## BADGE — forgive one wrong answer
+## Sync BADGE copy to backpack + chapter
 
-When BADGE is the armed item for the current chapter, one wrong answer is "forgiven" so its ⭐ is not lost. Single-use, this chapter only (matches existing per-chapter item rules).
+Right now the wired effect is "forgives one wrong answer this chapter (keeps that ⭐ and restores perfect bonus)", but two surfaces are stale:
 
-### Mechanic (`src/components/story/StarReward.tsx`)
+- `src/components/BackpackModal.tsx` — badge entry still says `"Coming soon"`. Used by both Quest backpack and the in-chapter backpack.
+- `src/components/story/ChoicePanel.tsx` — `ARMED_META.badge` label is plain `"BADGE"`; should match other items' format.
 
-Currently a chapter star = `base + bestCount + perfectBonus` where:
-- `bestCount` = number of decisions where the player picked `best`.
-- `perfectBonus = 2` if `bestCount === totalChoices`.
+### Changes
 
-When `getArmedItem(slug) === "badge"`:
-- `forgivenBest = Math.min(totalChoices, bestCount + 1)` (cap at total).
-- Recompute `perfectBonus = forgivenBest === totalChoices ? 2 : 0`.
-- Show a new line in the breakdown: `🛡 BADGE forgive: ⭐ +N` where N = `(forgivenBest - bestCount) + (newPerfectBonus - oldPerfectBonus)`.
-- Apply the same gavel/XP/time logic on the forgiven total.
+- `BackpackModal.tsx`:
+  - `badge: { icon: "🛡", name: "BADGE", desc: "Forgives one wrong answer this chapter" }`
+- `ChoicePanel.tsx`:
+  - `badge: { icon: "🛡", label: "BADGE · FORGIVE 1" }`
 
-This guarantees: the wrong-answer star isn't deducted, and if forgiveness causes a perfect run, the perfect bonus is also restored.
+No logic change — Store, StarReward, and the per-chapter forgiveness math are already correct.
 
-### Copy updates
-
-- `src/pages/Store.tsx` BADGE row:
-  - desc → `"Forgives one wrong answer this chapter — its ⭐ is kept"`.
-- `src/components/BackpackModal.tsx` BADGE entry:
-  - desc → `"Forgives one wrong answer this chapter"`.
-- `src/components/story/ChoicePanel.tsx` `ARMED_META.badge`:
-  - label → `"BADGE · FORGIVE 1"`.
-
-### Files
-- `src/components/story/StarReward.tsx`
-- `src/pages/Store.tsx`
-- `src/components/BackpackModal.tsx`
-- `src/components/story/ChoicePanel.tsx`
-
-summary: Wire BADGE so it forgives one wrong answer in the current chapter (keeping that decision's star, and restoring the perfect-run bonus if applicable), and update Store/Backpack/in-chapter copy to match.
+summary: Update Backpack item description and in-chapter active-item chip so BADGE matches its actual "forgive one wrong answer" effect on both Quest and chapter backpack views.
