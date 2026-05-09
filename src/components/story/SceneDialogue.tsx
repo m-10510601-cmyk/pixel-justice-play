@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import DialogueLine from "./DialogueLine";
-import { useSettings } from "@/game/SettingsContext";
-import { translateText, subscribeI18n } from "@/lib/i18nLive";
 
 export interface Line {
   who?: string;
@@ -44,22 +42,7 @@ const SceneDialogue = ({
   onComplete,
   resetKey,
 }: Props) => {
-  const { lang } = useSettings();
-  // Re-render when translations stream in
-  const [, force] = useState(0);
-  useEffect(() => {
-    return subscribeI18n(() => force((n) => n + 1));
-  }, []);
-  const lines = useMemo(
-    () =>
-      rawLines.map((l) => ({
-        ...l,
-        text: translateText(l.text, lang),
-        who: l.who ? translateText(l.who, lang) : l.who,
-      })),
-    // re-translate on lang change or new lines; the cache makes this cheap
-    [rawLines, lang],
-  );
+  const lines = useMemo(() => rawLines.map((l) => ({ ...l })), [rawLines]);
   const [shown, setShown] = useState(1);
   const [typed, setTyped] = useState(0);
   const [mode, setMode] = useState<Mode>(() => {

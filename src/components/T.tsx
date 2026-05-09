@@ -1,20 +1,10 @@
-import { useSettings } from "@/game/SettingsContext";
-import { useLiveTranslate } from "@/lib/i18nLive";
-
 /**
- * Renders a translated string that reacts to the current language.
- * Use for hardcoded English text inside story/case components.
+ * No-op text wrapper. The translation system was removed; this now
+ * just renders its children verbatim (English only).
  */
-const T = ({ children }: { children?: string | null }) => {
-  const { lang } = useSettings();
-  const out = useLiveTranslate(children ?? "", lang);
-  return <>{out}</>;
-};
+const T = ({ children }: { children?: string | null }) => <>{children ?? ""}</>;
 
 export default T;
 
-/** Hook helper for cases where you need a string (not a component). */
-export const useT = (text: string | undefined) => {
-  const { lang } = useSettings();
-  return useLiveTranslate(text ?? "", lang);
-};
+/** No-op string helper kept for back-compat with existing call sites. */
+export const useT = (text: string | undefined) => text ?? "";
