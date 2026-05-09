@@ -110,11 +110,7 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
           <span className="pixel text-[10px] text-primary"><T>{title}</T></span>
         </div>
         <div className="flex items-center gap-2">
-          <span
-            className="pixel text-[8px] text-accent border-2 border-accent px-2 py-0.5"
-            aria-label="Deliberation timer"
-            title="Time spent deliberating"
-          >
+          <span className="pixel text-accent border-2 border-accent px-2 py-0.5 text-sm" aria-label="Deliberation timer" title="Time spent deliberating">
             {frozen ? "❄ FROZEN" : `⏱ ${minutes}:${seconds}`}
           </span>
           <BackpackButton caseSlug={caseSlug} />
@@ -122,10 +118,7 @@ const ChoicePanel = ({ title, prompt, options, reveal, selected, revealed, reset
       </div>
       {armedMeta && (
         <div className="flex items-center justify-end">
-          <span
-            className="pixel text-[8px] text-accent border-2 border-accent px-2 py-0.5"
-            title="Active item"
-          >
+          <span className="pixel text-accent border-2 border-accent px-2 py-0.5 text-sm" title="Active item">
             {armedMeta.icon} {armedMeta.label} ACTIVE
           </span>
         </div>
