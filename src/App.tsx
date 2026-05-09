@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SettingsProvider } from "@/game/SettingsContext";
 import BgmController from "@/game/BgmController";
 import TermsGate from "@/components/TermsGate";
+import AutoSaveIndicator from "@/components/AutoSaveIndicator";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Quest from "./pages/Quest.tsx";
@@ -36,6 +37,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <div className="brightness-overlay" aria-hidden="true" />
+        <AutoSaveIndicator />
         <TermsGate />
         <BrowserRouter>
           <BgmController />
