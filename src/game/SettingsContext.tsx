@@ -14,9 +14,12 @@ import {
   type XpSources,
 } from "@/lib/levels";
 import { loadAvatar, saveAvatar, type AvatarId } from "@/lib/avatars";
+import { scheduleAutoSave } from "@/lib/autoSave";
 
 export type Theme = "light" | "dark" | "default";
 export type Lang = "en" | "zh" | "ms";
+
+export type ItemId = "gavel" | "book" | "badge" | "scroll" | "scales" | "robe" | "timeExt";
 
 type Dict = Record<string, string>;
 const DICT: Dict = {
@@ -199,6 +202,9 @@ interface Ctx {
   claimDailyDay: (day: number) => boolean;
   timeExtensions: number;
   buyTimeExtension: () => boolean;
+  inventory: Record<ItemId, number>;
+  addItem: (id: ItemId, n?: number) => void;
+  useItem: (id: ItemId) => boolean;
   // Level / XP system
   level: 1 | 2 | 3 | 4 | 5;
   levelName: string;
@@ -225,6 +231,7 @@ type Meta = {
   dailyClaims: boolean[];
   dailyDate: string; // YYYY-MM-DD of last reset
   timeExtensions: number;
+  inventory?: Partial<Record<ItemId, number>>;
 };
 const DEFAULT_META: Meta = {
   coins: 0,
@@ -234,6 +241,7 @@ const DEFAULT_META: Meta = {
   dailyClaims: [false, false, false, false, false, false, false],
   dailyDate: "",
   timeExtensions: 0,
+  inventory: {},
 };
 const todayStr = () => new Date().toISOString().slice(0, 10);
 const loadMeta = (): Meta => {
@@ -413,6 +421,36 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     return ok;
   }, []);
 
+  const addItem = useCallback((id: ItemId, n: number = 1) => {
+    if (id === "timeExt") {
+      setMeta((m) => ({ ...m, timeExtensions: m.timeExtensions + n }));
+      return;
+    }
+    setMeta((m) => {
+      const inv = { ...(m.inventory ?? {}) };
+      inv[id] = (inv[id] ?? 0) + n;
+      return { ...m, inventory: inv };
+    });
+  }, []);
+
+  const useItem = useCallback((id: ItemId) => {
+    let ok = false;
+    setMeta((m) => {
+      if (id === "timeExt") {
+        if (m.timeExtensions <= 0) return m;
+        ok = true;
+        return { ...m, timeExtensions: m.timeExtensions - 1 };
+      }
+      const inv = { ...(m.inventory ?? {}) };
+      const cur = inv[id] ?? 0;
+      if (cur <= 0) return m;
+      ok = true;
+      inv[id] = cur - 1;
+      return { ...m, inventory: inv };
+    });
+    return ok;
+  }, []);
+
   const addXp = useCallback((n: number, source: XpSource = "chapter") => {
     if (n <= 0) return;
     setLevelState((s) => applyXp(s, n));
@@ -432,6 +470,25 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     const idx = meta.dailyClaims.findIndex((c) => !c);
     return idx < 0 ? 0 : idx + 1;
   })();
+
+  // Build a stable inventory map (always includes all ids).
+  const inventory: Record<ItemId, number> = useMemo(() => {
+    const inv = (meta.inventory ?? {}) as Partial<Record<ItemId, number>>;
+    return {
+      gavel: inv.gavel ?? 0,
+      book: inv.book ?? 0,
+      badge: inv.badge ?? 0,
+      scroll: inv.scroll ?? 0,
+      scales: inv.scales ?? 0,
+      robe: inv.robe ?? 0,
+      timeExt: meta.timeExtensions,
+    };
+  }, [meta.inventory, meta.timeExtensions]);
+
+  // Trigger throttled autosave whenever persisted state changes.
+  useEffect(() => {
+    scheduleAutoSave();
+  }, [meta, levelState, xpSources, avatarId, theme, volume, bgmEnabled]);
 
   const value = useMemo<Ctx>(
     () => ({
@@ -459,6 +516,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       claimDailyDay,
       timeExtensions: meta.timeExtensions,
       buyTimeExtension,
+      inventory,
+      addItem,
+      useItem,
       level: levelState.level,
       levelName: LEVEL_NAMES[levelState.level],
       xp: levelState.xp,
@@ -490,6 +550,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       dailyAvailableDay,
       claimDailyDay,
       buyTimeExtension,
+      inventory,
+      addItem,
+      useItem,
       levelState,
       addXp,
       resolveQuiz,
