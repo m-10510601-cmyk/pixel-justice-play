@@ -212,6 +212,9 @@ interface Ctx {
   armItemForCase: (slug: string, id: ItemId) => boolean;
   getArmedItem: (slug: string) => ItemId | null;
   getUsedItemsForCase: (slug: string) => ItemId[];
+  // Per-chapter decision time tracking (session-only)
+  recordDecisionTime: (slug: string, seconds: number) => void;
+  getXpMultiplierForCase: (slug: string) => { time: number; item: number; total: number };
   // Level / XP system
   level: 1 | 2 | 3 | 4 | 5;
   levelName: string;
