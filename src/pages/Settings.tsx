@@ -2,13 +2,13 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import GameFrame from "@/components/GameFrame";
 import bg from "@/assets/justice-bg.jpg";
-import { useSettings, Lang } from "@/game/SettingsContext";
+import { useSettings } from "@/game/SettingsContext";
 import Modal from "@/components/Modal";
 import { FeedbackModal } from "@/components/HomeOverlays";
 import InboxModal from "@/components/InboxModal";
 
 const Settings = () => {
-  const { theme, setTheme, volume, setVolume, bgmEnabled, setBgmEnabled, lang, setLang, t, playCue } = useSettings();
+  const { theme, setTheme, volume, setVolume, bgmEnabled, setBgmEnabled, t, playCue } = useSettings();
   const [showTerms, setShowTerms] = useState(false);
   const [showFb, setShowFb] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
@@ -83,31 +83,6 @@ const Settings = () => {
           </button>
         </Row>
 
-        <div className="flex flex-col gap-2">
-          <div className="pixel-btn pixel-btn-secondary text-xs justify-start">{t("settings.language")}</div>
-          <div className="grid grid-cols-3 gap-2">
-            {(
-              [
-                { id: "zh", label: t("lang.zh") },
-                { id: "ms", label: t("lang.ms") },
-                { id: "en", label: t("lang.en") },
-              ] as { id: Lang; label: string }[]
-            ).map((l) => (
-              <button
-                key={l.id}
-                onClick={() => {
-                  setLang(l.id);
-                  playCue();
-                }}
-                className={`pixel-btn text-[10px] ${lang === l.id ? "pixel-btn-active" : "pixel-btn-secondary"}`}
-                style={{ padding: "0.6rem 0.4rem" }}
-                aria-pressed={lang === l.id}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
-        </div>
       </main>
 
       <footer className="pb-6 px-5 flex justify-between gap-3">
