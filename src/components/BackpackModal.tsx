@@ -3,12 +3,12 @@ import { toast } from "sonner";
 import Modal from "@/components/Modal";
 
 const ITEM_META: Record<Exclude<ItemId, "timeExt">, { icon: string; name: string; desc: string }> = {
-  gavel: { icon: "⭐", name: "STAR +1", desc: "+1 ★ in this chapter" },
-  book: { icon: "📕", name: "LAW BOOK", desc: "Removes one wrong option" },
-  badge: { icon: "🛡", name: "BADGE", desc: "Improves defense" },
-  scroll: { icon: "❄", name: "TIME FREEZE", desc: "Freezes the decision timer this chapter" },
-  scales: { icon: "⚖", name: "XP +50%", desc: "This chapter XP +50%" },
-  robe: { icon: "👘", name: "XP +100%", desc: "This chapter XP +100%" },
+  gavel: { icon: "⭐", name: "STAR +1", desc: "Adds +1 ⭐ at chapter end" },
+  book: { icon: "📕", name: "LAW BOOK", desc: "Hides one wrong option per decision" },
+  badge: { icon: "🛡", name: "BADGE", desc: "Coming soon" },
+  scroll: { icon: "❄", name: "TIME FREEZE", desc: "Freezes decision timer — no time penalty" },
+  scales: { icon: "⚖", name: "XP +50%", desc: "This chapter XP ×1.5" },
+  robe: { icon: "👘", name: "XP +100%", desc: "This chapter XP ×2" },
 };
 
 const ORDER: Array<keyof typeof ITEM_META> = ["gavel", "book", "scales", "robe", "badge", "scroll"];
