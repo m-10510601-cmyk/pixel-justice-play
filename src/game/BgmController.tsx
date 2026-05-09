@@ -15,14 +15,14 @@ type TrackKey = keyof typeof TRACKS;
 
 function trackForPath(pathname: string): TrackKey {
   if (pathname.startsWith("/case/")) return "courtroom";
-  if (pathname === "/quest") return "quest";
+  if (pathname === "/quest") return "mystery";
   if (pathname.startsWith("/story/")) {
     const slug = pathname.replace("/story/", "");
     if (["silent-fall", "silent-dormitory", "dark-night"].includes(slug)) return "tense";
     if (["green-trade", "mask-of-authority", "the-runner"].includes(slug)) return "mystery";
     if (["silent-room", "ritual-of-power", "high-pay-trap"].includes(slug)) return "somber";
   }
-  return "menu";
+  return "courtroom";
 }
 
 const BgmController = () => {
