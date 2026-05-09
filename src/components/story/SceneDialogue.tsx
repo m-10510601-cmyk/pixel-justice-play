@@ -74,7 +74,12 @@ const SceneDialogue = ({
   useEffect(() => {
     if (!current) return;
     if (typed >= fullLen) return;
-    tickRef.current = window.setTimeout(() => setTyped((t) => t + 1), charDelay);
+    // punctuation pacing: longer pause after sentence-ending punctuation
+    const prevChar = current.text[typed - 1] ?? "";
+    let delay = charDelay;
+    if (".?!".includes(prevChar)) delay = charDelay * 4;
+    else if (",;:".includes(prevChar)) delay = charDelay * 2;
+    tickRef.current = window.setTimeout(() => setTyped((t) => t + 1), delay);
     return () => {
       if (tickRef.current) window.clearTimeout(tickRef.current);
     };
@@ -160,12 +165,16 @@ const SceneDialogue = ({
         {lines.slice(0, shown).map((l, k) => {
           const isCurrent = k === shown - 1;
           const text = isCurrent ? l.text.slice(0, typed) : l.text;
+          const prevWho = k > 0 ? lines[k - 1].who : undefined;
           return (
             <DialogueLine
               key={k}
               who={l.who}
-              text={text + (isCurrent && !lineDone ? "▌" : "")}
+              text={text}
               inner={l.inner}
+              active={isCurrent}
+              prevWho={prevWho}
+              typing={isCurrent && !lineDone}
             />
           );
         })}
