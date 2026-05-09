@@ -38,7 +38,7 @@ const AvatarPickerModal = ({ open, onClose }: Props) => {
                 disabled={!unlocked}
                 onClick={() => unlocked && setAvatar(a.id)}
                 className={[
-                  "pixel-btn-square flex flex-col items-center justify-center gap-1 p-2 h-auto",
+                  "pixel-btn-square flex flex-col items-center justify-center gap-1 p-1.5 h-auto overflow-hidden",
                   equipped ? "border-accent ring-2 ring-accent" : "",
                   !unlocked ? "opacity-40 cursor-not-allowed grayscale" : "cursor-pointer",
                 ].join(" ")}
@@ -48,17 +48,17 @@ const AvatarPickerModal = ({ open, onClose }: Props) => {
                 <div className="flex items-center justify-center" style={{ minHeight: 48 }}>
                   {a.render(44)}
                 </div>
-                <div className="text-[9px] pixel text-center leading-tight">
+                <div className="text-[7px] pixel text-center leading-tight w-full truncate px-1 block">
                   <T>{a.name}</T>
                 </div>
                 {equipped ? (
-                  <div className="text-[8px] text-accent">✓ <T>{t("avatar.equipped")}</T></div>
+                  <div className="text-[7px] text-accent w-full truncate">✓ <T>{t("avatar.equipped")}</T></div>
                 ) : !unlocked ? (
-                  <div className="text-[8px] opacity-80">
+                  <div className="text-[7px] opacity-80 w-full truncate px-1">
                     🔒 <T>{t("avatar.locked").replace("{n}", String(a.unlockLevel))}</T>
                   </div>
                 ) : (
-                  <div className="text-[8px] opacity-60">Lv {a.unlockLevel}</div>
+                  <div className="text-[7px] opacity-60">Lv {a.unlockLevel}</div>
                 )}
               </button>
             );

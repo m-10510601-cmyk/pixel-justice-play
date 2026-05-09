@@ -205,6 +205,10 @@ interface Ctx {
   inventory: Record<ItemId, number>;
   addItem: (id: ItemId, n?: number) => void;
   useItem: (id: ItemId) => boolean;
+  // Session-only: one item armed per case, one item per play.
+  usedItemsByCase: Record<string, ItemId>;
+  armItemForCase: (slug: string, id: ItemId) => boolean;
+  getArmedItem: (slug: string) => ItemId | null;
   // Level / XP system
   level: 1 | 2 | 3 | 4 | 5;
   levelName: string;
@@ -296,6 +300,37 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   );
   const [avatarId, setAvatarIdState] = useState<AvatarId>(() =>
     typeof window !== "undefined" ? loadAvatar() : "rookie",
+  );
+  // Session-only: which item has been armed for which case (slug -> ItemId).
+  // Not persisted by design: "one item per case, one item per play".
+  const [usedItemsByCase, setUsedItemsByCase] = useState<Record<string, ItemId>>({});
+  const armItemForCase = useCallback(
+    (slug: string, id: ItemId) => {
+      if (usedItemsByCase[slug]) return false; // already armed for this case
+      // one per play: any other case already armed -> deny
+      if (Object.keys(usedItemsByCase).length > 0) return false;
+      let ok = false;
+      setMeta((m) => {
+        if (id === "timeExt") {
+          if (m.timeExtensions <= 0) return m;
+          ok = true;
+          return { ...m, timeExtensions: m.timeExtensions - 1 };
+        }
+        const inv = { ...(m.inventory ?? {}) };
+        const cur = inv[id] ?? 0;
+        if (cur <= 0) return m;
+        ok = true;
+        inv[id] = cur - 1;
+        return { ...m, inventory: inv };
+      });
+      if (ok) setUsedItemsByCase((u) => ({ ...u, [slug]: id }));
+      return ok;
+    },
+    [usedItemsByCase],
+  );
+  const getArmedItem = useCallback(
+    (slug: string) => usedItemsByCase[slug] ?? null,
+    [usedItemsByCase],
   );
   const setAvatar = useCallback((id: AvatarId) => {
     setAvatarIdState(id);
@@ -395,7 +430,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       if (m.dailyDate === today) return m;
       const newClaims = [...m.dailyClaims];
       newClaims[idx] = true;
-      const reward = day === 7 ? 0 : 50 * day; // day 7 = special tool
+      const reward = day === 7 ? 0 : Math.round(25 * day); // -50% from previous; day 7 = special tool
       const extras = day === 7 ? 1 : 0;
       ok = true;
       // If all 7 claimed, cycle resets next day
@@ -519,6 +554,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       inventory,
       addItem,
       useItem,
+      usedItemsByCase,
+      armItemForCase,
+      getArmedItem,
       level: levelState.level,
       levelName: LEVEL_NAMES[levelState.level],
       xp: levelState.xp,
@@ -553,6 +591,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       inventory,
       addItem,
       useItem,
+      usedItemsByCase,
+      armItemForCase,
+      getArmedItem,
       levelState,
       addXp,
       resolveQuiz,

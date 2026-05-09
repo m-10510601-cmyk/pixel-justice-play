@@ -31,7 +31,7 @@ export const DailyRewardsModal = ({ open, onClose }: { open: boolean; onClose: (
               <div className="pixel text-[8px] text-primary">{t("daily.day")} {day}</div>
               <div className="text-2xl">{isSpecial ? "🎁" : "⭐"}</div>
               <div className="pixel text-[8px]">
-                {claimed ? t("daily.claimed") : isSpecial ? t("daily.special") : `+${50 * day}`}
+                {claimed ? t("daily.claimed") : isSpecial ? t("daily.special") : `+${Math.round(25 * day)}`}
               </div>
             </button>
           );
