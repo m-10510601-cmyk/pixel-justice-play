@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useStoryProgress } from "@/hooks/useStoryProgress";
 import { Link } from "react-router-dom";
 import GameFrame from "@/components/GameFrame";
@@ -257,6 +257,8 @@ const SilentFall = () => {
   const [revealedAt, setRevealedAt] = useState<number | null>(null);
   const [quiz, setQuiz] = useState<string | null>(null);
 
+  const mainRef = useRef<HTMLElement>(null);
+  useEffect(() => { mainRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" }); window.scrollTo(0, 0); }, [i]);
   const total = STORY.length;
   const done = i >= total;
 
@@ -304,7 +306,7 @@ const SilentFall = () => {
         </div>
       )}
 
-      <main className="flex-1 px-5 py-4 overflow-y-auto space-y-4">
+      <main ref={mainRef} className="flex-1 px-5 py-4 overflow-y-auto space-y-4">
         {step?.kind === "scene" && (
           <div className="space-y-3 animate-fade-in">
             {step.image && (
