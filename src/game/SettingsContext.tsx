@@ -199,7 +199,7 @@ interface Ctx {
   claimShare: () => void;
   dailyClaims: boolean[]; // length 7
   dailyAvailableDay: number; // 1..7, 0 if all claimed today
-  claimDailyDay: (day: number) => boolean;
+  claimDailyDay: (day: number) => { ok: boolean; bonusItem?: ItemId };
   timeExtensions: number;
   buyTimeExtension: () => boolean;
   inventory: Record<ItemId, number>;
