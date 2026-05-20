@@ -33,6 +33,8 @@ const BgmController = () => {
   const fadeRafRef = useRef<number | null>(null);
   const enabledRef = useRef<boolean>(bgmEnabled);
   enabledRef.current = bgmEnabled;
+  const volumeRef = useRef<number>(volume);
+  volumeRef.current = volume;
 
   // Lazily create the audio element once
   if (typeof window !== "undefined" && !audioRef.current) {
@@ -43,7 +45,19 @@ const BgmController = () => {
     audioRef.current = a;
   }
 
-  const targetVolume = bgmEnabled ? Math.min(1, (volume / 100) * 0.5) : 0;
+  const computeTarget = () =>
+    enabledRef.current ? Math.min(1, (volumeRef.current / 100) * 0.5) : 0;
+
+  const hardStop = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (fadeRafRef.current) {
+      cancelAnimationFrame(fadeRafRef.current);
+      fadeRafRef.current = null;
+    }
+    a.volume = 0;
+    a.pause();
+  };
 
   // Cross-fade utility
   const fadeTo = (target: number, ms = 400, onDone?: () => void) => {
@@ -73,24 +87,43 @@ const BgmController = () => {
       a.volume = 0;
       if (!enabledRef.current) {
         // Music is off — queue the track but do not start playback.
-        a.pause();
+        hardStop();
         return;
       }
-      const tryPlay = () => a.play().catch(() => {
-        // Autoplay blocked: wait for first user interaction
-        const resume = () => {
-          if (!enabledRef.current) return;
-          a.play().finally(() => {
-            window.removeEventListener("pointerdown", resume);
-            window.removeEventListener("keydown", resume);
+      const tryPlay = () =>
+        a.play()
+          .then(() => {
+            if (!enabledRef.current) hardStop();
+          })
+          .catch(() => {
+            // Autoplay blocked: wait for first user interaction
+            const resume = () => {
+              if (!enabledRef.current) {
+                hardStop();
+                return;
+              }
+              a.play()
+                .then(() => {
+                  if (!enabledRef.current) hardStop();
+                })
+                .finally(() => {
+                  window.removeEventListener("pointerdown", resume);
+                  window.removeEventListener("keydown", resume);
+                });
+            };
+            window.addEventListener("pointerdown", resume, { once: true });
+            window.addEventListener("keydown", resume, { once: true });
           });
-        };
-        window.addEventListener("pointerdown", resume, { once: true });
-        window.addEventListener("keydown", resume, { once: true });
-      });
       tryPlay();
-      fadeTo(targetVolume);
+      fadeTo(computeTarget());
     };
+    if (!enabledRef.current) {
+      // Music is off — just queue the next track silently, no fade/play.
+      currentRef.current = next;
+      a.src = TRACKS[next];
+      hardStop();
+      return;
+    }
     if (currentRef.current === null) swap();
     else fadeTo(0, 300, swap);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -101,10 +134,12 @@ const BgmController = () => {
     const a = audioRef.current;
     if (!a) return;
     if (!bgmEnabled || volume === 0) {
-      fadeTo(0, 250, () => a.pause());
+      // Immediate hard stop so no in-flight play() promise can resurrect audio,
+      // regardless of Sound %.
+      hardStop();
     } else {
       if (a.paused) a.play().catch(() => {});
-      fadeTo(targetVolume, 250);
+      fadeTo(computeTarget(), 250);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bgmEnabled, volume]);
