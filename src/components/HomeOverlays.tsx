@@ -3,11 +3,21 @@ import Modal from "./Modal";
 import { useSettings } from "@/game/SettingsContext";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { toast } from "sonner";
 import { loadAutoSave, restoreAutoSave } from "@/lib/autoSave";
 
 const feedbackSchema = z.object({
   message: z.string().trim().min(1).max(1000),
 });
+
+const BONUS_ITEM_NAMES: Record<string, string> = {
+  gavel: "STAR +1",
+  book: "LAW BOOK",
+  badge: "BADGE",
+  scroll: "TIME FREEZE",
+  scales: "XP +50%",
+  robe: "XP +100%",
+};
 
 export const DailyRewardsModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   const { t, dailyClaims, dailyAvailableDay, claimDailyDay, playCue } = useSettings();
@@ -22,7 +32,15 @@ export const DailyRewardsModal = ({ open, onClose }: { open: boolean; onClose: (
             <button
               key={day}
               disabled={!isAvailable || claimed}
-              onClick={() => { if (claimDailyDay(day)) playCue(); }}
+              onClick={() => {
+                const res = claimDailyDay(day);
+                if (res.ok) {
+                  playCue();
+                  if (res.bonusItem) {
+                    toast(`🎁 +1 ${BONUS_ITEM_NAMES[res.bonusItem] ?? res.bonusItem.toUpperCase()}`);
+                  }
+                }
+              }}
               className={`pixel-frame p-2 flex flex-col items-center justify-center gap-1 aspect-square ${
                 claimed ? "opacity-40" : isAvailable ? "ring-2 ring-accent animate-pulse" : "opacity-70"
               } ${isSpecial ? "col-span-2 row-span-1" : ""}`}
