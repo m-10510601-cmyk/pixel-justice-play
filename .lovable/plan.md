@@ -1,32 +1,22 @@
-## 目标
+## Goal
+When the user toggles Music OFF in Settings, the background music should stop immediately and stay off — including across page navigation and user clicks.
 
-每日签到第 7 天（特别奖励）领取时，除了现有的 special tool（时间延长 +1），再额外随机发放一件商店道具到背包。
+## Root cause
+`src/game/BgmController.tsx` already pauses on `bgmEnabled = false`, but two paths can resurrect playback while music is off:
 
-## 改动
+1. **Pending autoplay-unlock listener** — When autoplay is blocked, the controller registers a `pointerdown`/`keydown` listener that calls `a.play()` on the next user interaction. This listener does not re-check `bgmEnabled`, so toggling Music OFF and then clicking anywhere starts the music.
+2. **Route change while OFF** — On every route change, `swap()` unconditionally calls `a.play()` (then fades to volume 0). The track is silent but actually playing in the background, which is wrong intent and risks audible blips.
 
-文件：`src/game/SettingsContext.tsx`，函数 `claimDailyDay`（约第 455 行）
+## Fix (single file: `src/game/BgmController.tsx`)
 
-在 `day === 7` 分支里，从商店 6 件道具池中随机抽 1 件，写入 `meta.items`：
+1. Track `bgmEnabled` in a ref (`enabledRef`) so the deferred resume listener always sees the latest value.
+2. In the autoplay-unlock `resume` callback, bail out (and do not re-arm) if `enabledRef.current === false`.
+3. In the route-change effect, skip `tryPlay()` when `bgmEnabled` is false — just update `currentRef`/`src` so the correct track is queued for when music gets re-enabled.
+4. In the `bgmEnabled`/`volume` effect, when turning back ON, if `a.src` is set but paused, call `a.play()` and fade in (already mostly handled — verify path).
 
-```ts
-const STORE_POOL: ItemId[] = ["gavel", "book", "badge", "scroll", "scales", "robe"];
-// 在 day === 7 时：
-const bonusItem = STORE_POOL[Math.floor(Math.random() * STORE_POOL.length)];
-// 在返回的新 meta 中：items: { ...m.items, [bonusItem]: (m.items[bonusItem] ?? 0) + 1 }
-```
+No changes to `SettingsContext`, Settings UI, or any other file. Behavior of the Music toggle button itself is unchanged.
 
-同时把抽到的道具 id 通过外层变量带出，便于 UI 在领取后用 toast/提示告知玩家"获得了 X"。
-
-文件：`src/components/HomeOverlays.tsx` 的 `DailyRewardsModal`
-
-`claimDailyDay(day)` 改为接收返回的奖励信息（或新增一个 `lastDailyBonusItem` 状态），在 day 7 领取成功后弹出一条 sonner toast，例如 `🎁 获得 LAW BOOK x1`，使用 `ITEM_META` 中的名称。
-
-## 范围之外
-
-- 不改商店逻辑、价格、道具效果
-- 不改前 6 天的奖励规则
-- 不改背包 UI
-
-## 技术备注
-
-- `addItem` 已存在，可在 `claimDailyDay` 之外的 UI 层捕获返回值后调用，避免重复实现 items 合并逻辑。更干净的方案：把 `claimDailyDay` 返回类型从 `boolean` 改成 `{ ok: boolean; bonusItem?: ItemId }`，UI 层据此调用 `addItem(bonusItem)` 并 toast。所有现有调用点（仅 `HomeOverlays.tsx` 一处）同步更新为读 `.ok`。
+## Verification
+- Open app → Settings → toggle Music OFF → click around / navigate to Quest, Store, a chapter → confirm silence.
+- Toggle Music ON again → confirm correct track resumes for the current route.
+- Reload with Music OFF persisted → confirm no audio on first interaction.

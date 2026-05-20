@@ -31,6 +31,8 @@ const BgmController = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentRef = useRef<TrackKey | null>(null);
   const fadeRafRef = useRef<number | null>(null);
+  const enabledRef = useRef<boolean>(bgmEnabled);
+  enabledRef.current = bgmEnabled;
 
   // Lazily create the audio element once
   if (typeof window !== "undefined" && !audioRef.current) {
@@ -69,9 +71,15 @@ const BgmController = () => {
       currentRef.current = next;
       a.src = TRACKS[next];
       a.volume = 0;
+      if (!enabledRef.current) {
+        // Music is off — queue the track but do not start playback.
+        a.pause();
+        return;
+      }
       const tryPlay = () => a.play().catch(() => {
         // Autoplay blocked: wait for first user interaction
         const resume = () => {
+          if (!enabledRef.current) return;
           a.play().finally(() => {
             window.removeEventListener("pointerdown", resume);
             window.removeEventListener("keydown", resume);
