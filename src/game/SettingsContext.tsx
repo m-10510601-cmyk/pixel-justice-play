@@ -199,7 +199,7 @@ interface Ctx {
   claimShare: () => void;
   dailyClaims: boolean[]; // length 7
   dailyAvailableDay: number; // 1..7, 0 if all claimed today
-  claimDailyDay: (day: number) => boolean;
+  claimDailyDay: (day: number) => { ok: boolean; bonusItem?: ItemId };
   timeExtensions: number;
   buyTimeExtension: () => boolean;
   inventory: Record<ItemId, number>;
@@ -454,6 +454,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   // We only allow claiming once per real day (track via dailyDate).
   const claimDailyDay = useCallback((day: number) => {
     let ok = false;
+    let bonusItem: ItemId | undefined;
+    const STORE_POOL: ItemId[] = ["gavel", "book", "badge", "scroll", "scales", "robe"];
     setMeta((m) => {
       const idx = day - 1;
       if (idx < 0 || idx > 6) return m;
@@ -469,6 +471,12 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       const reward = day === 7 ? 0 : Math.round(25 * day); // -50% from previous; day 7 = special tool
       const extras = day === 7 ? 1 : 0;
       ok = true;
+      let newInventory = m.inventory;
+      if (day === 7) {
+        bonusItem = STORE_POOL[Math.floor(Math.random() * STORE_POOL.length)];
+        const cur = (m.inventory?.[bonusItem] ?? 0) as number;
+        newInventory = { ...(m.inventory ?? {}), [bonusItem]: cur + 1 };
+      }
       // If all 7 claimed, cycle resets next day
       const allDone = newClaims.every((c) => c);
       return {
@@ -477,9 +485,10 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         dailyDate: today,
         coins: m.coins + reward,
         timeExtensions: m.timeExtensions + extras,
+        inventory: newInventory,
       };
     });
-    return ok;
+    return { ok, bonusItem };
   }, []);
 
   const buyTimeExtension = useCallback(() => {
