@@ -35,6 +35,7 @@ const BgmController = () => {
   enabledRef.current = bgmEnabled;
   const volumeRef = useRef<number>(volume);
   volumeRef.current = volume;
+  const resumeListenersRef = useRef<Array<() => void>>([]);
 
   // Lazily create the audio element once
   if (typeof window !== "undefined" && !audioRef.current) {
@@ -48,6 +49,14 @@ const BgmController = () => {
   const computeTarget = () =>
     enabledRef.current ? Math.min(1, (volumeRef.current / 100) * 0.5) : 0;
 
+  const clearResumeListeners = () => {
+    const list = resumeListenersRef.current;
+    resumeListenersRef.current = [];
+    list.forEach((off) => {
+      try { off(); } catch { /* noop */ }
+    });
+  };
+
   const hardStop = () => {
     const a = audioRef.current;
     if (!a) return;
@@ -57,6 +66,16 @@ const BgmController = () => {
     }
     a.volume = 0;
     a.pause();
+    clearResumeListeners();
+  };
+
+  const detachSource = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    try {
+      a.removeAttribute("src");
+      a.load();
+    } catch { /* noop */ }
   };
 
   // Cross-fade utility
@@ -80,7 +99,7 @@ const BgmController = () => {
     const a = audioRef.current;
     if (!a) return;
     const next = trackForPath(pathname);
-    if (currentRef.current === next) return;
+    if (currentRef.current === next && enabledRef.current && !a.paused) return;
     const swap = () => {
       currentRef.current = next;
       a.src = TRACKS[next];
@@ -88,23 +107,26 @@ const BgmController = () => {
       if (!enabledRef.current) {
         // Music is off — queue the track but do not start playback.
         hardStop();
+        detachSource();
         return;
       }
       const tryPlay = () =>
         a.play()
           .then(() => {
-            if (!enabledRef.current) hardStop();
+            if (!enabledRef.current) { hardStop(); detachSource(); a.pause(); }
           })
           .catch(() => {
+            if (!enabledRef.current) return;
             // Autoplay blocked: wait for first user interaction
             const resume = () => {
               if (!enabledRef.current) {
                 hardStop();
+                detachSource();
                 return;
               }
               a.play()
                 .then(() => {
-                  if (!enabledRef.current) hardStop();
+                  if (!enabledRef.current) { hardStop(); detachSource(); }
                 })
                 .finally(() => {
                   window.removeEventListener("pointerdown", resume);
@@ -113,21 +135,25 @@ const BgmController = () => {
             };
             window.addEventListener("pointerdown", resume, { once: true });
             window.addEventListener("keydown", resume, { once: true });
+            resumeListenersRef.current.push(() => {
+              window.removeEventListener("pointerdown", resume);
+              window.removeEventListener("keydown", resume);
+            });
           });
       tryPlay();
       fadeTo(computeTarget());
     };
     if (!enabledRef.current) {
-      // Music is off — just queue the next track silently, no fade/play.
+      // Music is off — remember the intended track but keep audio fully detached.
       currentRef.current = next;
-      a.src = TRACKS[next];
       hardStop();
+      detachSource();
       return;
     }
-    if (currentRef.current === null) swap();
+    if (currentRef.current === null || a.paused || !a.src) swap();
     else fadeTo(0, 300, swap);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, bgmEnabled]);
 
   // React to volume / bgmEnabled changes
   useEffect(() => {
@@ -137,7 +163,15 @@ const BgmController = () => {
       // Immediate hard stop so no in-flight play() promise can resurrect audio,
       // regardless of Sound %.
       hardStop();
+      if (!bgmEnabled) detachSource();
     } else {
+      // Re-attach src for the current route if it was detached while OFF.
+      const next = currentRef.current ?? trackForPath(window.location.pathname);
+      currentRef.current = next;
+      if (!a.src) {
+        a.src = TRACKS[next];
+        a.volume = 0;
+      }
       if (a.paused) a.play().catch(() => {});
       fadeTo(computeTarget(), 250);
     }
