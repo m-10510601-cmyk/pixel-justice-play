@@ -165,6 +165,8 @@
     margin-inline: auto;
     position: relative;
     overflow: hidden;
+    filter: brightness(var(--app-brightness, 1));
+    transition: filter 200ms ease;
   }
 
   /* === Atmospheric depth layers === */
@@ -493,25 +495,16 @@
 }
 .animate-blink { animation: blink 1.2s steps(2) infinite; }
 
-/* ===== Global brightness overlay (driven by html.theme-light / html.theme-dark) ===== */
+/* ===== Global brightness overlay (driven by --app-brightness CSS var, 1.0 = neutral) ===== */
 .brightness-overlay {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0;
-  transition: opacity 200ms ease, background-color 200ms ease;
-  mix-blend-mode: normal;
-}
-html.theme-dark .brightness-overlay {
-  background-color: hsl(220 60% 6% / 0.45);
   opacity: 1;
-  mix-blend-mode: multiply;
-}
-html.theme-light .brightness-overlay {
-  background-color: hsl(45 90% 92% / 0.18);
-  opacity: 1;
-  mix-blend-mode: screen;
+  transition: background-color 200ms ease, mix-blend-mode 200ms ease;
+  background-color: var(--brightness-overlay-color, transparent);
+  mix-blend-mode: var(--brightness-overlay-blend, normal);
 }
 
 .pixel-btn-active {
