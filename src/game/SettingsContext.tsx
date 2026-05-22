@@ -640,6 +640,10 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     () => ({
       theme,
       setTheme,
+      brightness,
+      setBrightness,
+      brightnessAuto,
+      setBrightnessAuto,
       volume,
       setVolume,
       bgmEnabled,
@@ -685,6 +689,10 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     [
       theme,
       setTheme,
+      brightness,
+      setBrightness,
+      brightnessAuto,
+      setBrightnessAuto,
       volume,
       setVolume,
       bgmEnabled,
