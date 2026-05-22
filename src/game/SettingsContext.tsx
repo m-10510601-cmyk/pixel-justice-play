@@ -278,7 +278,13 @@ const load = () => {
   try {
     const raw = localStorage.getItem(LS);
     if (!raw) return null;
-    return JSON.parse(raw) as { theme?: Theme; volume?: number; lang?: Lang };
+    return JSON.parse(raw) as {
+      theme?: Theme;
+      volume?: number;
+      lang?: Lang;
+      brightness?: number;
+      brightnessAuto?: boolean;
+    };
     // bgmEnabled is read separately below to keep back-compat
   } catch {
     return null;
@@ -288,6 +294,17 @@ const load = () => {
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const initial = typeof window !== "undefined" ? load() : null;
   const [theme, setThemeState] = useState<Theme>(initial?.theme ?? "default");
+  const migratedFromTheme =
+    initial?.theme === "dark" ? 70 : initial?.theme === "light" ? 115 : 100;
+  const [brightness, setBrightnessState] = useState<number>(() => {
+    if (typeof initial?.brightness === "number") {
+      return Math.min(160, Math.max(40, initial.brightness));
+    }
+    return migratedFromTheme;
+  });
+  const [brightnessAuto, setBrightnessAutoState] = useState<boolean>(
+    initial?.brightnessAuto === true,
+  );
   const [volume, setVolumeState] = useState<number>(
     typeof initial?.volume === "number" ? Math.min(100, Math.max(0, initial.volume)) : 70,
   );
@@ -382,9 +399,12 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   // Persist
   useEffect(() => {
     try {
-      localStorage.setItem(LS, JSON.stringify({ theme, volume, lang, bgmEnabled }));
+      localStorage.setItem(
+        LS,
+        JSON.stringify({ theme, volume, lang, bgmEnabled, brightness, brightnessAuto }),
+      );
     } catch {}
-  }, [theme, volume, lang, bgmEnabled]);
+  }, [theme, volume, lang, bgmEnabled, brightness, brightnessAuto]);
 
   useEffect(() => {
     try {
@@ -407,6 +427,41 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     if (theme === "light") root.classList.add("theme-light");
     if (theme === "dark") root.classList.add("theme-dark");
   }, [theme]);
+
+  // Auto-follow system color scheme
+  useEffect(() => {
+    if (!brightnessAuto || typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => setBrightnessState(mq.matches ? 70 : 115);
+    apply();
+    mq.addEventListener?.("change", apply);
+    return () => mq.removeEventListener?.("change", apply);
+  }, [brightnessAuto]);
+
+  // Write brightness CSS variables on <html>
+  useEffect(() => {
+    const root = document.documentElement;
+    const factor = brightness / 100;
+    root.style.setProperty("--app-brightness", String(factor));
+    if (brightness < 100) {
+      const a = ((100 - brightness) / 60) * 0.55; // up to ~0.55 at 40
+      root.style.setProperty(
+        "--brightness-overlay-color",
+        `hsl(220 60% 6% / ${Math.min(0.6, Math.max(0, a)).toFixed(3)})`,
+      );
+      root.style.setProperty("--brightness-overlay-blend", "multiply");
+    } else if (brightness > 100) {
+      const a = ((brightness - 100) / 60) * 0.35;
+      root.style.setProperty(
+        "--brightness-overlay-color",
+        `hsl(45 90% 92% / ${Math.min(0.4, Math.max(0, a)).toFixed(3)})`,
+      );
+      root.style.setProperty("--brightness-overlay-blend", "screen");
+    } else {
+      root.style.setProperty("--brightness-overlay-color", "transparent");
+      root.style.setProperty("--brightness-overlay-blend", "normal");
+    }
+  }, [brightness]);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const playCue = useCallback(() => {
@@ -431,6 +486,11 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   }, [volume]);
 
   const setTheme = useCallback((t: Theme) => setThemeState(t), []);
+  const setBrightness = useCallback((n: number) => {
+    setBrightnessAutoState(false);
+    setBrightnessState(Math.min(160, Math.max(40, Math.round(n))));
+  }, []);
+  const setBrightnessAuto = useCallback((b: boolean) => setBrightnessAutoState(b), []);
   const setVolume = useCallback((v: number) => setVolumeState(Math.min(100, Math.max(0, v))), []);
   const setBgmEnabled = useCallback((b: boolean) => setBgmEnabledState(b), []);
   const setLang = useCallback((_l: Lang) => {}, []);
