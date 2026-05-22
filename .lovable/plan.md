@@ -1,43 +1,49 @@
-## Goal
+## 优化 Brightness 系统
 
-On `/quest` (and every other page), when Settings → Music is OFF, no background music can ever play, even after route changes, reloads, or user interactions that unlock autoplay.
+把当前的「3档按钮（默认/亮/暗）」升级为「连续滑块 + 自动跟随系统」，并把亮度真正应用到画面、场景图和UI上。
 
-## Likely cause
+### 1. 数据模型（SettingsContext）
+- 新增 `brightness: number`（0–200，100=正常，<100变暗，>100变亮），默认 `100`，持久化到 `localStorage`。
+- 新增 `brightnessAuto: boolean`，默认 `false`。开启时监听 `prefers-color-scheme`：dark → brightness=70，light → brightness=115。
+- 保留 `theme` 字段以兼容旧存档（读取时把 `light→115 / dark→70 / default→100` 迁移到 brightness，迁移后丢弃）。
+- 导出：`brightness`, `setBrightness`, `brightnessAuto`, `setBrightnessAuto`。
 
-`src/game/BgmController.tsx` already has guards, but two paths can still leak audio specifically when arriving at `/quest`:
+### 2. 应用方式
+在 `<html>` 上设置 CSS 变量 `--brightness: <value/100>`，由一个 effect 写入：
+```text
+root.style.setProperty('--brightness', String(brightness / 100));
+```
 
-1. **Stale autoplay-unlock listeners.** Each time a route change happens while Music is ON, the controller may register `pointerdown`/`keydown` `resume` listeners (when autoplay was blocked). If the user toggles Music OFF afterwards and then interacts on `/quest` (the Tutorial modal forces a click), every previously-registered `resume` fires. Each one calls `a.play()` inside a Promise; even though we re-check `enabledRef` after, the browser may briefly emit audio before `hardStop()` runs on the next microtask, and on some browsers the play succeeds with audible output.
-2. **Audio element keeps a loaded `src`.** When disabled, we still assign `a.src = TRACKS[next]` and only `pause()` it. Any stray `play()` (from a leftover resume listener, a focus/visibility event, or a media-session resume) will immediately produce sound because the buffer is ready.
+`src/index.css` 改造 `.brightness-overlay`：
+- 不再依赖 `theme-light/theme-dark` 类。
+- 用单层 overlay：`brightness < 100` 时显示半透明深色（不透明度 = `(100-brightness)/100 * 0.6`），`brightness > 100` 时显示半透明暖白（不透明度 = `(brightness-100)/100 * 0.35`），平滑过渡 200ms。
 
-## Plan (single file: `src/game/BgmController.tsx`)
+场景背景图与UI（`.game-frame`）加一个 CSS filter：
+```text
+.game-frame { filter: brightness(var(--brightness, 1)); }
+```
+这样背景图和UI（按钮/文字）一起跟着变，避免太暗看不清按钮文字（filter同时作用）。overlay 提供色温感，filter 提供真正的明暗。
 
-1. **Track pending resume listeners and clear them on disable.**
-   - Keep a `resumeListenersRef = useRef<Array<() => void>>([])`.
-   - When registering a `resume` for `pointerdown`/`keydown`, push a cleanup closure that removes both listeners.
-   - Add a `clearResumeListeners()` helper that runs all cleanups and empties the array.
-   - Call `clearResumeListeners()` from `hardStop()` so disabling music also kills every deferred play.
+### 3. Settings 页面 UI
+替换 `Row "BRIGHTNESS"` 区域：
+- 一行：`☾` 图标 + `<Slider min=40 max=160 step=5>` + `☀` 图标 + 百分比显示（如 `100%`）。
+- 下方一行：`AUTO` toggle 按钮（pixel-btn 样式），开启后滑块禁用并显示当前自动值。
+- 使用项目已有的 `@/components/ui/slider`，外加 pixel 风格 wrapper 保持像素风。
+- 复用 `playCue()` 在滑动结束/toggle时给反馈。
 
-2. **Refuse to schedule new resume listeners when disabled.**
-   - In `tryPlay`'s catch, bail out (no `addEventListener`) if `!enabledRef.current`.
+### 4. 文案（DICT）
+- `settings.brightness.auto` = "AUTO"
+- `settings.brightness.manual` = "MANUAL"
 
-3. **Detach the source when disabled.**
-   - In the route-change effect's "music off" early-return branch, do NOT set `a.src = TRACKS[next]`. Only update `currentRef.current = next`, then call `hardStop()` and (defensively) `a.removeAttribute("src"); a.load();`.
-   - In the `bgmEnabled` / `volume` effect, when turning OFF call `hardStop()` and `a.removeAttribute("src"); a.load();` so the element holds no playable buffer.
-   - When turning back ON, look up the current route's track from `currentRef.current` (or recompute via `trackForPath(window.location.pathname)`), set `a.src = TRACKS[...]`, then `a.play()` + `fadeTo(computeTarget())`.
+### 5. 文件改动清单
+- `src/game/SettingsContext.tsx` — 加 brightness/brightnessAuto 状态、持久化、迁移、`prefers-color-scheme` 监听、CSS 变量写入。
+- `src/index.css` — 重写 `.brightness-overlay` 用 CSS 变量驱动；给 `.game-frame` 加 `filter: brightness(var(--brightness))`。
+- `src/pages/Settings.tsx` — 替换按钮为滑块 + AUTO toggle。
+- 兼容旧 theme 字段：读时迁移，写时不再写 `theme`。
 
-4. **Re-run the route effect on `bgmEnabled` flips.**
-   - Add `bgmEnabled` to the route effect's dependency list so toggling back ON immediately starts the correct track for the current route (today this depends solely on `pathname`).
-
-5. **Guard `play()` resolution one more time.**
-   - Keep the existing post-`play().then` `hardStop()` check, plus an `a.pause()` inside the same tick to cover the race.
-
-## Verification
-
-- On `/`, toggle Music OFF → navigate to `/quest` → dismiss the Tutorial modal (forces a click) → no music. Click around on chapter buttons → no music.
-- Reload on `/quest` with Music OFF → click anywhere → no music.
-- Music OFF with Sound at 100% on `/quest` → silence.
-- Toggle Music ON while on `/quest` → `quest.mp3` (mystery) starts and fades in.
-- Toggle OFF mid-fade on `/quest` → silence within a frame.
-- Repeat for `/store`, `/case/*`, `/story/*` to confirm no regression.
-
-No changes to `SettingsContext`, Settings UI, `Quest.tsx`, or any other file.
+### 验证
+- 滑块拉到最左 → 画面明显变暗（overlay+filter），按钮文字仍可读。
+- 拉到最右 → 画面变亮但不过曝。
+- AUTO 开启 → 滑块灰显，切换系统主题（Chrome devtools 模拟）→ 亮度立即跟随。
+- 刷新页面 → 亮度持久化。
+- 旧用户原 theme=dark → 自动迁移为 brightness=70。

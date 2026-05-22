@@ -6,9 +6,21 @@ import { useSettings } from "@/game/SettingsContext";
 import Modal from "@/components/Modal";
 import { FeedbackModal } from "@/components/HomeOverlays";
 import InboxModal from "@/components/InboxModal";
+import { Slider } from "@/components/ui/slider";
 
 const Settings = () => {
-  const { theme, setTheme, volume, setVolume, bgmEnabled, setBgmEnabled, t, playCue } = useSettings();
+  const {
+    brightness,
+    setBrightness,
+    brightnessAuto,
+    setBrightnessAuto,
+    volume,
+    setVolume,
+    bgmEnabled,
+    setBgmEnabled,
+    t,
+    playCue,
+  } = useSettings();
   const [showTerms, setShowTerms] = useState(false);
   const [showFb, setShowFb] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
@@ -38,24 +50,42 @@ const Settings = () => {
       </header>
 
       <main className="flex-1 px-5 py-6 flex flex-col gap-4">
-        <Row label={t("settings.brightness")}>
-          <button
-            onClick={() => setTheme(theme === "light" ? "default" : "light")}
-            className={`pixel-btn-square ${theme === "light" ? "pixel-btn-active" : "pixel-btn-secondary"}`}
-            aria-pressed={theme === "light"}
-            title="Light"
-          >
-            ☀
-          </button>
-          <button
-            onClick={() => setTheme(theme === "dark" ? "default" : "dark")}
-            className={`pixel-btn-square ${theme === "dark" ? "pixel-btn-active" : "pixel-btn-secondary"}`}
-            aria-pressed={theme === "dark"}
-            title="Dark"
-          >
-            ☾
-          </button>
-        </Row>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-stretch gap-2">
+            <div className="pixel-btn pixel-btn-secondary flex-1 text-xs justify-start" style={{ minWidth: 0 }}>
+              {t("settings.brightness")}
+            </div>
+            <button
+              onClick={() => {
+                setBrightnessAuto(!brightnessAuto);
+                playCue();
+              }}
+              className={`pixel-btn text-[10px] px-3 ${brightnessAuto ? "pixel-btn-active" : "pixel-btn-secondary"}`}
+              aria-pressed={brightnessAuto}
+              title="Auto follow system"
+            >
+              {t("settings.auto")}
+            </button>
+            <div className="pixel-btn pixel-btn-secondary text-xs px-3" style={{ minWidth: 64 }}>
+              {brightness}%
+            </div>
+          </div>
+          <div className="pixel-frame px-3 py-3 flex items-center gap-3">
+            <span className="pixel text-[10px] text-muted-foreground" aria-hidden>☾</span>
+            <Slider
+              value={[brightness]}
+              min={40}
+              max={160}
+              step={5}
+              disabled={brightnessAuto}
+              onValueChange={(v) => setBrightness(v[0] ?? 100)}
+              onValueCommit={() => playCue()}
+              aria-label="Brightness"
+              className={brightnessAuto ? "opacity-50" : ""}
+            />
+            <span className="pixel text-[10px] text-primary" aria-hidden>☀</span>
+          </div>
+        </div>
 
         <Row label={t("settings.sound")}>
           <button onClick={() => bumpVol(-10)} className="pixel-btn-square" aria-label="Decrease volume">
