@@ -77,6 +77,8 @@ const DICT: Dict = {
     "settings.bgm": "MUSIC",
     "settings.on": "ON",
     "settings.off": "OFF",
+    "settings.auto": "AUTO",
+    "settings.manual": "MANUAL",
     "settings.language": "LANGUAGE",
     "settings.terms": "TERMS OF POLICY",
     "settings.feedback": "FEEDBACK",
@@ -180,6 +182,10 @@ const DICT: Dict = {
 interface Ctx {
   theme: Theme;
   setTheme: (t: Theme) => void;
+  brightness: number;
+  setBrightness: (n: number) => void;
+  brightnessAuto: boolean;
+  setBrightnessAuto: (b: boolean) => void;
   volume: number;
   setVolume: (v: number) => void;
   bgmEnabled: boolean;
