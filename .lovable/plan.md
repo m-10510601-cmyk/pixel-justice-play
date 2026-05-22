@@ -1,29 +1,43 @@
 ## Goal
 
-When the **Music** toggle in Settings is OFF, all background music must be silenced on every page, regardless of the **Sound** volume value (1%–100%).
+On `/quest` (and every other page), when Settings → Music is OFF, no background music can ever play, even after route changes, reloads, or user interactions that unlock autoplay.
 
-## Findings
+## Likely cause
 
-- `BgmController` (mounted globally in `src/App.tsx`) is the only source of background music — no other `<audio>`, `Audio()`, or `.mp3` playback exists outside of it (`playCue` is a synthesized SFX beep, not music).
-- Current logic already pauses on `!bgmEnabled`, but a few gaps can let audio resume:
-  1. The deferred autoplay-unlock listener in the route-change effect is registered with `{ once: true }`, but only the path that triggers the listener is gated by `enabledRef`. A second route change while OFF can re-register a fresh listener, and any in-flight `a.play()` promise from before the toggle can still resolve and start playback before the pause effect runs.
-  2. `targetVolume` is captured in the route-change effect's closure. If the route changes between renders while `bgmEnabled` flips, the closure may still fade to the old non-zero target.
-  3. There is no hard guard inside `tryPlay` / `swap` against `enabledRef.current === false` at the moment `play()` actually resolves.
+`src/game/BgmController.tsx` already has guards, but two paths can still leak audio specifically when arriving at `/quest`:
+
+1. **Stale autoplay-unlock listeners.** Each time a route change happens while Music is ON, the controller may register `pointerdown`/`keydown` `resume` listeners (when autoplay was blocked). If the user toggles Music OFF afterwards and then interacts on `/quest` (the Tutorial modal forces a click), every previously-registered `resume` fires. Each one calls `a.play()` inside a Promise; even though we re-check `enabledRef` after, the browser may briefly emit audio before `hardStop()` runs on the next microtask, and on some browsers the play succeeds with audible output.
+2. **Audio element keeps a loaded `src`.** When disabled, we still assign `a.src = TRACKS[next]` and only `pause()` it. Any stray `play()` (from a leftover resume listener, a focus/visibility event, or a media-session resume) will immediately produce sound because the buffer is ready.
 
 ## Plan (single file: `src/game/BgmController.tsx`)
 
-1. **Hard stop helper** — add `const hardStop = () => { if (fadeRafRef.current) cancelAnimationFrame(fadeRafRef.current); a.volume = 0; a.pause(); }`.
-2. **`bgmEnabled` / `volume` effect** — when `!bgmEnabled`, call `hardStop()` immediately (no fade) in addition to the existing fade, so music is silenced even if a `play()` promise resolves after the fade scheduling.
-3. **Route-change effect** — at the very top, if `!enabledRef.current`, just update `currentRef` and `a.src`, then `hardStop()` and return. Do not schedule any fade or `tryPlay`.
-4. **`tryPlay` resolution guard** — after `a.play()` resolves successfully, re-check `enabledRef.current`; if false, call `hardStop()`.
-5. **Autoplay-unlock listener** — keep the `enabledRef` guard, and also call `hardStop()` inside `resume` when disabled, to defensively kill any partial buffer.
-6. **Recompute volume from ref inside fades** — replace the captured `targetVolume` in the route effect with a fresh read at fade time, so a mid-fade toggle to OFF immediately fades to 0 instead of the stale target.
+1. **Track pending resume listeners and clear them on disable.**
+   - Keep a `resumeListenersRef = useRef<Array<() => void>>([])`.
+   - When registering a `resume` for `pointerdown`/`keydown`, push a cleanup closure that removes both listeners.
+   - Add a `clearResumeListeners()` helper that runs all cleanups and empties the array.
+   - Call `clearResumeListeners()` from `hardStop()` so disabling music also kills every deferred play.
+
+2. **Refuse to schedule new resume listeners when disabled.**
+   - In `tryPlay`'s catch, bail out (no `addEventListener`) if `!enabledRef.current`.
+
+3. **Detach the source when disabled.**
+   - In the route-change effect's "music off" early-return branch, do NOT set `a.src = TRACKS[next]`. Only update `currentRef.current = next`, then call `hardStop()` and (defensively) `a.removeAttribute("src"); a.load();`.
+   - In the `bgmEnabled` / `volume` effect, when turning OFF call `hardStop()` and `a.removeAttribute("src"); a.load();` so the element holds no playable buffer.
+   - When turning back ON, look up the current route's track from `currentRef.current` (or recompute via `trackForPath(window.location.pathname)`), set `a.src = TRACKS[...]`, then `a.play()` + `fadeTo(computeTarget())`.
+
+4. **Re-run the route effect on `bgmEnabled` flips.**
+   - Add `bgmEnabled` to the route effect's dependency list so toggling back ON immediately starts the correct track for the current route (today this depends solely on `pathname`).
+
+5. **Guard `play()` resolution one more time.**
+   - Keep the existing post-`play().then` `hardStop()` check, plus an `a.pause()` inside the same tick to cover the race.
 
 ## Verification
 
-- Settings → Music OFF on Home → click around, navigate to `/quest`, `/store`, a `/story/*` page, a `/case/*` page → silence on every page.
-- Music OFF → reload page → no audio after first click/keypress.
-- Music OFF with Sound at 100% → silence.
-- Toggle Music back ON on any page → correct track for current route resumes and fades in.
+- On `/`, toggle Music OFF → navigate to `/quest` → dismiss the Tutorial modal (forces a click) → no music. Click around on chapter buttons → no music.
+- Reload on `/quest` with Music OFF → click anywhere → no music.
+- Music OFF with Sound at 100% on `/quest` → silence.
+- Toggle Music ON while on `/quest` → `quest.mp3` (mystery) starts and fades in.
+- Toggle OFF mid-fade on `/quest` → silence within a frame.
+- Repeat for `/store`, `/case/*`, `/story/*` to confirm no regression.
 
-No changes to `SettingsContext`, Settings UI, or any other file.
+No changes to `SettingsContext`, Settings UI, `Quest.tsx`, or any other file.
