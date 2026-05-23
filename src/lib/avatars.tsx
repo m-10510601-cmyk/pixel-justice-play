@@ -78,6 +78,7 @@ export const AVATARS: AvatarDef[] = [
     id: "scholar",
     name: "Scholar",
     unlockLevel: 1,
+    bio: "Buried in case law and dusty tomes — knowledge is the sharpest weapon.",
     render: (size) => (
       <Frame size={size} bg="hsl(32 50% 70%)" shadow="hsl(32 50% 50%)">
         {/* hair */}
@@ -93,6 +94,7 @@ export const AVATARS: AvatarDef[] = [
     id: "officer",
     name: "Officer",
     unlockLevel: 2,
+    bio: "First on the scene, last to back down. Wears the badge with quiet pride.",
     render: (size) => (
       <Frame size={size} bg="hsl(28 35% 62%)" shadow="hsl(28 35% 45%)">
         {/* cap */}
@@ -110,6 +112,7 @@ export const AVATARS: AvatarDef[] = [
     id: "advocate",
     name: "Advocate",
     unlockLevel: 3,
+    bio: "Voice for the voiceless — turns evidence into airtight arguments.",
     render: (size) => (
       <Frame size={size} bg="hsl(28 35% 62%)" shadow="hsl(28 35% 45%)">
         {/* black robe top */}
@@ -126,6 +129,7 @@ export const AVATARS: AvatarDef[] = [
     id: "detective",
     name: "Detective",
     unlockLevel: 3,
+    bio: "Reads silence like a confession. No detail escapes the brim of that hat.",
     render: (size) => (
       <Frame size={size} bg="hsl(28 35% 62%)" shadow="hsl(28 35% 45%)">
         {/* fedora top */}
@@ -141,6 +145,7 @@ export const AVATARS: AvatarDef[] = [
     id: "judge",
     name: "Judge",
     unlockLevel: 4,
+    bio: "Holds the gavel and the weight of every verdict. Impartial, immovable.",
     render: (size) => (
       <Frame size={size} bg="hsl(28 35% 62%)" shadow="hsl(28 35% 45%)">
         {/* wig */}
@@ -158,6 +163,7 @@ export const AVATARS: AvatarDef[] = [
     id: "guardian",
     name: "Guardian",
     unlockLevel: 5,
+    bio: "Crowned protector of the law — legend whispered in courthouse halls.",
     render: (size) => (
       <Frame size={size} bg="hsl(28 35% 62%)" shadow="hsl(28 35% 45%)">
         {/* crown */}
@@ -176,6 +182,7 @@ export const AVATARS: AvatarDef[] = [
     id: "shadow",
     name: "Shadow",
     unlockLevel: 5,
+    bio: "Operates beyond the spotlight. Justice doesn't always wear a name tag.",
     render: (size) => (
       <Frame size={size} bg="hsl(220 15% 18%)" shadow="hsl(220 15% 8%)">
         {/* hood */}
