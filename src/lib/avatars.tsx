@@ -16,6 +16,7 @@ export type AvatarDef = {
   id: AvatarId;
   name: string;
   unlockLevel: number;
+  bio: string;
   render: (size: number) => ReactNode;
 };
 
@@ -64,6 +65,7 @@ export const AVATARS: AvatarDef[] = [
     id: "rookie",
     name: "Rookie",
     unlockLevel: 1,
+    bio: "A fresh recruit with sharp instincts and an unshakable belief in fairness.",
     render: (size) => (
       <Frame size={size} bg="hsl(28 35% 62%)" shadow="hsl(28 35% 45%)">
         <div className="absolute" style={{ top: px(size, 0.07), left: px(size, 0.07), right: px(size, 0.07), height: px(size, 0.21), background: "hsl(0 0% 92%)", boxShadow: "inset 0 0 0 1px hsl(0 0% 0%)" }} />
