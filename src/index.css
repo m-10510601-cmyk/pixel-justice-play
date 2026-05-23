@@ -363,6 +363,14 @@
   .btn-rivets > .rivet.bl { bottom: 4px; left: 4px; }
   .btn-rivets > .rivet.br { bottom: 4px; right: 4px; }
 
+  /* Avatar badge frame interaction */
+  .avatar-badge-frame { transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease; }
+  .avatar-badge-frame:hover {
+    transform: translateY(-1px);
+    filter: drop-shadow(0 0 6px hsl(var(--gold) / 0.7));
+  }
+  .avatar-badge-frame:active { transform: translateY(1px); }
+
   /* Dithered shadow anchor */
   .dither-shadow { position: relative; }
   .dither-shadow::after {
