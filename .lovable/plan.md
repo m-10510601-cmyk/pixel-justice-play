@@ -1,41 +1,30 @@
 ## 目标
-优化头像视觉设计，并支持点击头像查看「头像详情」（而非直接进入选择器）。
+头像系统与等级系统的所有 UI 元素都放进统一的「金边像素 box」里，做到视觉一致 + 框感强。
 
-## 改动范围
-仅前端展示层，保持现有配色（紫 `#1a1625` / 金 `#fbbf24`）和像素风格。
+## 1. HUD 顶部左侧（`src/pages/Index.tsx`）
+当前：浅紫细条 `hud-bar-purple` 内随意排列 avatar + 🪙 + level。  
+改为：把 AvatarBadge + 金币 + LevelBadge 包进一个**双层金边像素框**（暗紫底、金色描边、四角金铆钉），形成一个整体 HUD box。新增 class `.hud-box`（在 index.css）。
 
-### 1. AvatarBadge 视觉升级（`src/components/AvatarBadge.tsx`）
-- 加金色像素描边 + 内层暗紫底，形成"勋章框"质感
-- 四角加小金色铆钉（`rivet`）
-- 等级小角标：右下角圆形金底显示当前 `Lv N`（从 `useSettings` 取 `level`）
-- hover：轻微上浮 + 金色外发光；active：按下位移 1px
-- 解锁新头像时（可选）顶部加一颗闪烁星标
+## 2. LevelBadge 重构（`src/components/LevelBadge.tsx`）
+对齐 AvatarBadge 的金框风格：
+- 外层：金色像素双描边 + 暗背景 + 四角金铆钉
+- 内部：LV 数字（大金字）+ 名称 + XP 进度条 + XP 文本
+- hover：上浮 + 金色发光（复用 `.avatar-badge-frame` 同款 hover 或新建 `.pixel-frame` 通用类）
 
-### 2. 新建 AvatarDetailsModal（`src/components/AvatarDetailsModal.tsx`）
-点击头像后默认打开此弹窗（替代当前直接打开 Picker）：
-- 顶部：放大版当前头像（96px）+ 名称 + 当前等级
-- 中部：解锁条件、稀有度（按 `unlockLevel` 推导：1=普通 / 2-3=稀有 / 4=史诗 / 5=传说，金色字）
-- 角色背景小段描述（每个 avatar 一句 flavor text，新增到 `src/lib/avatars.tsx` 的 `AvatarDef.bio`）
-- 已解锁头像数 / 总数进度条
-- 底部双按钮：
-  - 「更换头像」→ 关闭详情，打开现有 `AvatarPickerModal`
-  - 「关闭」
+## 3. 提取通用 `.pixel-frame` 样式（`src/index.css`）
+把 AvatarBadge 内联的金边 + 铆钉样式抽到 CSS 类 `.pixel-frame`（变量化 padding），AvatarBadge / LevelBadge / HUD box 三处复用，保持统一。
 
-### 3. AvatarPickerModal 小优化（`src/components/AvatarPickerModal.tsx`）
-- 选中头像时点击右下「查看详情」可回到 Details
-- 卡片 hover 加金色边框过渡（仅样式微调）
+## 4. AvatarDetailsModal & LevelDetailsModal 内部 box 化
+- AvatarDetailsModal：头像区已在金框内；给 BIO 区、COLLECTION 区显式加 `.pixel-frame` 风格的子 box（金边+暗底），让"信息分块"更清晰。
+- LevelDetailsModal：当前 status / sources / path 三段已用 border 区分，但样式不一致。统一改成 `.pixel-frame` 风格小 box（金描边 + 暗紫底 + 标题贴在框顶）。
 
-### 4. 接入 Index 页（`src/pages/Index.tsx`）
-- 新增 `openAvatarDetails` 状态
-- HUD 头像 onClick 改为打开 Details，而非 Picker
-- 渲染 `<AvatarDetailsModal>`，并传入打开 Picker 的回调
+## 5. 不动
+- 业务逻辑、存档、SettingsContext、路由
+- 颜色仍走现有 token（`--gold` / `--background` / `--accent`）
+- 不引入新依赖
 
 ## 技术细节
-- 不改业务逻辑、不改 Settings/存档
-- 所有颜色走 `index.css` 已有 token（`--accent` 金、`--primary` 紫）
-- bio 文案中英双语：在 `avatars.tsx` 中各 avatar 增加 `bio: { en, zh }`，通过 `useSettings().lang` 选择
-- 等级角标用绝对定位的小方块，不影响现有 `Frame` 渲染
-
-## 不做
-- 不改其他页面头像出现位置（`AvatarBadge` 升级后自动生效）
-- 不引入新依赖
+- `.pixel-frame { position: relative; background: hsl(var(--background)); box-shadow: inset 0 0 0 2px hsl(var(--gold)), inset 0 0 0 4px hsl(30 50% 8%), 0 0 0 1px hsl(30 50% 8%); }` + `.pixel-frame > .rivet` 四角小金块
+- HUD box 横向 flex，间距 8px，圆角 0
+- LevelBadge 仍是 `<button>`，外层套 `.pixel-frame`
+- AvatarBadge 改为复用 `.pixel-frame` 类（去掉内联 boxShadow），保持等级角标不动
