@@ -1,30 +1,37 @@
 ## 目标
-头像系统与等级系统的所有 UI 元素都放进统一的「金边像素 box」里，做到视觉一致 + 框感强。
+点击头像弹出的 `AvatarDetailsModal` 所有内容严格收纳在外层金框内，自适应文字大小、行距、图片尺寸，避免溢出。
 
-## 1. HUD 顶部左侧（`src/pages/Index.tsx`）
-当前：浅紫细条 `hud-bar-purple` 内随意排列 avatar + 🪙 + level。  
-改为：把 AvatarBadge + 金币 + LevelBadge 包进一个**双层金边像素框**（暗紫底、金色描边、四角金铆钉），形成一个整体 HUD box。新增 class `.hud-box`（在 index.css）。
+## 改动 `src/components/AvatarDetailsModal.tsx`
 
-## 2. LevelBadge 重构（`src/components/LevelBadge.tsx`）
-对齐 AvatarBadge 的金框风格：
-- 外层：金色像素双描边 + 暗背景 + 四角金铆钉
-- 内部：LV 数字（大金字）+ 名称 + XP 进度条 + XP 文本
-- hover：上浮 + 金色发光（复用 `.avatar-badge-frame` 同款 hover 或新建 `.pixel-frame` 通用类）
+1. **外层容器统一金框**  
+   将最外层 `pixel-btn border-accent` 改为 `.gold-box` + 四角铆钉，固定 `max-w-[360px] w-[calc(100%-2rem)]`，内边距 `p-4`，`max-h-[calc(100vh-2rem)] overflow-hidden flex flex-col`，保证手机/桌面都不溢出。
 
-## 3. 提取通用 `.pixel-frame` 样式（`src/index.css`）
-把 AvatarBadge 内联的金边 + 铆钉样式抽到 CSS 类 `.pixel-frame`（变量化 padding），AvatarBadge / LevelBadge / HUD box 三处复用，保持统一。
+2. **可滚动内容区**  
+   头部标题/底部按钮 sticky 固定，中间内容 `flex-1 overflow-y-auto pr-1`，避免内容超出金框。
 
-## 4. AvatarDetailsModal & LevelDetailsModal 内部 box 化
-- AvatarDetailsModal：头像区已在金框内；给 BIO 区、COLLECTION 区显式加 `.pixel-frame` 风格的子 box（金边+暗底），让"信息分块"更清晰。
-- LevelDetailsModal：当前 status / sources / path 三段已用 border 区分，但样式不一致。统一改成 `.pixel-frame` 风格小 box（金描边 + 暗紫底 + 标题贴在框顶）。
+3. **头像图自适应**  
+   头像尺寸从固定 96 改为 `clamp(64px, 22vw, 96px)` 通过 props，外层 padding 也按比例缩放，让小窗口不顶出金框。
 
-## 5. 不动
-- 业务逻辑、存档、SettingsContext、路由
-- 颜色仍走现有 token（`--gold` / `--background` / `--accent`）
-- 不引入新依赖
+4. **文字层级与行距统一**  
+   - 标题 AVATAR：`text-xs sm:text-sm`  
+   - 名称：`text-sm sm:text-base`，`leading-tight`  
+   - Lv/解锁信息：`text-[10px] leading-snug`  
+   - Bio：`text-[11px] sm:text-xs leading-relaxed`，`break-words`  
+   - COLLECTION 标签：`text-[8px] leading-none`  
+   全部走 Tailwind responsive，不写魔法数。
+
+5. **子 box 内边距收紧**  
+   Bio / Collection 的 `.gold-box` 内边距改 `p-2.5`，与外框留 `gap-3` 间距，视觉对齐外框。
+
+6. **按钮区**  
+   `flex-wrap gap-2 justify-end pt-3 border-t border-[hsl(var(--gold))/30]`，小屏按钮自动换行，文字 `text-[10px]`。
+
+## 不动
+- 业务逻辑、avatar 数据、解锁规则
+- LevelDetailsModal、HUD、其他页面
+- 颜色 token
 
 ## 技术细节
-- `.pixel-frame { position: relative; background: hsl(var(--background)); box-shadow: inset 0 0 0 2px hsl(var(--gold)), inset 0 0 0 4px hsl(30 50% 8%), 0 0 0 1px hsl(30 50% 8%); }` + `.pixel-frame > .rivet` 四角小金块
-- HUD box 横向 flex，间距 8px，圆角 0
-- LevelBadge 仍是 `<button>`，外层套 `.pixel-frame`
-- AvatarBadge 改为复用 `.pixel-frame` 类（去掉内联 boxShadow），保持等级角标不动
+- `flex flex-col` 外层 + `overflow-y-auto` 中段是收纳关键
+- 头像 size 用 JS `Math.round(Math.min(96, window.innerWidth * 0.22))` 在 mount 时算一次，或简单用 `useState + resize listener`；优先用 CSS clamp 通过 wrapper width 实现，render(size) 取 wrapper 实测后传入
+- 由于 `avatar.render(size)` 是数值入参，用 `useEffect + ResizeObserver` 监听 wrapper 宽度，size = `Math.round(width * 0.8)`，min 56 max 96
