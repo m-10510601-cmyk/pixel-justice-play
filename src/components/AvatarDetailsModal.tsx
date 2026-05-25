@@ -69,20 +69,22 @@ const AvatarDetailsModal = ({ open, onClose, onChange }: Props) => {
         </div>
 
         {/* Bio */}
-        <div
-          className="text-xs leading-relaxed mb-4 p-3"
-          style={{
-            background: "hsl(30 50% 8% / 0.6)",
-            boxShadow: "inset 0 0 0 1px hsl(var(--gold) / 0.4)",
-          }}
-        >
+        <div className="gold-box p-3 mb-4 text-xs leading-relaxed">
+          <span aria-hidden className="gb-rivet tl" />
+          <span aria-hidden className="gb-rivet tr" />
+          <span aria-hidden className="gb-rivet bl" />
+          <span aria-hidden className="gb-rivet br" />
           {avatar.bio}
         </div>
 
         {/* Collection progress */}
-        <div className="mb-4">
-          <div className="flex justify-between pixel text-[8px] mb-1">
-            <span>COLLECTION</span>
+        <div className="gold-box p-3 mb-4">
+          <span aria-hidden className="gb-rivet tl" />
+          <span aria-hidden className="gb-rivet tr" />
+          <span aria-hidden className="gb-rivet bl" />
+          <span aria-hidden className="gb-rivet br" />
+          <div className="flex justify-between pixel text-[8px] mb-1.5">
+            <span className="text-[hsl(var(--gold))]">COLLECTION</span>
             <span className="text-accent">
               {unlockedCount}/{total}
             </span>
