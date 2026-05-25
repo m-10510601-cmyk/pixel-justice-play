@@ -44,8 +44,12 @@ const Index = () => {
       <div className="absolute inset-0 z-10 flex flex-col px-6 pt-6 pb-6">
         {/* === TOP HUD: split into two corner clusters with safe padding === */}
         <div className="flex items-start justify-between gap-3 mb-5">
-          {/* Top-left: avatar + coins + level */}
-          <div className="hud-bar-purple rounded-sm px-3 py-1.5 flex items-center gap-2 shrink-0">
+          {/* Top-left: avatar + coins + level — unified gold pixel box */}
+          <div className="gold-box px-2.5 py-2 flex items-center gap-2 shrink-0">
+            <span aria-hidden className="gb-rivet tl" />
+            <span aria-hidden className="gb-rivet tr" />
+            <span aria-hidden className="gb-rivet bl" />
+            <span aria-hidden className="gb-rivet br" />
             <AvatarBadge size={32} onClick={() => setOpenAvatarDetails(true)} />
             <div className="pixel text-[10px] text-white pixel-text flex items-center gap-1">
               <span className="coin-spin text-base leading-none">🪙</span>
