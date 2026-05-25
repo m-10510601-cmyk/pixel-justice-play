@@ -26,7 +26,11 @@ const LevelDetailsModal = ({ open, onClose }: Props) => {
     <Modal open={open} onClose={onClose} title={t("level.details.title")}>
       <div className="space-y-4 text-sm">
         {/* Current status card */}
-        <div className="border-2 border-accent bg-accent/10 p-3 space-y-2">
+        <div className="gold-box p-3 space-y-2">
+          <span aria-hidden className="gb-rivet tl" />
+          <span aria-hidden className="gb-rivet tr" />
+          <span aria-hidden className="gb-rivet bl" />
+          <span aria-hidden className="gb-rivet br" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-2xl leading-none">{ICONS[level]}</span>
@@ -73,7 +77,11 @@ const LevelDetailsModal = ({ open, onClose }: Props) => {
         {/* XP sources breakdown */}
         <div className="space-y-1.5">
           <div className="pixel text-[10px] text-primary">⚡ {t("level.sources.title")}</div>
-          <div className="border-2 border-accent/40 bg-accent/5 p-2 space-y-1">
+          <div className="gold-box p-2.5 space-y-1">
+            <span aria-hidden className="gb-rivet tl" />
+            <span aria-hidden className="gb-rivet tr" />
+            <span aria-hidden className="gb-rivet bl" />
+            <span aria-hidden className="gb-rivet br" />
             <SourceRow icon="🎬" label={t("level.sources.chapter")} value={xpSources.chapter} />
             <SourceRow icon="🔁" label={t("level.sources.replay")} value={xpSources.replay} />
             <SourceRow icon="⚖" label={t("level.sources.quiz")} value={xpSources.quiz} />
@@ -115,12 +123,14 @@ const LevelDetailsModal = ({ open, onClose }: Props) => {
             return (
               <div
                 key={lv}
-                className={`flex items-center justify-between gap-2 p-2 border-2 ${
-                  status === "current"
-                    ? "border-primary bg-primary/10"
-                    : "border-accent/30 bg-accent/5"
+                className={`gold-box relative flex items-center justify-between gap-2 p-2 ${
+                  status === "current" ? "ring-2 ring-primary/70" : ""
                 }`}
               >
+                <span aria-hidden className="gb-rivet tl" />
+                <span aria-hidden className="gb-rivet tr" />
+                <span aria-hidden className="gb-rivet bl" />
+                <span aria-hidden className="gb-rivet br" />
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-lg leading-none">{ICONS[lv]}</span>
                   <div className="min-w-0">
