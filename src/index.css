@@ -598,3 +598,190 @@
 }
 .typing-dot:nth-child(2) { animation-delay: 0.15s; }
 .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* === Royal Avatar Frame System ===================================== */
+/* Shared "golden medallion" container reused by HUD badge, picker grid,
+   and details modal. Sizes are driven by inline width/height; this class
+   only paints the borders, background, rivets and rarity ring. */
+.avatar-royal {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  background:
+    radial-gradient(circle at 30% 25%, hsl(40 30% 22%), hsl(28 35% 12%) 70%);
+  box-shadow:
+    inset 0 0 0 1px hsl(48 95% 65%),
+    inset 0 0 0 2px hsl(30 50% 8%),
+    inset 0 0 0 4px hsl(36 85% 42%),
+    inset 0 0 0 5px hsl(30 50% 8%),
+    0 0 0 1px hsl(30 50% 8%),
+    0 2px 0 hsl(28 50% 6%);
+  transition: box-shadow 240ms ease, filter 240ms ease;
+}
+/* Top-left inner highlight: faint sheen across the gold */
+.avatar-royal::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    hsl(45 90% 88% / 0.32) 0%,
+    hsl(45 90% 88% / 0) 28%,
+    hsl(45 90% 88% / 0) 72%,
+    hsl(45 90% 88% / 0.18) 100%
+  );
+  z-index: 1;
+}
+/* Bottom-right deep shadow inside the bezel */
+.avatar-royal::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  pointer-events: none;
+  background: radial-gradient(circle at 75% 80%, hsl(0 0% 0% / 0.28), transparent 55%);
+  z-index: 1;
+}
+
+/* Equipped: slow golden glow pulse */
+.avatar-royal--equipped {
+  box-shadow:
+    inset 0 0 0 1px hsl(48 100% 75%),
+    inset 0 0 0 2px hsl(30 50% 8%),
+    inset 0 0 0 4px hsl(36 85% 45%),
+    inset 0 0 0 5px hsl(30 50% 8%),
+    0 0 0 1px hsl(30 50% 8%),
+    0 0 14px hsl(var(--gold) / 0.55),
+    0 0 26px hsl(var(--gold) / 0.25);
+  animation: avatarRoyalGlow 2.4s ease-in-out infinite;
+}
+@keyframes avatarRoyalGlow {
+  0%, 100% {
+    filter: brightness(1);
+    box-shadow:
+      inset 0 0 0 1px hsl(48 100% 75%),
+      inset 0 0 0 2px hsl(30 50% 8%),
+      inset 0 0 0 4px hsl(36 85% 45%),
+      inset 0 0 0 5px hsl(30 50% 8%),
+      0 0 0 1px hsl(30 50% 8%),
+      0 0 12px hsl(var(--gold) / 0.45),
+      0 0 22px hsl(var(--gold) / 0.20);
+  }
+  50% {
+    filter: brightness(1.06);
+    box-shadow:
+      inset 0 0 0 1px hsl(48 100% 82%),
+      inset 0 0 0 2px hsl(30 50% 8%),
+      inset 0 0 0 4px hsl(36 90% 52%),
+      inset 0 0 0 5px hsl(30 50% 8%),
+      0 0 0 1px hsl(30 50% 8%),
+      0 0 18px hsl(var(--gold) / 0.7),
+      0 0 34px hsl(var(--gold) / 0.32);
+  }
+}
+
+/* Locked: desaturated + cold cast */
+.avatar-royal--locked {
+  filter: grayscale(0.85) brightness(0.6);
+}
+.avatar-royal--locked::after {
+  background: linear-gradient(180deg, hsl(240 25% 8% / 0.55), hsl(240 25% 4% / 0.7));
+  inset: 1px;
+}
+
+/* Rarity ring overlay — sits just outside the gold bezel */
+.avatar-rarity-ring::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  pointer-events: none;
+  border: 1px solid transparent;
+  z-index: 0;
+}
+.avatar-rarity-common::before  { border-color: hsl(0 0% 70% / 0.6); box-shadow: 0 0 6px hsl(0 0% 70% / 0.25); }
+.avatar-rarity-rare::before    { border-color: hsl(200 80% 65% / 0.8); box-shadow: 0 0 8px hsl(200 80% 65% / 0.45); }
+.avatar-rarity-epic::before    { border-color: hsl(280 70% 70% / 0.85); box-shadow: 0 0 10px hsl(280 70% 70% / 0.55); }
+.avatar-rarity-legendary::before { border-color: hsl(42 95% 60% / 0.95); box-shadow: 0 0 14px hsl(42 95% 60% / 0.7); }
+
+/* Tiny corner rivet with gold gradient + dark pinhole */
+.avatar-rivet {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle at 30% 30%, hsl(48 100% 85%), hsl(36 85% 40%) 70%, hsl(28 60% 18%) 100%);
+  box-shadow: 0 0 0 1px hsl(28 60% 12%);
+  z-index: 2;
+}
+.avatar-rivet.tl { top: 2px; left: 2px; }
+.avatar-rivet.tr { top: 2px; right: 2px; }
+.avatar-rivet.bl { bottom: 2px; left: 2px; }
+.avatar-rivet.br { bottom: 2px; right: 2px; }
+
+/* Level chip — diamond medallion */
+.avatar-level-chip {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, hsl(48 100% 68%), hsl(36 85% 42%));
+  color: hsl(28 60% 10%);
+  font-family: 'Press Start 2P', monospace;
+  text-align: center;
+  box-shadow:
+    0 0 0 1px hsl(28 60% 10%),
+    inset 0 1px 0 hsl(48 100% 88%),
+    inset 0 -1px 0 hsl(28 60% 20%),
+    1px 1px 0 hsl(28 60% 6%);
+  z-index: 3;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+/* Rotating gradient halo for the big modal avatar */
+.avatar-halo {
+  position: absolute;
+  inset: -10px;
+  pointer-events: none;
+  border-radius: 0; /* keep pixel-square */
+  background: conic-gradient(
+    from 0deg,
+    hsl(48 100% 70% / 0.0),
+    hsl(48 100% 70% / 0.45),
+    hsl(36 85% 50% / 0.0),
+    hsl(48 100% 70% / 0.45),
+    hsl(48 100% 70% / 0.0)
+  );
+  filter: blur(6px);
+  animation: avatarHaloSpin 6s linear infinite;
+  z-index: 0;
+}
+@keyframes avatarHaloSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Rarity pip row (4 squares) */
+.avatar-rarity-pip {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: hsl(0 0% 25%);
+  box-shadow: inset 0 0 0 1px hsl(0 0% 0%);
+}
+.avatar-rarity-pip.on { background: hsl(48 95% 60%); box-shadow: inset 0 0 0 1px hsl(28 60% 10%), 0 0 6px hsl(48 95% 60% / 0.6); }
+
+/* Small pixel padlock for locked picker tiles */
+.avatar-lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  pointer-events: none;
+}
+.avatar-lock-overlay::before {
+  content: "🔒";
+  font-size: 16px;
+  filter: drop-shadow(0 1px 0 hsl(0 0% 0%));
+}
