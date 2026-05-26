@@ -1,37 +1,32 @@
-## 目标
-点击头像弹出的 `AvatarDetailsModal` 所有内容严格收纳在外层金框内，自适应文字大小、行距、图片尺寸，避免溢出。
+## Username System (local-only)
 
-## 改动 `src/components/AvatarDetailsModal.tsx`
+### 1. Storage in SettingsContext
+- Add localStorage key `lawguardian.username.v1`.
+- Extend `SettingsContext` with `username: string`, `setUsername(name: string)`, and persist on change. Include in autosave STATIC_KEYS list (`src/lib/autoSave.ts`).
+- Validation: trim, 2–16 chars, allow letters/numbers/`_-` and CJK characters. Reject empty.
 
-1. **外层容器统一金框**  
-   将最外层 `pixel-btn border-accent` 改为 `.gold-box` + 四角铆钉，固定 `max-w-[360px] w-[calc(100%-2rem)]`，内边距 `p-4`，`max-h-[calc(100vh-2rem)] overflow-hidden flex flex-col`，保证手机/桌面都不溢出。
+### 2. First-launch prompt (after Terms)
+- New component `src/components/UsernameGate.tsx`: shows a `Modal` (non-dismissible) when `agreedTerms === true && !username`.
+- Pixel-styled input + "CONFIRM" button. Shows inline validation error. Default suggestion: `Guardian####` (random digits) prefilled.
+- Mount in `App.tsx` right after `<TermsGate />` so it gates the home screen until set.
 
-2. **可滚动内容区**  
-   头部标题/底部按钮 sticky 固定，中间内容 `flex-1 overflow-y-auto pr-1`，避免内容超出金框。
+### 3. HUD display (Index.tsx)
+- In the top-left gold box, render username next to the avatar with `pixel text-[10px] text-white pixel-text truncate max-w-[80px]`.
+- Order: Avatar | Username | 🪙 | LevelBadge. Tapping the username opens `AvatarDetailsModal` (same as avatar).
 
-3. **头像图自适应**  
-   头像尺寸从固定 96 改为 `clamp(64px, 22vw, 96px)` 通过 props，外层 padding 也按比例缩放，让小窗口不顶出金框。
+### 4. Avatar details modal edit
+- In `AvatarDetailsModal.tsx`, add a small "NAME" row inside the existing scrollable area: shows current username + pencil button → switches to inline input with Save/Cancel. Uses same validation as the gate.
 
-4. **文字层级与行距统一**  
-   - 标题 AVATAR：`text-xs sm:text-sm`  
-   - 名称：`text-sm sm:text-base`，`leading-tight`  
-   - Lv/解锁信息：`text-[10px] leading-snug`  
-   - Bio：`text-[11px] sm:text-xs leading-relaxed`，`break-words`  
-   - COLLECTION 标签：`text-[8px] leading-none`  
-   全部走 Tailwind responsive，不写魔法数。
+### 5. i18n strings
+- Add keys to translation map in `SettingsContext`: `username.title`, `username.placeholder`, `username.confirm`, `username.error_length`, `username.error_chars`, `username.label`, `username.edit`, `username.save`, `username.cancel`.
 
-5. **子 box 内边距收紧**  
-   Bio / Collection 的 `.gold-box` 内边距改 `p-2.5`，与外框留 `gap-3` 间距，视觉对齐外框。
+### Out of scope
+- No auth, no backend table, no uniqueness checks, no triumph/share integration (per your answers).
 
-6. **按钮区**  
-   `flex-wrap gap-2 justify-end pt-3 border-t border-[hsl(var(--gold))/30]`，小屏按钮自动换行，文字 `text-[10px]`。
-
-## 不动
-- 业务逻辑、avatar 数据、解锁规则
-- LevelDetailsModal、HUD、其他页面
-- 颜色 token
-
-## 技术细节
-- `flex flex-col` 外层 + `overflow-y-auto` 中段是收纳关键
-- 头像 size 用 JS `Math.round(Math.min(96, window.innerWidth * 0.22))` 在 mount 时算一次，或简单用 `useState + resize listener`；优先用 CSS clamp 通过 wrapper width 实现，render(size) 取 wrapper 实测后传入
-- 由于 `avatar.render(size)` 是数值入参，用 `useEffect + ResizeObserver` 监听 wrapper 宽度，size = `Math.round(width * 0.8)`，min 56 max 96
+### Files touched
+- `src/game/SettingsContext.tsx` (state + persistence + i18n)
+- `src/lib/autoSave.ts` (add key)
+- `src/components/UsernameGate.tsx` (new)
+- `src/App.tsx` (mount gate)
+- `src/pages/Index.tsx` (HUD display)
+- `src/components/AvatarDetailsModal.tsx` (edit row)
