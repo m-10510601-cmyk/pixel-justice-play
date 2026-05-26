@@ -9,6 +9,7 @@ const STATIC_KEYS = [
   "lawguardian.level.v1",
   "lawguardian.xpsources.v1",
   "lawguardian.avatar.v1",
+  "lawguardian.username.v1",
 ];
 
 let timer: ReturnType<typeof setTimeout> | null = null;

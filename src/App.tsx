@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SettingsProvider } from "@/game/SettingsContext";
 import BgmController from "@/game/BgmController";
 import TermsGate from "@/components/TermsGate";
+import UsernameGate from "@/components/UsernameGate";
 import AutoSaveIndicator from "@/components/AutoSaveIndicator";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -41,6 +42,7 @@ const App = () => (
         <BrowserRouter>
           <BgmController />
           <TermsGate />
+          <UsernameGate />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/quest" element={<Quest />} />

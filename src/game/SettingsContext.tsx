@@ -177,6 +177,16 @@ const DICT: Dict = {
     "level.sources.replay": "Replay",
     "level.sources.quiz": "Quiz bonus",
     "level.sources.total": "Total",
+    "username.title": "CHOOSE YOUR NAME",
+    "username.intro": "Pick a name for your Law Guardian. You can change it later.",
+    "username.placeholder": "Your name",
+    "username.confirm": "CONFIRM",
+    "username.error_length": "Name must be 2–16 characters.",
+    "username.error_chars": "Only letters, numbers, _ or - allowed.",
+    "username.label": "NAME",
+    "username.edit": "EDIT",
+    "username.save": "SAVE",
+    "username.cancel": "CANCEL",
 };
 
 interface Ctx {
@@ -232,12 +242,23 @@ interface Ctx {
   xpSources: XpSources;
   avatarId: AvatarId;
   setAvatar: (id: AvatarId) => void;
+  username: string;
+  setUsername: (n: string) => void;
 }
 
 const SettingsCtx = createContext<Ctx | null>(null);
 
 const LS = "lawguardian.settings.v1";
 const META_LS = "lawguardian.meta.v1";
+const USERNAME_LS = "lawguardian.username.v1";
+
+export const USERNAME_RE = /^[A-Za-z0-9_\-\u4e00-\u9fff]{2,16}$/;
+export const validateUsername = (name: string): string | null => {
+  const n = name.trim();
+  if (n.length < 2 || n.length > 16) return "username.error_length";
+  if (!USERNAME_RE.test(n)) return "username.error_chars";
+  return null;
+};
 
 type Meta = {
   coins: number;
@@ -330,6 +351,20 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [avatarId, setAvatarIdState] = useState<AvatarId>(() =>
     typeof window !== "undefined" ? loadAvatar() : "rookie",
   );
+  const [username, setUsernameState] = useState<string>(() => {
+    try {
+      return typeof window !== "undefined" ? localStorage.getItem(USERNAME_LS) ?? "" : "";
+    } catch {
+      return "";
+    }
+  });
+  const setUsername = useCallback((n: string) => {
+    const trimmed = n.trim();
+    setUsernameState(trimmed);
+    try {
+      localStorage.setItem(USERNAME_LS, trimmed);
+    } catch {}
+  }, []);
   // Session-only: which item has been armed for which case (slug -> ItemId).
   // Not persisted by design: "one item per case, one item per play".
   const [usedItemsByCase, setUsedItemsByCase] = useState<Record<string, ItemId[]>>({});
@@ -634,7 +669,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   // Trigger throttled autosave whenever persisted state changes.
   useEffect(() => {
     scheduleAutoSave();
-  }, [meta, levelState, xpSources, avatarId, theme, volume, bgmEnabled]);
+  }, [meta, levelState, xpSources, avatarId, theme, volume, bgmEnabled, username]);
 
   const value = useMemo<Ctx>(
     () => ({
@@ -685,6 +720,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       xpSources,
       avatarId,
       setAvatar,
+      username,
+      setUsername,
     }),
     [
       theme,
@@ -725,6 +762,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       xpSources,
       avatarId,
       setAvatar,
+      username,
+      setUsername,
     ],
   );
 

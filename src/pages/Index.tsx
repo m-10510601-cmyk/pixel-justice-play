@@ -13,7 +13,7 @@ import AvatarPickerModal from "@/components/AvatarPickerModal";
 import AvatarDetailsModal from "@/components/AvatarDetailsModal";
 
 const Index = () => {
-  const { t, coins, agreedTerms, dailyAvailableDay } = useSettings();
+  const { t, coins, agreedTerms, dailyAvailableDay, username } = useSettings();
   const [openDaily, setOpenDaily] = useState(false);
   const [openShare, setOpenShare] = useState(false);
   const [openSave, setOpenSave] = useState(false);
@@ -51,6 +51,15 @@ const Index = () => {
             <span aria-hidden className="gb-rivet bl" />
             <span aria-hidden className="gb-rivet br" />
             <AvatarBadge size={32} onClick={() => setOpenAvatarDetails(true)} />
+            {username && (
+              <button
+                onClick={() => setOpenAvatarDetails(true)}
+                className="pixel text-[10px] text-white pixel-text truncate max-w-[88px] leading-none"
+                title={username}
+              >
+                {username}
+              </button>
+            )}
             <div className="pixel text-[10px] text-white pixel-text flex items-center gap-1">
               <span className="coin-spin text-base leading-none">🪙</span>
             </div>

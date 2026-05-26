@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSettings } from "@/game/SettingsContext";
+import { useSettings, validateUsername } from "@/game/SettingsContext";
 import { AVATARS, getAvatar, isAvatarUnlocked } from "@/lib/avatars";
 
 type Props = {
@@ -16,7 +16,27 @@ const rarityFor = (lvl: number): { label: string; color: string } => {
 };
 
 const AvatarDetailsModal = ({ open, onClose, onChange }: Props) => {
-  const { avatarId, level } = useSettings();
+  const { avatarId, level, username, setUsername, t } = useSettings();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(username);
+  const [nameErr, setNameErr] = useState<string | null>(null);
+  useEffect(() => {
+    if (open) {
+      setDraft(username);
+      setEditing(false);
+      setNameErr(null);
+    }
+  }, [open, username]);
+  const saveName = () => {
+    const err = validateUsername(draft);
+    if (err) {
+      setNameErr(err);
+      return;
+    }
+    setUsername(draft);
+    setEditing(false);
+    setNameErr(null);
+  };
   const avatarWrapRef = useRef<HTMLDivElement>(null);
   const [avatarSize, setAvatarSize] = useState(80);
   useEffect(() => {
@@ -105,6 +125,64 @@ const AvatarDetailsModal = ({ open, onClose, onChange }: Props) => {
             <span aria-hidden className="gb-rivet bl" />
             <span aria-hidden className="gb-rivet br" />
             {avatar.bio}
+          </div>
+
+          {/* Username */}
+          <div className="gold-box p-2.5">
+            <span aria-hidden className="gb-rivet tl" />
+            <span aria-hidden className="gb-rivet tr" />
+            <span aria-hidden className="gb-rivet bl" />
+            <span aria-hidden className="gb-rivet br" />
+            <div className="flex justify-between pixel text-[8px] mb-1.5 leading-none">
+              <span className="text-[hsl(var(--gold))]">{t("username.label")}</span>
+            </div>
+            {!editing ? (
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[12px] sm:text-sm text-accent break-all">
+                  {username || "—"}
+                </span>
+                <button
+                  onClick={() => setEditing(true)}
+                  className="pixel-btn pixel-btn-secondary text-[9px] px-2 py-1 shrink-0"
+                >
+                  {t("username.edit")}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <input
+                  value={draft}
+                  onChange={(e) => {
+                    setDraft(e.target.value);
+                    setNameErr(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveName();
+                  }}
+                  maxLength={16}
+                  className="pixel-frame w-full px-2 py-1.5 text-xs bg-background text-foreground outline-none"
+                  autoFocus
+                />
+                {nameErr && (
+                  <p className="pixel text-[9px] text-destructive leading-snug">{t(nameErr)}</p>
+                )}
+                <div className="flex gap-2 justify-end">
+                  <button
+                    onClick={() => {
+                      setEditing(false);
+                      setDraft(username);
+                      setNameErr(null);
+                    }}
+                    className="pixel-btn pixel-btn-secondary text-[9px] px-2 py-1"
+                  >
+                    {t("username.cancel")}
+                  </button>
+                  <button onClick={saveName} className="pixel-btn text-[9px] px-2 py-1">
+                    {t("username.save")}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Collection progress */}
