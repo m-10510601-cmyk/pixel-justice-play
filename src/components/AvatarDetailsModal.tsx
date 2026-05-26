@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSettings, validateUsername } from "@/game/SettingsContext";
-import { AVATARS, getAvatar, isAvatarUnlocked } from "@/lib/avatars";
+import { AVATARS, getAvatar, isAvatarUnlocked, rarityFor as rarityClassFor } from "@/lib/avatars";
 
 type Props = {
   open: boolean;
@@ -57,6 +57,7 @@ const AvatarDetailsModal = ({ open, onClose, onChange }: Props) => {
   if (!open) return null;
   const avatar = getAvatar(avatarId);
   const rarity = rarityFor(avatar.unlockLevel);
+  const rarityClass = rarityClassFor(avatar.unlockLevel);
   const unlockedCount = AVATARS.filter((a) => isAvatarUnlocked(a.id, level)).length;
   const total = AVATARS.length;
   const pct = Math.round((unlockedCount / total) * 100);
@@ -96,21 +97,33 @@ const AvatarDetailsModal = ({ open, onClose, onChange }: Props) => {
         <div className="flex-1 overflow-y-auto pr-1 space-y-3 min-h-0">
           {/* Big avatar */}
           <div className="flex flex-col items-center gap-2">
-            <div
-              ref={avatarWrapRef}
-              className="w-[min(120px,40vw)] aspect-square flex items-center justify-center"
-              style={{
-                padding: 10,
-                background: "hsl(var(--background))",
-                boxShadow:
-                  "inset 0 0 0 3px hsl(var(--gold)), inset 0 0 0 6px hsl(30 50% 8%), 0 0 24px hsl(var(--gold) / 0.35)",
-              }}
-            >
-              {avatar.render(avatarSize)}
+            <div className="relative">
+              <span aria-hidden className="avatar-halo" />
+              <div
+                ref={avatarWrapRef}
+                className={`avatar-royal avatar-royal--equipped avatar-rarity-ring ${rarityClass.className} w-[min(120px,40vw)] aspect-square flex items-center justify-center`}
+                style={{ padding: 10 }}
+              >
+                <div style={{ position: "relative", zIndex: 2 }}>
+                  {avatar.render(avatarSize)}
+                </div>
+                <span aria-hidden className="avatar-rivet tl" />
+                <span aria-hidden className="avatar-rivet tr" />
+                <span aria-hidden className="avatar-rivet bl" />
+                <span aria-hidden className="avatar-rivet br" />
+              </div>
             </div>
             <div className="text-center w-full px-1">
               <div className="pixel text-sm sm:text-base text-accent mb-1 leading-tight break-words">
                 {avatar.name.toUpperCase()}
+              </div>
+              <div className="flex items-center justify-center gap-1 mb-1" aria-label={`Rarity ${rarity.label}`}>
+                {[1, 2, 3, 4].map((i) => (
+                  <span
+                    key={i}
+                    className={`avatar-rarity-pip ${i <= rarityClass.tier ? "on" : ""}`}
+                  />
+                ))}
               </div>
               <div className="text-[10px] opacity-80 leading-snug">
                 Lv {level} · Unlocks at Lv {avatar.unlockLevel}
