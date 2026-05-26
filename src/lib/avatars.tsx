@@ -37,14 +37,31 @@ const Frame = ({
     width: size,
     height: size,
     background: bg,
-    border: `${px(size, 0.07)}px solid hsl(0 0% 0%)`,
-    boxShadow: `inset 0 -${px(size, 0.11)}px 0 ${shadow}, inset 0 ${px(size, 0.11)}px 0 hsl(0 0% 100% / 0.18)`,
+    border: `${px(size, 0.07)}px solid hsl(28 40% 12%)`,
+    boxShadow: [
+      `inset 0 -${px(size, 0.11)}px 0 ${shadow}`,
+      `inset 0 ${px(size, 0.11)}px 0 hsl(45 90% 88% / 0.22)`,
+      `inset ${px(size, 0.07)}px ${px(size, 0.07)}px 0 hsl(45 90% 88% / 0.10)`,
+      `inset -${px(size, 0.05)}px -${px(size, 0.05)}px 0 hsl(0 0% 0% / 0.18)`,
+    ].join(", "),
     position: "relative",
     flexShrink: 0,
   };
   return (
     <div style={s} aria-hidden="true">
       {children}
+      {/* tiny specular highlight pixel */}
+      <div
+        style={{
+          position: "absolute",
+          top: px(size, 0.11),
+          right: px(size, 0.14),
+          width: px(size, 0.07),
+          height: px(size, 0.07),
+          background: "hsl(45 95% 92% / 0.55)",
+          pointerEvents: "none",
+        }}
+      />
     </div>
   );
 };
@@ -171,6 +188,8 @@ export const AVATARS: AvatarDef[] = [
         <div className="absolute" style={{ top: 0, left: px(size, 0.14), width: px(size, 0.07), height: px(size, 0.07), background: "hsl(48 100% 55%)" }} />
         <div className="absolute" style={{ top: 0, left: "50%", transform: "translateX(-50%)", width: px(size, 0.07), height: px(size, 0.07), background: "hsl(48 100% 55%)" }} />
         <div className="absolute" style={{ top: 0, right: px(size, 0.14), width: px(size, 0.07), height: px(size, 0.07), background: "hsl(48 100% 55%)" }} />
+        {/* center ruby */}
+        <div className="absolute" style={{ top: px(size, 0.04), left: "50%", transform: "translateX(-50%)", width: px(size, 0.07), height: px(size, 0.07), background: "hsl(0 80% 55%)", boxShadow: "inset 0 0 0 1px hsl(0 60% 25%)" }} />
         {/* hair */}
         <div className="absolute" style={{ top: px(size, 0.18), left: px(size, 0.07), right: px(size, 0.07), height: px(size, 0.11), background: "hsl(28 60% 30%)" }} />
         <Eyes size={size} top={0.46} />
@@ -189,12 +208,25 @@ export const AVATARS: AvatarDef[] = [
         <div className="absolute" style={{ top: 0, left: 0, right: 0, height: px(size, 0.39), background: "hsl(220 15% 10%)" }} />
         <div className="absolute" style={{ top: px(size, 0.32), left: 0, width: px(size, 0.14), height: px(size, 0.32), background: "hsl(220 15% 10%)" }} />
         <div className="absolute" style={{ top: px(size, 0.32), right: 0, width: px(size, 0.14), height: px(size, 0.32), background: "hsl(220 15% 10%)" }} />
-        {/* glowing eyes */}
-        <Eyes size={size} top={0.43} color="hsl(0 90% 60%)" />
+        {/* glowing eyes with red halo */}
+        <div className="absolute" style={{ top: px(size, 0.41), left: px(size, 0.19), width: px(size, 0.15), height: px(size, 0.15), background: "hsl(0 90% 55% / 0.35)", filter: "blur(1px)" }} />
+        <div className="absolute" style={{ top: px(size, 0.41), right: px(size, 0.19), width: px(size, 0.15), height: px(size, 0.15), background: "hsl(0 90% 55% / 0.35)", filter: "blur(1px)" }} />
+        <Eyes size={size} top={0.43} color="hsl(0 95% 65%)" />
       </Frame>
     ),
   },
 ];
+
+export const rarityFor = (unlockLevel: number): {
+  label: string;
+  className: string;
+  tier: 1 | 2 | 3 | 4;
+} => {
+  if (unlockLevel >= 5) return { label: "LEGENDARY", className: "avatar-rarity-legendary", tier: 4 };
+  if (unlockLevel >= 4) return { label: "EPIC", className: "avatar-rarity-epic", tier: 3 };
+  if (unlockLevel >= 2) return { label: "RARE", className: "avatar-rarity-rare", tier: 2 };
+  return { label: "COMMON", className: "avatar-rarity-common", tier: 1 };
+};
 
 export const getAvatar = (id: AvatarId): AvatarDef =>
   AVATARS.find((a) => a.id === id) ?? AVATARS[0];
