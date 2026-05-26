@@ -1,5 +1,5 @@
 import { useSettings } from "@/game/SettingsContext";
-import { AVATARS, isAvatarUnlocked } from "@/lib/avatars";
+import { AVATARS, isAvatarUnlocked, rarityFor } from "@/lib/avatars";
 import T from "@/components/T";
 
 type Props = {
@@ -32,30 +32,43 @@ const AvatarPickerModal = ({ open, onClose }: Props) => {
           {AVATARS.map((a) => {
             const unlocked = isAvatarUnlocked(a.id, level);
             const equipped = a.id === avatarId;
+            const rarity = rarityFor(a.unlockLevel);
             return (
               <button
                 key={a.id}
                 disabled={!unlocked}
                 onClick={() => unlocked && setAvatar(a.id)}
                 className={[
-                  "pixel-btn-square flex flex-col items-center justify-center gap-1 p-1.5 h-auto overflow-hidden",
-                  equipped ? "border-accent ring-2 ring-accent" : "",
-                  !unlocked ? "opacity-40 cursor-not-allowed grayscale" : "cursor-pointer",
+                  "pixel-btn-square flex flex-col items-center justify-center gap-1.5 p-2 h-auto overflow-visible",
+                  !unlocked ? "cursor-not-allowed" : "cursor-pointer",
                 ].join(" ")}
-                style={{ width: "100%" }}
+                style={{ width: "100%", background: "hsl(28 25% 14%)" }}
                 aria-label={a.name}
               >
-                <div className="flex items-center justify-center" style={{ minHeight: 48 }}>
-                  {a.render(44)}
+                <div
+                  className={[
+                    "avatar-royal avatar-rarity-ring",
+                    rarity.className,
+                    equipped ? "avatar-royal--equipped" : "",
+                    !unlocked ? "avatar-royal--locked" : "",
+                  ].join(" ")}
+                  style={{ padding: 4 }}
+                >
+                  <div style={{ position: "relative", zIndex: 2 }}>{a.render(40)}</div>
+                  <span aria-hidden className="avatar-rivet tl" />
+                  <span aria-hidden className="avatar-rivet tr" />
+                  <span aria-hidden className="avatar-rivet bl" />
+                  <span aria-hidden className="avatar-rivet br" />
+                  {!unlocked && <span aria-hidden className="avatar-lock-overlay" />}
                 </div>
-                <div className="text-[7px] pixel text-center leading-tight w-full truncate px-1 block">
+                <div className="text-[7px] pixel text-center leading-tight w-full truncate px-1 block text-[hsl(var(--gold))]">
                   <T>{a.name}</T>
                 </div>
                 {equipped ? (
                   <div className="text-[7px] text-accent w-full truncate">✓ <T>{t("avatar.equipped")}</T></div>
                 ) : !unlocked ? (
                   <div className="text-[7px] opacity-80 w-full truncate px-1">
-                    🔒 <T>{t("avatar.locked").replace("{n}", String(a.unlockLevel))}</T>
+                    <T>{t("avatar.locked").replace("{n}", String(a.unlockLevel))}</T>
                   </div>
                 ) : (
                   <div className="text-[7px] opacity-60">Lv {a.unlockLevel}</div>
