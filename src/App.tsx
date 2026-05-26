@@ -38,9 +38,9 @@ const App = () => (
         <Sonner />
         <div className="brightness-overlay" aria-hidden="true" />
         <AutoSaveIndicator />
-        <TermsGate />
         <BrowserRouter>
           <BgmController />
+          <TermsGate />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/quest" element={<Quest />} />
