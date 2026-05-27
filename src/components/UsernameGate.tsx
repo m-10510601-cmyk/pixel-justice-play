@@ -23,6 +23,9 @@ const UsernameGate = () => {
       return;
     }
     playCue();
+    // IMPORTANT: only persist the username. Never touch progress / level /
+    // meta / avatar localStorage keys here — entering a name must preserve
+    // all prior local progress.
     setUsername(value);
   };
 

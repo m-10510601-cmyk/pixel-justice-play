@@ -358,6 +358,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
       return "";
     }
   });
+  // NOTE: setUsername must ONLY write the username key. Do not clear or reset
+  // progress (lawguardian.progress.v1.*), lastPlayed, level, xpsources, meta
+  // or avatar here — local progress must survive (re)entering a name.
   const setUsername = useCallback((n: string) => {
     const trimmed = n.trim();
     setUsernameState(trimmed);

@@ -25,6 +25,17 @@ const Index = () => {
 
   useEffect(() => {
     setLast(getLastPlayed());
+  }, [username, agreedTerms]);
+
+  // Cross-tab sync: if progress changes elsewhere, refresh CONTINUE state.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.startsWith("lawguardian.")) {
+        setLast(getLastPlayed());
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   // Auto-open daily rewards once after agreeing to terms, when an unclaimed day is available.
