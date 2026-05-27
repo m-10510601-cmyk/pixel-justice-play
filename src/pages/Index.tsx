@@ -54,9 +54,9 @@ const Index = () => {
       {/* Safe-zone wrapper keeps everything inside the ornate stone frame */}
       <div className="absolute inset-0 z-10 flex flex-col px-6 pt-6 pb-6">
         {/* === TOP HUD: split into two corner clusters with safe padding === */}
-        <div className="flex items-start justify-between gap-3 mb-5">
+        <div className="flex items-start justify-between gap-2 sm:gap-3 mb-5">
           {/* Top-left: avatar + coins + level — unified gold pixel box */}
-          <div className="gold-box px-2.5 py-2 flex items-center gap-2 shrink-0">
+          <div className="gold-box px-2.5 py-2 flex items-center gap-2 min-w-0 flex-1 max-w-[60%]">
             <span aria-hidden className="gb-rivet tl" />
             <span aria-hidden className="gb-rivet tr" />
             <span aria-hidden className="gb-rivet bl" />
@@ -65,24 +65,24 @@ const Index = () => {
             {username && (
               <button
                 onClick={() => setOpenAvatarDetails(true)}
-                className="pixel text-[10px] text-white pixel-text truncate max-w-[88px] leading-none"
+                className="pixel text-[10px] text-white pixel-text truncate min-w-0 max-w-[64px] sm:max-w-[120px] leading-none"
                 title={username}
               >
                 {username}
               </button>
             )}
-            <div className="pixel text-[10px] text-white pixel-text flex items-center gap-1">
+            <div className="pixel text-[10px] text-white pixel-text flex items-center gap-1 shrink-0">
               <span className="coin-spin text-base leading-none">🪙</span>
             </div>
             <LevelBadge onClick={() => setOpenLevel(true)} />
           </div>
 
           {/* Top-right: three square icons */}
-          <div className="flex gap-2 shrink-0">
+          <div className="flex gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={() => setOpenDaily(true)}
               className={`pixel-btn-square ${dailyAvailableDay > 0 ? "pulse-glow" : ""}`}
-              style={{ width: 34, height: 34, fontSize: 14 }}
+              style={{ width: 30, height: 30, fontSize: 13 }}
               aria-label="Daily Check-in"
               title="Daily Check-in"
             >
@@ -91,7 +91,7 @@ const Index = () => {
             <button
               onClick={() => setOpenSave(true)}
               className="pixel-btn-square"
-              style={{ width: 34, height: 34, fontSize: 14 }}
+              style={{ width: 30, height: 30, fontSize: 13 }}
               aria-label="Cloud Save"
               title="Cloud Save"
             >
@@ -100,7 +100,7 @@ const Index = () => {
             <button
               onClick={() => setOpenFeedback(true)}
               className="pixel-btn-square"
-              style={{ width: 34, height: 34, fontSize: 14 }}
+              style={{ width: 30, height: 30, fontSize: 13 }}
               aria-label="Feedback"
               title="Feedback"
             >
