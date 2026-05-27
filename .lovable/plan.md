@@ -1,32 +1,30 @@
-## Bug
+## Problem
 
-`src/components/UsernameGate.tsx` 中的 effect：
+In `src/pages/Index.tsx`, the top HUD has two clusters:
+- Left: gold box with avatar + username + coins + level
+- Right: three square buttons (Daily, Cloud Save, Feedback)
 
-```ts
-useEffect(() => {
-  if (open && !value) setValue(suggest());
-}, [open, value]);
-```
+When the username is long, the left gold box grows and pushes the right buttons outside the ornate frame on both mobile and desktop. Username currently has `max-w-[88px] truncate` but the surrounding gold box still expands because the parent flex row lets it grow, and on narrow viewports the right cluster gets clipped.
 
-依赖里包含 `value`，所以玩家一旦把输入框删空，effect 立刻再次塞回 `Guardian####`，导致无法清空。
+## Fix (UI only, in `src/pages/Index.tsx`)
 
-## 修复
+1. **Cap the left cluster width** so it can shrink:
+   - Change the left gold box wrapper from `shrink-0` to `min-w-0 flex-1` with a hard `max-w-[60%]` (so the right buttons always reserve ~40%).
+   - Add `min-w-0` to inner flex so truncation actually triggers.
 
-### 1. `src/components/UsernameGate.tsx`
-- 把"建议默认名"逻辑改成**只在 Gate 打开的瞬间执行一次**：用一个 `seededRef`（或依赖只看 `open`，进入 open=true 时填一次）。打开时填入建议名，之后任凭用户删空。
-- 字符限制：
-  - 输入框 `maxLength={16}` 保留。
-  - 输入 `onChange` 中加 `value.slice(0, 16)` 双保险（IME 粘贴绕开 maxLength 的情况）。
-  - 在输入框下方加一个右对齐的字符计数 `{value.length}/16`，超出/低于范围时变红。
-- 提交按钮 disabled 当 `value.trim().length < 2`，避免一回车又被默认名顶回。
+2. **Tighten the username chip** so it truncates earlier on small screens and never dominates:
+   - Replace `max-w-[88px]` with responsive `max-w-[64px] sm:max-w-[120px]`.
+   - Keep `truncate` and `title={username}` so the full name is still accessible on hover/long-press.
 
-### 2. 不动 `validateUsername`
-- 现有规则 `2–16` 字符、允许字母/数字/`_`/`-`/中文（`USERNAME_RE`）保持不变。
+3. **Keep right cluster always visible**:
+   - Keep `shrink-0` on the right buttons container.
+   - Reduce gap on very small screens: change outer wrapper gap from `gap-3` to `gap-2 sm:gap-3`.
+   - Make the three right buttons slightly smaller on mobile (28px) and 34px on `sm:` so all three always fit beside even a max-truncated name.
 
-## 验证
+4. **No changes** to logic, state, styles tokens, or any other component. No changes to `UsernameGate` validation (16-char cap already enforces an upper bound; this plan handles display only).
 
-1. 进入新会话，Username Gate 弹出 → 输入框预填 `GuardianXXXX`。
-2. 全选删除 → 输入框保持为空，不会被恢复。
-3. 输入超过 16 个字符 → 被截断到 16。
-4. 计数器显示 `n/16`，<2 时按钮禁用。
-5. 输入合法名 → 提交，主页头像 HUD 显示该名字，进度保留。
+## Verification
+
+- Mobile (~360px): all three right buttons visible; long username truncates with ellipsis inside the gold box.
+- Desktop (≥640px): username shows up to ~120px before truncating; right buttons unaffected.
+- Avatar, coin, and level badge remain visible and clickable.
