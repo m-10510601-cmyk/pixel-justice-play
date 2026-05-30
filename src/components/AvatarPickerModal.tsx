@@ -20,27 +20,18 @@ const AvatarPickerModal = ({ open, onClose }: Props) => {
       aria-modal="true"
     >
       <div
-        className="
-          pixel-btn
-          border-accent
-          bg-background
-          max-w-xl
-          w-full
-          p-5
-          max-h-[85vh]
-          overflow-y-auto
-        "
+        className="pixel-btn border-accent bg-background w-full max-w-3xl p-4 max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="pixel text-base text-primary">{t("avatar.title")}</h2>
+          <h2 className="pixel text-sm text-primary">{t("avatar.title")}</h2>
 
           <span className="text-xs opacity-80">
             {t("avatar.current")}:<span className="text-accent ml-1">Lv {level}</span>
           </span>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 justify-items-center">
           {AVATARS.map((a) => {
             const unlocked = isAvatarUnlocked(a.id, level);
             const equipped = a.id === avatarId;
@@ -52,23 +43,12 @@ const AvatarPickerModal = ({ open, onClose }: Props) => {
                 disabled={!unlocked}
                 onClick={() => unlocked && setAvatar(a.id)}
                 className={[
-                  "pixel-btn-square",
-                  "flex",
-                  "flex-col",
-                  "items-center",
-                  "justify-start",
+                  "flex flex-col items-center",
+                  "w-[110px]",
+                  "min-h-[160px]",
                   "gap-2",
-                  "p-3",
-                  "min-h-[145px]",
-                  "overflow-visible",
-                  !unlocked
-                    ? "cursor-not-allowed opacity-90"
-                    : "cursor-pointer hover:scale-[1.02] transition-transform",
+                  unlocked ? "cursor-pointer" : "cursor-not-allowed opacity-70",
                 ].join(" ")}
-                style={{
-                  width: "100%",
-                  background: "hsl(28 25% 14%)",
-                }}
                 aria-label={a.name}
               >
                 <div
@@ -81,16 +61,10 @@ const AvatarPickerModal = ({ open, onClose }: Props) => {
                   ].join(" ")}
                   style={{
                     padding: 6,
+                    position: "relative",
                   }}
                 >
-                  <div
-                    style={{
-                      position: "relative",
-                      zIndex: 2,
-                    }}
-                  >
-                    {a.render(52)}
-                  </div>
+                  <div style={{ position: "relative", zIndex: 2 }}>{a.render(52)}</div>
 
                   <span aria-hidden className="avatar-rivet tl" />
                   <span aria-hidden className="avatar-rivet tr" />
@@ -102,17 +76,30 @@ const AvatarPickerModal = ({ open, onClose }: Props) => {
 
                 <div
                   className="
-                    pixel
-                    text-[10px]
-                    text-center
-                    leading-tight
-                    px-1
                     w-full
-                    break-words
-                    text-[hsl(var(--gold))]
+                    h-[24px]
+                    flex
+                    items-center
+                    justify-center
+                    border-2
+                    border-yellow-700
+                    bg-black/30
+                    px-1
                   "
                 >
-                  <T>{a.name}</T>
+                  <span
+                    className="
+                      pixel
+                      text-[10px]
+                      text-[hsl(var(--gold))]
+                      whitespace-nowrap
+                      overflow-hidden
+                      text-ellipsis
+                      max-w-full
+                    "
+                  >
+                    <T>{a.name}</T>
+                  </span>
                 </div>
 
                 {equipped ? (
@@ -120,11 +107,9 @@ const AvatarPickerModal = ({ open, onClose }: Props) => {
                     ✓ <T>{t("avatar.equipped")}</T>
                   </div>
                 ) : !unlocked ? (
-                  <div className="text-[9px] opacity-80 text-center px-1">
-                    <T>{t("avatar.locked").replace("{n}", String(a.unlockLevel))}</T>
-                  </div>
+                  <div className="text-[9px] text-center opacity-80">Lv {a.unlockLevel}</div>
                 ) : (
-                  <div className="text-[9px] opacity-70 text-center">Lv {a.unlockLevel}</div>
+                  <div className="text-[9px] text-center opacity-70">Available</div>
                 )}
               </button>
             );
@@ -132,7 +117,7 @@ const AvatarPickerModal = ({ open, onClose }: Props) => {
         </div>
 
         <div className="mt-5 flex justify-end">
-          <button onClick={onClose} className="pixel-btn text-sm">
+          <button onClick={onClose} className="pixel-btn text-xs">
             {t("avatar.close")}
           </button>
         </div>
