@@ -1,5 +1,6 @@
 import { useSettings } from "@/game/SettingsContext";
 import { AVATARS, isAvatarUnlocked, rarityFor } from "@/lib/avatars";
+import T from "@/components/T";
 
 type Props = {
   open: boolean;
@@ -19,27 +20,20 @@ const AvatarPickerModal = ({ open, onClose }: Props) => {
       aria-modal="true"
     >
       <div
-        className="
-          pixel-btn
-          border-accent
-          bg-background
-          w-full
-          max-w-2xl
-          p-4
-          max-h-[85vh]
-          overflow-y-auto
-        "
+        className="pixel-btn border-accent bg-background w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="pixel text-sm text-primary">{t("avatar.title")}</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6 border-b border-accent pb-3">
+          <h2 className="pixel text-2xl text-primary">{t("avatar.title")}</h2>
 
-          <span className="text-xs opacity-80">
+          <span className="pixel text-base opacity-90">
             {t("avatar.current")}:<span className="text-accent ml-1">Lv {level}</span>
           </span>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 justify-items-center">
+        {/* Avatar Grid */}
+        <div className="grid grid-cols-4 gap-4">
           {AVATARS.map((a) => {
             const unlocked = isAvatarUnlocked(a.id, level);
             const equipped = a.id === avatarId;
@@ -50,63 +44,74 @@ const AvatarPickerModal = ({ open, onClose }: Props) => {
                 key={a.id}
                 disabled={!unlocked}
                 onClick={() => unlocked && setAvatar(a.id)}
-                className={[
-                  "flex flex-col items-center gap-2",
-                  "w-[90px]",
-                  "min-h-[120px]",
-                  unlocked ? "cursor-pointer" : "cursor-not-allowed opacity-70",
-                ].join(" ")}
                 aria-label={a.name}
+                className={[
+                  "pixel-btn-square",
+                  "flex flex-col items-center justify-start",
+                  "gap-2 p-3",
+                  "min-h-[150px]",
+                  !unlocked ? "cursor-not-allowed" : "cursor-pointer",
+                ].join(" ")}
+                style={{
+                  width: "100%",
+                  background: "hsl(28 25% 14%)",
+                }}
               >
-                <div
-                  className={[
-                    "avatar-royal",
-                    "avatar-rarity-ring",
-                    rarity.className,
-                    equipped ? "avatar-royal--equipped" : "",
-                    !unlocked ? "avatar-royal--locked" : "",
-                  ].join(" ")}
-                  style={{
-                    padding: 4,
-                    position: "relative",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "relative",
-                      zIndex: 2,
-                    }}
-                  >
-                    {a.render(48)}
-                  </div>
-
-                  <span aria-hidden className="avatar-rivet tl" />
-                  <span aria-hidden className="avatar-rivet tr" />
-                  <span aria-hidden className="avatar-rivet bl" />
-                  <span aria-hidden className="avatar-rivet br" />
-
-                  {!unlocked && <span aria-hidden className="avatar-lock-overlay" />}
-                </div>
-
-                {equipped ? (
-                  <div className="pixel text-[10px] text-accent text-center">✓ Equipped</div>
-                ) : (
+                {/* Avatar */}
+                <div className="w-[72px] h-[72px] flex items-center justify-center">
                   <div
                     className={[
-                      "pixel text-[10px] text-center",
-                      unlocked ? "text-[hsl(var(--gold))]" : "text-red-300",
+                      "avatar-royal",
+                      "avatar-rarity-ring",
+                      rarity.className,
+                      equipped ? "avatar-royal--equipped" : "",
+                      !unlocked ? "avatar-royal--locked" : "",
                     ].join(" ")}
+                    style={{ padding: 4 }}
                   >
-                    Lv {a.unlockLevel}
+                    <div
+                      style={{
+                        position: "relative",
+                        zIndex: 2,
+                      }}
+                    >
+                      {a.render(56)}
+                    </div>
+
+                    <span aria-hidden className="avatar-rivet tl" />
+                    <span aria-hidden className="avatar-rivet tr" />
+                    <span aria-hidden className="avatar-rivet bl" />
+                    <span aria-hidden className="avatar-rivet br" />
+
+                    {!unlocked && <span aria-hidden className="avatar-lock-overlay" />}
                   </div>
+                </div>
+
+                {/* Name */}
+                <div className="pixel text-[10px] text-center leading-tight w-full px-1 text-[hsl(var(--gold))]">
+                  <T>{a.name}</T>
+                </div>
+
+                {/* Status */}
+                {equipped ? (
+                  <div className="text-[9px] text-accent text-center">
+                    ✓ <T>{t("avatar.equipped")}</T>
+                  </div>
+                ) : !unlocked ? (
+                  <div className="text-[8px] opacity-80 text-center px-1">
+                    <T>{t("avatar.locked").replace("{n}", String(a.unlockLevel))}</T>
+                  </div>
+                ) : (
+                  <div className="text-[8px] opacity-60 text-center">Lv {a.unlockLevel}</div>
                 )}
               </button>
             );
           })}
         </div>
 
-        <div className="mt-5 flex justify-end">
-          <button onClick={onClose} className="pixel-btn text-xs">
+        {/* Footer */}
+        <div className="mt-6 flex justify-end">
+          <button onClick={onClose} className="pixel-btn text-sm px-4 py-2">
             {t("avatar.close")}
           </button>
         </div>
